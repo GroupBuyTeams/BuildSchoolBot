@@ -56,5 +56,6 @@ namespace BuildSchoolBot
 
             // app.UseHttpsRedirection();
         }
+
     }
 }

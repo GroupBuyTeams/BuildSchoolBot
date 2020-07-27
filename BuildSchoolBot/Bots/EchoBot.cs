@@ -54,18 +54,12 @@ namespace BuildSchoolBot.Bots
                 await turnContext.SendActivityAsync(add, cancellationToken);//機器人傳送文字訊息
                
             }
-                
-            //else
-            //{
-            //    var replyText = $"Echo: {turnContext.Activity.Text}. Say 'wait' to watch me type.";//接收文字訊息
-            //    await turnContext.SendActivityAsync(MessageFactory.Text(replyText, replyText), cancellationToken);
-            //}
-
+            //抓地址
             string ob;
-            if(turnContext.Activity.Value != null) {
-                ob = turnContext.Activity.Value.ToString();
+            if(turnContext.Activity.Value != null) { //如果輸入框不是null
+                ob = turnContext.Activity.Value.ToString(); //ob 等於輸入框轉成的字串
                 //var input = Console.ReadLine();//輸入地址並印出來
-                string input = JsonConvert.DeserializeObject<addObj>(ob).address;
+                string input = JsonConvert.DeserializeObject<Address>(ob).Add;
                 var key = "AIzaSyAlKWP4uWjQIR3WDAWLAu6rUhBfc3_ppag";//金鑰
                 string requestUri = string.Format("https://maps.googleapis.com/maps/api/geocode/xml?key={1}&address={0}&sensor=false", Uri.EscapeDataString(input), key);
                 //string.Format將後面的物件轉成字串插入格式字串中的指定位置
@@ -74,7 +68,7 @@ namespace BuildSchoolBot.Bots
                 Stream responsestream = response.GetResponseStream(); //獲得response 裡的stream資料流
                 XDocument xdoc = XDocument.Load(responsestream);//從XDocument指定的資料流,放在xdoc裡
 
-                XElement result = xdoc.Element("GeocodeResponse").Element("result");//
+                XElement result = xdoc.Element("GeocodeResponse").Element("result");
                 XElement locationElement = result.Element("geometry").Element("location");
 
                 string lat = locationElement.Element("lat").Value;
@@ -88,6 +82,7 @@ namespace BuildSchoolBot.Bots
                 await turnContext.SendActivityAsync(MessageFactory.Text(replyText, replyText), cancellationToken);
             }
         }
+
         //添加成員會跑這個方法
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
@@ -100,10 +95,5 @@ namespace BuildSchoolBot.Bots
                 }
             }
         }
-    }
-
-    public class addObj
-    {
-        public string address { get; set; }
     }
 }

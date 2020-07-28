@@ -16,13 +16,16 @@
                 {
                   "type": "Image",
                   "size": "Large",
-                  "url": "https://i.imgur.com/HDljlM7.png"
+                  "url": "https://i.imgur.com/HDljlM7.png",
+                  "horizontalAlignment": "Center"
                 }
               ],
-              "imageSize": "Large"
+              "imageSize": "Large",
+              "horizontalAlignment": "Center"
             }
           ],
-          "spacing": "None"
+          "spacing": "None",
+          "horizontalAlignment": "Center"
         },
         {
           "type": "Column",

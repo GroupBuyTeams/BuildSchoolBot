@@ -29,19 +29,29 @@ namespace BuildSchoolBot.Bots
         //ting 開團
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            
+            var replyText = $"Echo: {turnContext.Activity.Text}";
+            await turnContext.SendActivityAsync(MessageFactory.Text(replyText, replyText), cancellationToken);
 
         }
 
         //添加成員會跑這個方法
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
-            var welcomeText = "Hello and welcome!";//添加成員會說這句話
             foreach (var member in membersAdded)
             {
                 if (member.Id != turnContext.Activity.Recipient.Id)
                 {
-                    await turnContext.SendActivityAsync(MessageFactory.Text(welcomeText, welcomeText), cancellationToken);
+                    var reply = MessageFactory.Text("Welcome to GruopBuyBot!");//有新成員加入,會開一個訊息回傳文字
+                    var paths = new[] { ".", "Resources", "IntroductionCard.json" };//New一個放在Resources裡的json檔
+                    var adaptiveCard = File.ReadAllText(Path.Combine(paths));//將paths的字串合併成一個路徑,並把他讀出來,放在變數裡面
+                    var attachment = new Attachment //新建一個附件
+                    {
+                        ContentType = AdaptiveCard.ContentType, //AdaptiveCard 的型態
+                        Content = JsonConvert.DeserializeObject(adaptiveCard),//把adaptiveCard字串轉換成json檔
+                    };
+                    reply.Attachments.Add(attachment);//回復reply這個訊息,附加上這個卡片
+
+                    await turnContext.SendActivityAsync(reply, cancellationToken); //機器人回傳這個訊息    
                 }
             }
         }

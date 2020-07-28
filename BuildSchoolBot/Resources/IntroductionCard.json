@@ -1,0 +1,70 @@
+﻿{
+  "type": "AdaptiveCard",
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "version": "1.2",
+  "body": [
+    {
+      "type": "ColumnSet",
+      "columns": [
+        {
+          "type": "Column",
+          "width": 25,
+          "items": [
+            {
+              "type": "ImageSet",
+              "images": [
+                {
+                  "type": "Image",
+                  "size": "Large",
+                  "url": "https://i.imgur.com/HDljlM7.png"
+                }
+              ],
+              "imageSize": "Large"
+            }
+          ],
+          "spacing": "None"
+        },
+        {
+          "type": "Column",
+          "width": 75,
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "GroupBuy",
+              "size": "Medium",
+              "weight": "Bolder"
+            },
+            {
+              "type": "TextBlock",
+              "text": "GroupBuy can let your crews and you start a group bought faster and easier. Also you are enable to plan a new group buy by scheduling \nit on this app.",
+              "wrap": true,
+              "height": "stretch",
+              "spacing": "Padding"
+            }
+          ],
+          "minHeight": "0px",
+          "style": "default",
+          "spacing": "Medium"
+        }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "size": "Medium",
+      "weight": "Bolder",
+      "text": "Here are some things you can do with this bot:"
+    },
+    {
+      "type": "TextBlock",
+      "text": "      • Initiate a goup buy"
+    },
+    {
+      "type": "TextBlock",
+      "text": "      • View your padt orders"
+    },
+    {
+      "type": "TextBlock",
+      "text": "      • Plan a schedule"
+    }
+  ]
+}

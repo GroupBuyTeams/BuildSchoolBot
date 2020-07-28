@@ -26,7 +26,6 @@ namespace BuildSchoolBot.Bots
         protected readonly Dialog Dialog;
         protected readonly BotState ConversationState;
         protected readonly BotState UserState;
-
         public EchoBot(ConversationState conversationState, UserState userState, T dialog){
             ConversationState = conversationState;
             UserState = userState;
@@ -38,17 +37,27 @@ namespace BuildSchoolBot.Bots
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
             await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
+
         }
 
         //�K�[�����|�]�o�Ӥ�k
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
-            var welcomeText = "Hello and welcome!";//�K�[�����|���o�y��
             foreach (var member in membersAdded)
             {
                 if (member.Id != turnContext.Activity.Recipient.Id)
                 {
-                    await turnContext.SendActivityAsync(MessageFactory.Text(welcomeText, welcomeText), cancellationToken);
+                    var reply = MessageFactory.Text("Welcome to GruopBuyBot!");//���s�����[�J,�|�}�@�ӰT���^�Ǥ�r
+                    var paths = new[] { ".", "Resources", "IntroductionCard.json" };//New�@�ө�bResources�̪�json��
+                    var adaptiveCard = File.ReadAllText(Path.Combine(paths));//�Npaths���r��X�֦��@�Ӹ��|,�ç�LŪ�X��,��b�ܼƸ̭�
+                    var attachment = new Attachment //�s�ؤ@�Ӫ���
+                    {
+                        ContentType = AdaptiveCard.ContentType, //AdaptiveCard �����A
+                        Content = JsonConvert.DeserializeObject(adaptiveCard),//��adaptiveCard�r���ഫ��json��
+                    };
+                    reply.Attachments.Add(attachment);//�^�_reply�o�ӰT��,���[�W�o�ӥd��
+
+                    await turnContext.SendActivityAsync(reply, cancellationToken); //�����H�^�ǳo�ӰT��    
                 }
             }
         }

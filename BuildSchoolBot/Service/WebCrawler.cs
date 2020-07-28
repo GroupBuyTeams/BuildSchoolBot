@@ -29,7 +29,7 @@ namespace BuildSchoolBot.Service
             var Store_document = await context.OpenAsync(res => res.Content(StoreInfoResult));
             //設定要爬蟲的資訊
             var StoreName = Store_document.QuerySelectorAll(".name");
-            var StoreUrl = Store_document.QuerySelectorAll(".hreview-aggregate");
+            var StoreUrl = Store_document.QuerySelectorAll("li a");
             //新增搜尋結果List
             List<Store> result_stores = new List<Store>();
 

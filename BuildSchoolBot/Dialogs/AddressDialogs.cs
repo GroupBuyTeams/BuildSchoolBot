@@ -67,18 +67,18 @@ namespace BuildSchoolBot.Dialogs
             {
                 string key = "AIzaSyAlKWP4uWjQIR3WDAWLAu6rUhBfc3_ppag";
                 string requestUri = string.Format("https://maps.googleapis.com/maps/api/geocode/xml?key={1}&address={0}&sensor=false", Uri.EscapeDataString(add), key);
-                //string.Format�N�᭱�������ন�r�괡�J�榡�r�ꤤ�����w��m
-                WebRequest request = WebRequest.Create(requestUri);//�Ыؤ@�ӷs���ШD
-                WebResponse response = request.GetResponse();//�h���^���ت�request�ШD,��GET API�^�Ǫ��� 
-                Stream responsestream = response.GetResponseStream(); //��oresponse �̪�stream��Ƭy
-                XDocument xdoc = XDocument.Load(responsestream);//�qXDocument���w����Ƭy,��bxdoc��
+                
+                WebRequest request = WebRequest.Create(requestUri);
+                WebResponse response = request.GetResponse();
+                Stream responsestream = response.GetResponseStream(); 
+                XDocument xdoc = XDocument.Load(responsestream);
 
                 XElement result = xdoc.Element("GeocodeResponse").Element("result");
                 XElement locationElement = result.Element("geometry").Element("location");
 
                 string lat = locationElement.Element("lat").Value;
                 string lng = locationElement.Element("lng").Value;
-                var latlng = new WebCrawler();//�ϥΪ��Ϊ���k
+                var latlng = new WebCrawler();
                 // string resuilt = await latlng.GetStores(lat, lng);//���g�n��
                 
                 await stepContext.Context.SendActivityAsync(MessageFactory.Text("OK."));

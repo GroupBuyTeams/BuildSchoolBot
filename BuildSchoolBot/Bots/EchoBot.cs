@@ -9,10 +9,9 @@ using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Teams;
 using Microsoft.Bot.Schema;
+using Microsoft.Bot.Builder.Dialogs;
 using BuildSchoolBot.Models;
 using AdaptiveCards;
-using Microsoft.Bot.Schema.Teams;
-using Newtonsoft.Json.Linq;
 using System.Net;
 using System.Xml.Linq;
 using System;
@@ -22,78 +21,54 @@ using BuildSchoolBot.Service;
 
 namespace BuildSchoolBot.Bots
 {
-    public class EchoBot : TeamsActivityHandler
+    public class EchoBot<T> : TeamsActivityHandler where T : Dialog
     {
-
-        //ting ¶}¹Î
-        protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
-        {
-            if (string.Equals(turnContext.Activity.Text, "Let's buy something", System.StringComparison.InvariantCultureIgnoreCase))
-            {
-                var add = MessageFactory.Text("No problem"); //¦^¶Ç¤å¦r 
-
-                string card = "{\r\n    \"type\": \"AdaptiveCard\",\r\n    \"$schema\": \"\",\r\n    \"version\": \"1.2\",\r\n    \"body\": [\r\n        {\r\n            \"type\": \"TextBlock\",\r\n            \"text\": \"Input your Address:\"\r\n        },\r\n        {\r\n            \"type\": \"Input.Text\",\r\n            \"placeholder\": \"Address\",\r\n            \"id\": \"address\"\r\n        },\r\n        {\r\n            \"type\": \"ActionSet\",\r\n            \"actions\": [\r\n                {\r\n                    \"type\": \"Action.Submit\",\r\n                    \"title\": \"Confirm\"\r\n                }\r\n            ]\r\n        }\r\n    ]\r\n}";
-
-                try
-                {
-                    var parsedResult = AdaptiveCard.FromJson(card);
-                    var attachment = new Attachment
-                    {
-                        ContentType = AdaptiveCard.ContentType,
-                        Content = parsedResult.Card,
-                        
-                    };
-                    add.Attachments.Add(attachment);
-                    
-                }
-                catch (AdaptiveSerializationException e)
-                {
-                    throw;
-                }
-
-                await turnContext.SendActivityAsync(add, cancellationToken);//¾÷¾¹¤H¶Ç°e¤å¦r°T®§
-               
-            }
-            //§ì¦a§}
-            string ob;
-            if(turnContext.Activity.Value != null) { //¦pªG¿é¤J®Ø¤£¬Onull
-                ob = turnContext.Activity.Value.ToString(); //ob µ¥©ó¿é¤J®ØÂà¦¨ªº¦r¦ê
-                //var input = Console.ReadLine();//¿é¤J¦a§}¨Ã¦L¥X¨Ó
-                string input = JsonConvert.DeserializeObject<Address>(ob).Add;
-                var key = "AIzaSyAlKWP4uWjQIR3WDAWLAu6rUhBfc3_ppag";//ª÷Æ_
-                string requestUri = string.Format("https://maps.googleapis.com/maps/api/geocode/xml?key={1}&address={0}&sensor=false", Uri.EscapeDataString(input), key);
-                //string.Format±N«á­±ªºª«¥óÂà¦¨¦r¦ê´¡¤J®æ¦¡¦r¦ê¤¤ªº«ü©w¦ì¸m
-                WebRequest request = WebRequest.Create(requestUri);//³Ð«Ø¤@­Ó·sªº½Ð¨D
-                WebResponse response = request.GetResponse();//¥h®³¦^­è­è«Øªºrequest½Ð¨D,¨ÃGET API¦^¶Çªº­È 
-                Stream responsestream = response.GetResponseStream(); //Àò±oresponse ¸Ìªºstream¸ê®Æ¬y
-                XDocument xdoc = XDocument.Load(responsestream);//±qXDocument«ü©wªº¸ê®Æ¬y,©ñ¦bxdoc¸Ì
-
-                XElement result = xdoc.Element("GeocodeResponse").Element("result");
-                XElement locationElement = result.Element("geometry").Element("location");
-
-                string lat = locationElement.Element("lat").Value;
-                string lng = locationElement.Element("lng").Value;
-
-                var latlng = new WebCrawler();//¨Ï¥Îª¦ÂÎªº¤èªk
-
-                await latlng.GetStores(lat, lng);//§ì¨ì¸g½n«×
-
-                var replyText = $"Echo: {turnContext.Activity.Text}. OK";//±µ¦¬¤å¦r°T®§
-                await turnContext.SendActivityAsync(MessageFactory.Text(replyText, replyText), cancellationToken);
-            }
+        protected readonly Dialog Dialog;
+        protected readonly BotState ConversationState;
+        protected readonly BotState UserState;
+        public EchoBot(ConversationState conversationState, UserState userState, T dialog){
+            ConversationState = conversationState;
+            UserState = userState;
+            Dialog = dialog;
         }
 
-        //²K¥[¦¨­û·|¶]³o­Ó¤èªk
+
+        //ting ï¿½}ï¿½ï¿½
+        protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
+        {
+            await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
+
+        }
+
+        //ï¿½Kï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½|ï¿½]ï¿½oï¿½Ó¤ï¿½k
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
-            var welcomeText = "Hello and welcome!";//²K¥[¦¨­û·|»¡³o¥y¸Ü
             foreach (var member in membersAdded)
             {
                 if (member.Id != turnContext.Activity.Recipient.Id)
                 {
-                    await turnContext.SendActivityAsync(MessageFactory.Text(welcomeText, welcomeText), cancellationToken);
+                    var reply = MessageFactory.Text("Welcome to GruopBuyBot!");//ï¿½ï¿½ï¿½sï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½J,ï¿½|ï¿½}ï¿½@ï¿½Ó°Tï¿½ï¿½ï¿½^ï¿½Ç¤ï¿½r
+                    var paths = new[] { ".", "Resources", "IntroductionCard.json" };//Newï¿½@ï¿½Ó©ï¿½bResourcesï¿½Ìªï¿½jsonï¿½ï¿½
+                    var adaptiveCard = File.ReadAllText(Path.Combine(paths));//ï¿½Npathsï¿½ï¿½ï¿½rï¿½ï¿½Xï¿½Ö¦ï¿½ï¿½@ï¿½Ó¸ï¿½ï¿½|,ï¿½Ã§ï¿½LÅªï¿½Xï¿½ï¿½,ï¿½ï¿½bï¿½Ü¼Æ¸Ì­ï¿½
+                    var attachment = new Attachment //ï¿½sï¿½Ø¤@ï¿½Óªï¿½ï¿½ï¿½
+                    {
+                        ContentType = AdaptiveCard.ContentType, //AdaptiveCard ï¿½ï¿½ï¿½ï¿½ï¿½A
+                        Content = JsonConvert.DeserializeObject(adaptiveCard),//ï¿½ï¿½adaptiveCardï¿½rï¿½ï¿½ï¿½à´«ï¿½ï¿½jsonï¿½ï¿½
+                    };
+                    reply.Attachments.Add(attachment);//ï¿½^ï¿½_replyï¿½oï¿½Ó°Tï¿½ï¿½,ï¿½ï¿½ï¿½[ï¿½Wï¿½oï¿½Ó¥dï¿½ï¿½
+
+                    await turnContext.SendActivityAsync(reply, cancellationToken); //ï¿½ï¿½ï¿½ï¿½ï¿½Hï¿½^ï¿½Ç³oï¿½Ó°Tï¿½ï¿½    
                 }
             }
+        }
+
+        public override async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default)
+        {
+            await base.OnTurnAsync(turnContext, cancellationToken);
+
+            // Save any state changes that might have occurred during the turn.
+            await ConversationState.SaveChangesAsync(turnContext, false, cancellationToken);
+            await UserState.SaveChangesAsync(turnContext, false, cancellationToken);
         }
     }
 }

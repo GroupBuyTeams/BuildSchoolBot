@@ -79,7 +79,7 @@ namespace BuildSchoolBot.Dialogs
                 string lat = locationElement.Element("lat").Value;
                 string lng = locationElement.Element("lng").Value;
                 var latlng = new WebCrawler();
-                // string resuilt = await latlng.GetStores(lat, lng);//���g�n��
+                // string resuilt = await la    tlng.GetStores(lat, lng);
                 
                 await stepContext.Context.SendActivityAsync(MessageFactory.Text("OK."));
                 // await stepContext.Context.SendActivityAsync(MessageFactory.Text(resuilt));

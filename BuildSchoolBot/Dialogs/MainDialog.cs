@@ -48,6 +48,8 @@ namespace BuildSchoolBot.Dialogs
             {
                 case "Buy":
                     return await stepContext.BeginDialogAsync(nameof(AddressDialogs));
+                case "History":
+                    return await stepContext.BeginDialogAsync(nameof(HistoryDialog));
                 default:
                     await stepContext.Context.SendActivityAsync(MessageFactory.Text("Your choise is not 'Buy'."));
                     return await stepContext.NextAsync();

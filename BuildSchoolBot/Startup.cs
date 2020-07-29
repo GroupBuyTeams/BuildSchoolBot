@@ -44,6 +44,7 @@ namespace BuildSchoolBot
 
             // The Dialog that will be run by the bot.
             services.AddSingleton<MainDialog>();
+            services.AddSingleton<HistoryDialog>();
             services.AddSingleton<AddressDialogs>();
 
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.

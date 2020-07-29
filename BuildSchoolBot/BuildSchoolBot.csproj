@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="AdaptiveCards" Version="1.2.4" />
+    <PackageReference Include="AdaptiveCards.Templating" Version="1.0.0" />
     <PackageReference Include="AngleSharp" Version="0.14.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.1" />
     <PackageReference Include="Microsoft.Bot.Builder.Dialogs" Version="4.9.4" />
@@ -29,6 +30,6 @@
     </Content>
   </ItemGroup>
 
-    <ProjectExtensions><VisualStudio><UserProperties resources_4introductioncard_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
+    <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="" resources_4introductioncard_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
 
 </Project>

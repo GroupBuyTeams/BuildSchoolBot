@@ -19,6 +19,7 @@ namespace BuildSchoolBot.Service
         public LatLngService(string add)
         {
             if (add != null)
+
             {
                 string key = "AIzaSyAlKWP4uWjQIR3WDAWLAu6rUhBfc3_ppag";
                 string requestUri = string.Format("https://maps.googleapis.com/maps/api/geocode/xml?key={1}&address={0}&sensor=false", Uri.EscapeDataString(add), key);

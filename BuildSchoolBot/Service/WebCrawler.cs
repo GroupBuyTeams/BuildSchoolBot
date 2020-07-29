@@ -28,8 +28,8 @@ namespace BuildSchoolBot.Service
             var StoreInfoResult = StoreInfoResponseMessage.Content.ReadAsStringAsync().Result;
             var Store_document = await context.OpenAsync(res => res.Content(StoreInfoResult));
             //設定要爬蟲的資訊
-            var StoreName = Store_document.QuerySelectorAll(".name");
-            var StoreUrl = Store_document.QuerySelectorAll(".hreview-aggregate");
+            var StoreName = Store_document.QuerySelectorAll(".vendor-list-section .name");
+            var StoreUrl = Store_document.QuerySelectorAll(".vendor-list-section li a");
             //新增搜尋結果List
             List<Store> result_stores = new List<Store>();
 

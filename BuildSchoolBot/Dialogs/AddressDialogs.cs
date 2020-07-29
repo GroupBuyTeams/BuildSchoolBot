@@ -79,10 +79,10 @@ namespace BuildSchoolBot.Dialogs
                 string lat = locationElement.Element("lat").Value;
                 string lng = locationElement.Element("lng").Value;
                 var latlng = new WebCrawler();//�ϥΪ��Ϊ���k
-                // string resuilt = await latlng.GetStores(lat, lng);//���g�n��
+                string resuilt = await latlng.GetStores(lat, lng);//���g�n��
                 
-                await stepContext.Context.SendActivityAsync(MessageFactory.Text("OK."));
-                // await stepContext.Context.SendActivityAsync(MessageFactory.Text(resuilt));
+                //await stepContext.Context.SendActivityAsync(MessageFactory.Text("OK."));
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text(resuilt));
             }else{
                 await stepContext.Context.SendActivityAsync(MessageFactory.Text("The address is invalid."));
             }

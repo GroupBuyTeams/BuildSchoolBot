@@ -30,7 +30,7 @@ namespace BuildSchoolBot.Service
             //設定要爬蟲的資訊
             var StoreName = Store_document.QuerySelectorAll(".vendor-list-section .name");
             var StoreUrl = Store_document.QuerySelectorAll(".vendor-list-section li a");
-            var StorePic = Store_document.QuerySelectorAll(".vendor-list-section picture");
+            var StorePic = Store_document.QuerySelectorAll(".vendor-list-section li a picture");
             //新增搜尋結果List
             List<Store> result_stores = new List<Store>();
 

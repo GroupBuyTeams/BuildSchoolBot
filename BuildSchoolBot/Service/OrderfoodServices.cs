@@ -20,75 +20,40 @@ namespace BuildSchoolBot.Service
     {
    
 
-            public async Task OnMessageActivityAsync(string json, WaterfallStepContext stepContext, CancellationToken cancellationToken)
-            {
-                var root = JsonConvert.SerializeObject(json);
-                var attachments = new List<Attachment>();
-                var reply = MessageFactory.Attachment(attachments);
-
-            //foreach (var p in root)
+            //public async Task OnMessageActivityAsync(string json, WaterfallStepContext stepContext, CancellationToken cancellationToken)
             //{
+            //    var root = JsonConvert.SerializeObject(json);
+            //    var attachments = new List<Attachment>();
+            //    var reply = MessageFactory.Attachment(attachments);
 
-            //    reply.Attachments.Add(GetStore());
+            ////foreach (var p in root)
+            ////{
+
+            ////    reply.Attachments.Add(GetStore());
+            ////}
+            //await stepContext.Context.SendActivityAsync(reply, cancellationToken);
             //}
-            await stepContext.Context.SendActivityAsync(reply, cancellationToken);
-            }
 
 
 
 
-            public Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(TaskModuleRequest taskModuleRequest)
+            public async Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(TaskModuleRequest taskModuleRequest)
             {
-            var fooditemdata = @"{
-                ""properties"": [
-                    {
-                        ""key"": ""蜂蜜鬆餅及紅茶(綠茶)"",
-                        ""value"": ""NT$70""
-                    },
-                    {
-                         ""key"": ""珍珠奶茶"",
-                        ""value"": ""NT$50""
-                    },
-                    {
-                        ""key"": ""果汁"",
-                        ""value"": ""NT$30""
-                    },
-                    {
-                        ""key"": ""ccccccc"",
-                        ""value"": ""NT$70""
-                    },
-                    {
-                        ""key"": ""bbbbbbbb"",
-                        ""value"": ""NT$70""
-                    },
-                    {
-                        ""key"": ""aaaaa"",
-                        ""value"": ""NT$70""
-                    },
-                    {
-                        ""key"": ""sacsac"",
-                        ""value"": ""NT$70""
-                    },
-                ]
-            }";
-            var asJobject = JObject.FromObject(taskModuleRequest.Data);
+                var asJobject = JObject.FromObject(taskModuleRequest.Data);
                 var value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
-
                 var taskInfo = new TaskModuleTaskInfo();
-                switch (value)
-                {
-                    case TaskModuleIds.AdaptiveCard:
-                        taskInfo.Card = CreateClickfoodModule(fooditemdata);
-                        SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
-                        break;
-                    default:
-                        break;
-                }
-
-                return Task.FromResult(taskInfo.ToTaskModuleResponse());
+                string Getmenujson = await new WebCrawler().GetOrderInfo(value);
+                JArray array = JArray.Parse(Getmenujson);
+                JObject o = new JObject();
+                o["Menuproperties"] = array;
+                string namejson = o.ToString();
+                taskInfo.Card = CreateClickfoodModule(namejson);
+                SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
+                return await Task.FromResult(taskInfo.ToTaskModuleResponse());
             }
 
-            protected async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
+
+        protected async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
             {
 
                 dynamic orderAttachitem = ((dynamic)taskModuleRequest.Data);
@@ -112,7 +77,7 @@ namespace BuildSchoolBot.Service
                 taskInfo.Title = uIConstants.Title.ToString();
             }
 
-            public  Attachment GetStore(string texta)
+            public  Attachment GetStore(string texta, string menuurl)
             {
                 // Create an Adaptive Card with an AdaptiveSubmitAction for each Task Module
                 var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2))
@@ -123,36 +88,31 @@ namespace BuildSchoolBot.Service
                         new AdaptiveTextBlock(){ Text=texta,Weight=AdaptiveTextWeight.Bolder, Size=AdaptiveTextSize.Large}
                     },
                     Actions = new[] { TaskModuleUIConstants.AdaptiveCard }
-                                .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle, Data = new AdaptiveCardTaskFetchValue<string>() { Data = cardType.Id } })
+                                .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle, Data = new AdaptiveCardTaskFetchValue<string>() { Data = menuurl } })
                                 .ToList<AdaptiveAction>(),
                 };
 
                 return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
             }
 
-        //public void Findmenudata(object sender, System.EventArgs e)
+        //public string Findmenu(string json,object sender)
         //{
-            
+        //    var rootmoduel = GetStoregroup(json);
+        //    JObject o = new JObject();
+        //    o["properties"] = rootmoduel;
+        //    string namejson = o.ToString();
+        //    var root = JsonConvert.DeserializeObject<Storenamegroup>(namejson);
+
+
+        //    string btn = (string)sender;
+
+        //    //var click = new System.EventHandler(this.Findmenudata).Target;
+        //    var menu = root.properties.FirstOrDefault(x => x.Store_Name.ToString().Equals((sender)));
+        //    var w = new WebCrawler();
+        //    var menujson = w.GetOrderInfo(menu.Store_Url);
+        //    var jsonmenudata = JsonConvert.SerializeObject(menujson);
+        //    return jsonmenudata;
         //}
-
-        public string Findmenu(string json,object sender)
-        {
-            var rootmoduel = GetStoregroup(json);
-            JObject o = new JObject();
-            o["properties"] = rootmoduel;
-            string namejson = o.ToString();
-            var root = JsonConvert.DeserializeObject<Storenamegroup>(namejson);
-
-
-            string btn = (string)sender;
-
-            //var click = new System.EventHandler(this.Findmenudata).Target;
-            var menu = root.properties.FirstOrDefault(x => x.Store_Name.ToString().Equals((sender)));
-            var w = new WebCrawler();
-            var menujson = w.GetOrderInfo(menu.Store_Url);
-            var jsonmenudata = JsonConvert.SerializeObject(menujson);
-            return jsonmenudata;
-        }
 
         private void MenuModule(AdaptiveColumnSet ColumnSetitem, string foodname, string money, int number)
             {
@@ -211,7 +171,7 @@ namespace BuildSchoolBot.Service
             }
 
 
-            private Attachment CreateClickfoodModule(string modulefoodjson)
+        private Attachment CreateClickfoodModule(string modulefoodjson)
             {
             //object a;
             //    var menudatajson= Findmenu(modulefoodjson, a)
@@ -232,23 +192,24 @@ namespace BuildSchoolBot.Service
                     ColumnSetitemname.Columns.Add(Columnitemsname);
                 }
 
-                var root = JsonConvert.DeserializeObject<foodgroup>(modulefoodjson);
-                card.Actions = new[] { TaskModuleUIConstants.AdaptiveCard }
+                    var root = JsonConvert.DeserializeObject<foodgroup>(modulefoodjson);
+                    card.Actions = new[] { TaskModuleUIConstants.AdaptiveCard }
                             .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle, Data = new AdaptiveCardTaskFetchValue<string>() { Data = "" } })
                             .ToList<AdaptiveAction>();
-                int count = 0;
-                card.Body.Add(ColumnSetitemname);
-                foreach (var p in root.properties)
-                {
-                    var ColumnSetitem = new AdaptiveColumnSet();
-                    MenuModule(ColumnSetitem, p.key, p.value, count);
-                    card.Body.Add(ColumnSetitem);
-                    count++;
-                }
-                return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+                    int count = 0;
+                    card.Body.Add(ColumnSetitemname);
+                    foreach (var p in root.Menuproperties)
+                        {
+                            var ColumnSetitem = new AdaptiveColumnSet();
+                            MenuModule(ColumnSetitem, p.Dish_Name, p.Price, count);
+                            card.Body.Add(ColumnSetitem);
+                            count++;
+                        }
+                    return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
             }
 
-            private static Attachment GetResultClickfood(string Clickfood)
+
+        private static Attachment GetResultClickfood(string Clickfood)
             {
                 // Create an Adaptive Card with an AdaptiveSubmitAction for each Task Module
                 var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2))

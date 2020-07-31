@@ -9,13 +9,14 @@ namespace BuildSchoolBot.StoreModels
     {
         public class fooditems
         {
-            public string key { get; set; }
-            public string value { get; set; }
+            public string Dish_Name { get; set; }
+            public string Price { get; set; }
         }
 
         public class foodgroup
         {
-            public List<fooditems> properties { get; set; }
+            public List<fooditems> Menuproperties { get; set; }
         }
+
     }
 }

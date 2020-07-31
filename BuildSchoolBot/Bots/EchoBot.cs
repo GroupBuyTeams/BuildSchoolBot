@@ -26,21 +26,36 @@ namespace BuildSchoolBot.Bots
         protected readonly Dialog Dialog;
         protected readonly BotState ConversationState;
         protected readonly BotState UserState;
-        public EchoBot(ConversationState conversationState, UserState userState, T dialog){
+        protected readonly LibraryService _libraryService;
+        public EchoBot(ConversationState conversationState, UserState userState, T dialog, LibraryService libraryService)
+        {
             ConversationState = conversationState;
             UserState = userState;
             Dialog = dialog;
+            _libraryService = libraryService;
         }
 
 
         //ting
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
+            if (turnContext.Activity.Text == "Library")
+            {
+                var memberId = turnContext.Activity.From.AadObjectId;
+
+                var library = await _libraryService.FindLibraryByMemberId(Guid.Parse(memberId));
+                var libraryCard = Service.LibraryService.CreateAdaptiveCardAttachment(library);
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(libraryCard), cancellationToken);
+            }
+            else
+            {
+
+                await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
+            }
 
         }
 
-        
+
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
             foreach (var member in membersAdded)
@@ -52,12 +67,12 @@ namespace BuildSchoolBot.Bots
                     var adaptiveCard = File.ReadAllText(Path.Combine(paths));
                     var attachment = new Attachment
                     {
-                        ContentType = AdaptiveCard.ContentType, 
+                        ContentType = AdaptiveCard.ContentType,
                         Content = JsonConvert.DeserializeObject(adaptiveCard),
                     };
                     reply.Attachments.Add(attachment);
 
-                    await turnContext.SendActivityAsync(reply, cancellationToken);  
+                    await turnContext.SendActivityAsync(reply, cancellationToken);
                 }
             }
         }

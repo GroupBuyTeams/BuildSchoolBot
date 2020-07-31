@@ -9,13 +9,13 @@ namespace BuildSchoolBot.StoreModels
     {
           public class Storenameitems
         {
-            public string StoreName { get; set; }
-            public string menuproperties { get; set; }
+            public string Store_Name { get; set; }
+            public string Store_Url { get; set; }
         }
 
-        //public class Storenamegroup
-        //{
-        //    public List<Storenameitems> properties { get; set; }
-        //}
+        public class Storenamegroup
+        {
+            public List<Storenameitems> properties { get; set; }
+        }
     }
 }

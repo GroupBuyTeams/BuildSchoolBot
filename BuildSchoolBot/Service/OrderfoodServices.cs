@@ -8,11 +8,13 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using static BuildSchoolBot.StoreModels.fooditem;
 using static BuildSchoolBot.StoreModels.GetStore;
+using static BuildSchoolBot.StoreModels.SelectMenu;
 
 namespace BuildSchoolBot.Service
 {
@@ -53,20 +55,38 @@ namespace BuildSchoolBot.Service
             }
 
 
-        protected async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
+        public async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
             {
+            var taskModuleRequestjson = JsonConvert.SerializeObject(taskModuleRequest.Data);
+            JObject data = JObject.Parse(taskModuleRequestjson);
+            data.Property("msteams").Remove();
+            data.Property("data").Remove();
+            var MenudataGroups = data.ToString();
+            var inputlist = new List<string>();
+            var inputname = new List<string>();
+            foreach (var item in data)
+            {
+                inputlist.Add(item.Value.ToString());
+                inputname.Add(item.Key.ToString());
+            }
+            //var taskModuleRequestjsonabc = JsonConvert.DeserializeObject(MenudataGroups);
+            var reply = MessageFactory.Text("OnTeamsTaskModuleSubmitAsync Value:"+ MenudataGroups);
+            await turnContext.SendActivityAsync(reply, cancellationToken);
 
-                dynamic orderAttachitem = ((dynamic)taskModuleRequest.Data);
-                string orderAttachitemtext = orderAttachitem.undefined;
+            return TaskModuleResponseFactory.CreateResponse("Thanks!");
 
-                var attachments = new List<Attachment>();
-                var reply = MessageFactory.Attachment(attachments);
 
-                //reply.Attachments.Add(GetResultClickfood(orderAttachitemtext));
+            //dynamic orderAttachitem = ((dynamic)taskModuleRequest.Data);
+            //    string orderAttachitemtext = orderAttachitem.undefined;
 
-                await turnContext.SendActivityAsync(reply, cancellationToken);
+            //    var attachments = new List<Attachment>();
+            //    var reply = MessageFactory.Attachment(attachments);
 
-                return TaskModuleResponseFactory.CreateResponse("感謝您的點餐");
+            //    //reply.Attachments.Add(GetResultClickfood(orderAttachitemtext));
+
+            //    await turnContext.SendActivityAsync(reply, cancellationToken);
+
+            //    return TaskModuleResponseFactory.CreateResponse("感謝您的點餐");
             }
 
 
@@ -114,7 +134,7 @@ namespace BuildSchoolBot.Service
         //    return jsonmenudata;
         //}
 
-        private void MenuModule(AdaptiveColumnSet ColumnSetitem, string foodname, string money, int number)
+        private void MenuModule(AdaptiveColumnSet ColumnSetitem, string foodname, string money,string Dishname)
             {
                 //食物名稱
                 ColumnSetitem.Separator = true;
@@ -142,7 +162,7 @@ namespace BuildSchoolBot.Service
                 Columnnumberitem.Width = AdaptiveColumnWidth.Stretch;
                 var containernumberiitem = new AdaptiveContainer();
                 var Inputnumberiitem = new AdaptiveNumberInput();
-                Inputnumberiitem.Id = "number" + number;
+                Inputnumberiitem.Id = Dishname+"Quantity"+money;
                 Inputnumberiitem.Placeholder = "Enter a number";
                 Inputnumberiitem.Min = 0;
                 Inputnumberiitem.Value = 0;
@@ -156,7 +176,7 @@ namespace BuildSchoolBot.Service
                 ColumnRemarksitem.Width = AdaptiveColumnWidth.Stretch;
                 var containerRemarksiitem = new AdaptiveContainer();
                 var InputRemarksiitem = new AdaptiveTextInput();
-                InputRemarksiitem.Id = "number" + number;
+                InputRemarksiitem.Id = Dishname + "Remarks"+ money;
                 containerRemarksiitem.Items.Add(InputRemarksiitem);
                 ColumnRemarksitem.Items.Add(containerRemarksiitem);
 
@@ -196,14 +216,12 @@ namespace BuildSchoolBot.Service
                     card.Actions = new[] { TaskModuleUIConstants.AdaptiveCard }
                             .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle, Data = new AdaptiveCardTaskFetchValue<string>() { Data = "" } })
                             .ToList<AdaptiveAction>();
-                    int count = 0;
                     card.Body.Add(ColumnSetitemname);
                     foreach (var p in root.Menuproperties)
                         {
                             var ColumnSetitem = new AdaptiveColumnSet();
-                            MenuModule(ColumnSetitem, p.Dish_Name, p.Price, count);
+                            MenuModule(ColumnSetitem, p.Dish_Name, p.Price, p.Dish_Name);
                             card.Body.Add(ColumnSetitem);
-                            count++;
                         }
                     return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
             }

@@ -79,6 +79,12 @@ namespace BuildSchoolBot.Bots
             var Menumodule = new OrderfoodServices();
             return Menumodule.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
         }
+        protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
+        {
+            var Menumodule = new OrderfoodServices();
+            return await Menumodule.OnTeamsTaskModuleSubmitAsync(turnContext, taskModuleRequest, cancellationToken);
+        }
+
 
     }
 }

@@ -20,8 +20,6 @@ namespace BuildSchoolBot.Service
 {
     public class OrderfoodServices
     {
-   
-
             //public async Task OnMessageActivityAsync(string json, WaterfallStepContext stepContext, CancellationToken cancellationToken)
             //{
             //    var root = JsonConvert.SerializeObject(json);
@@ -36,27 +34,22 @@ namespace BuildSchoolBot.Service
             //await stepContext.Context.SendActivityAsync(reply, cancellationToken);
             //}
 
-
-
-
-            public async Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(TaskModuleRequest taskModuleRequest)
-            {
-                var asJobject = JObject.FromObject(taskModuleRequest.Data);
-                var value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
-                var taskInfo = new TaskModuleTaskInfo();
-                string Getmenujson = await new WebCrawler().GetOrderInfo(value);
-                JArray array = JArray.Parse(Getmenujson);
-                JObject o = new JObject();
-                o["Menuproperties"] = array;
-                string namejson = o.ToString();
-                taskInfo.Card = CreateClickfoodModule(namejson);
-                SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
-                return await Task.FromResult(taskInfo.ToTaskModuleResponse());
-            }
-
-
+        public async Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(TaskModuleRequest taskModuleRequest)
+        {
+            var asJobject = JObject.FromObject(taskModuleRequest.Data);
+            var value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
+            var taskInfo = new TaskModuleTaskInfo();
+            string Getmenujson = await new WebCrawler().GetOrderInfo(value);
+            JArray array = JArray.Parse(Getmenujson);
+            JObject o = new JObject();
+            o["Menuproperties"] = array;
+            string namejson = o.ToString();
+            taskInfo.Card = CreateClickfoodModule(namejson);
+            SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
+            return await Task.FromResult(taskInfo.ToTaskModuleResponse());
+        }
         public async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
-            {
+        {
             var taskModuleRequestjson = JsonConvert.SerializeObject(taskModuleRequest.Data);
             JObject data = JObject.Parse(taskModuleRequestjson);
             data.Property("msteams").Remove();
@@ -75,7 +68,6 @@ namespace BuildSchoolBot.Service
 
             return TaskModuleResponseFactory.CreateResponse("Thanks!");
 
-
             //dynamic orderAttachitem = ((dynamic)taskModuleRequest.Data);
             //    string orderAttachitemtext = orderAttachitem.undefined;
 
@@ -87,33 +79,30 @@ namespace BuildSchoolBot.Service
             //    await turnContext.SendActivityAsync(reply, cancellationToken);
 
             //    return TaskModuleResponseFactory.CreateResponse("感謝您的點餐");
-            }
+        }
 
-
-            private static void SetTaskInfo(TaskModuleTaskInfo taskInfo, UISettings uIConstants)
+        private static void SetTaskInfo(TaskModuleTaskInfo taskInfo, UISettings uIConstants)
+        {
+            taskInfo.Height = uIConstants.Height;
+            taskInfo.Width = uIConstants.Width;
+            taskInfo.Title = uIConstants.Title.ToString();
+        }
+        public  Attachment GetStore(string texta, string menuurl)
+        {
+            // Create an Adaptive Card with an AdaptiveSubmitAction for each Task Module
+            var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2))
             {
-                taskInfo.Height = uIConstants.Height;
-                taskInfo.Width = uIConstants.Width;
-                taskInfo.Title = uIConstants.Title.ToString();
-            }
 
-            public  Attachment GetStore(string texta, string menuurl)
-            {
-                // Create an Adaptive Card with an AdaptiveSubmitAction for each Task Module
-                var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2))
+                Body = new List<AdaptiveElement>()
                 {
-
-                    Body = new List<AdaptiveElement>()
-                    {
-                        new AdaptiveTextBlock(){ Text=texta,Weight=AdaptiveTextWeight.Bolder, Size=AdaptiveTextSize.Large}
-                    },
-                    Actions = new[] { TaskModuleUIConstants.AdaptiveCard }
+                   new AdaptiveTextBlock(){ Text=texta,Weight=AdaptiveTextWeight.Bolder, Size=AdaptiveTextSize.Large}
+                },
+                  Actions = new[] { TaskModuleUIConstants.AdaptiveCard }
                                 .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle, Data = new AdaptiveCardTaskFetchValue<string>() { Data = menuurl } })
                                 .ToList<AdaptiveAction>(),
-                };
-
-                return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
-            }
+             };
+             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+        }
 
         //public string Findmenu(string json,object sender)
         //{
@@ -133,120 +122,105 @@ namespace BuildSchoolBot.Service
         //    var jsonmenudata = JsonConvert.SerializeObject(menujson);
         //    return jsonmenudata;
         //}
-
         private void MenuModule(AdaptiveColumnSet ColumnSetitem, string foodname, string money,string Dishname)
-            {
-                //食物名稱
-                ColumnSetitem.Separator = true;
-                var Columnfooditem = new AdaptiveColumn();
-                Columnfooditem.Width = AdaptiveColumnWidth.Stretch;
-                var containerfoodiitem = new AdaptiveContainer();
-                var TextBlockfoodiitem = new AdaptiveTextBlock();
-                TextBlockfoodiitem.Text = foodname;
-                containerfoodiitem.Items.Add(TextBlockfoodiitem);
-                Columnfooditem.Items.Add(containerfoodiitem);
+        {
+            //食物名稱
+            ColumnSetitem.Separator = true;
+            var Columnfooditem = new AdaptiveColumn();
+            Columnfooditem.Width = AdaptiveColumnWidth.Stretch;
+            var containerfoodiitem = new AdaptiveContainer();
+            var TextBlockfoodiitem = new AdaptiveTextBlock();
+            TextBlockfoodiitem.Text = foodname;
+            containerfoodiitem.Items.Add(TextBlockfoodiitem);
+            Columnfooditem.Items.Add(containerfoodiitem);
 
+            //錢
+            var Columnmoneyitem = new AdaptiveColumn();
+            Columnmoneyitem.Width = AdaptiveColumnWidth.Stretch;
+            var containermoneyiitem = new AdaptiveContainer();
+            var TextBlockmoneyiitem = new AdaptiveTextBlock();
+            TextBlockmoneyiitem.Text = money;
+            containermoneyiitem.Items.Add(TextBlockmoneyiitem);
+            Columnmoneyitem.Items.Add(containermoneyiitem);
 
-                //錢
-                var Columnmoneyitem = new AdaptiveColumn();
-                Columnmoneyitem.Width = AdaptiveColumnWidth.Stretch;
-                var containermoneyiitem = new AdaptiveContainer();
-                var TextBlockmoneyiitem = new AdaptiveTextBlock();
-                TextBlockmoneyiitem.Text = money;
-                containermoneyiitem.Items.Add(TextBlockmoneyiitem);
-                Columnmoneyitem.Items.Add(containermoneyiitem);
+            //數量
+            var Columnnumberitem = new AdaptiveColumn();
+            Columnnumberitem.Width = AdaptiveColumnWidth.Stretch;
+            var containernumberiitem = new AdaptiveContainer();
+            var Inputnumberiitem = new AdaptiveNumberInput();
+            Inputnumberiitem.Id = Dishname+"Quantity"+money;
+            Inputnumberiitem.Placeholder = "Enter a number";
+            Inputnumberiitem.Min = 0;
+            Inputnumberiitem.Value = 0;
+            containernumberiitem.Items.Add(Inputnumberiitem);
+            Columnnumberitem.Items.Add(containernumberiitem);
 
+            //備註
+            var ColumnRemarksitem = new AdaptiveColumn();
+            ColumnRemarksitem.Width = AdaptiveColumnWidth.Stretch;
+            var containerRemarksiitem = new AdaptiveContainer();
+            var InputRemarksiitem = new AdaptiveTextInput();
+            InputRemarksiitem.Id = Dishname + "Remarks"+ money;
+            containerRemarksiitem.Items.Add(InputRemarksiitem);
+            ColumnRemarksitem.Items.Add(containerRemarksiitem);
 
-                //數量
-                var Columnnumberitem = new AdaptiveColumn();
-                Columnnumberitem.Width = AdaptiveColumnWidth.Stretch;
-                var containernumberiitem = new AdaptiveContainer();
-                var Inputnumberiitem = new AdaptiveNumberInput();
-                Inputnumberiitem.Id = Dishname+"Quantity"+money;
-                Inputnumberiitem.Placeholder = "Enter a number";
-                Inputnumberiitem.Min = 0;
-                Inputnumberiitem.Value = 0;
-                containernumberiitem.Items.Add(Inputnumberiitem);
-                Columnnumberitem.Items.Add(containernumberiitem);
-
-
-
-                //備註
-                var ColumnRemarksitem = new AdaptiveColumn();
-                ColumnRemarksitem.Width = AdaptiveColumnWidth.Stretch;
-                var containerRemarksiitem = new AdaptiveContainer();
-                var InputRemarksiitem = new AdaptiveTextInput();
-                InputRemarksiitem.Id = Dishname + "Remarks"+ money;
-                containerRemarksiitem.Items.Add(InputRemarksiitem);
-                ColumnRemarksitem.Items.Add(containerRemarksiitem);
-
-
-                ColumnSetitem.Columns.Add(Columnfooditem);
-                ColumnSetitem.Columns.Add(Columnmoneyitem);
-                ColumnSetitem.Columns.Add(Columnnumberitem);
-                ColumnSetitem.Columns.Add(ColumnRemarksitem);
-
-
-
-            }
-
-
+            ColumnSetitem.Columns.Add(Columnfooditem);
+            ColumnSetitem.Columns.Add(Columnmoneyitem);
+            ColumnSetitem.Columns.Add(Columnnumberitem);
+            ColumnSetitem.Columns.Add(ColumnRemarksitem);
+         }
         private Attachment CreateClickfoodModule(string modulefoodjson)
-            {
+         {
             //object a;
             //    var menudatajson= Findmenu(modulefoodjson, a)
-                var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
-                string[] itemsname = new string[] { "菜名", "價錢", "數量", "備註" };
-                var ColumnSetitemname = new AdaptiveColumnSet();
+            var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
+            string[] itemsname = new string[] { "菜名", "價錢", "數量", "備註" };
+            var ColumnSetitemname = new AdaptiveColumnSet();
 
-                ColumnSetitemname.Separator = true;
-                for (int i = 0; i < itemsname.Length; i++)
-                {
-                    var Columnitemsname = new AdaptiveColumn();
-                    Columnitemsname.Width = AdaptiveColumnWidth.Stretch;
-                    var containeritemsname = new AdaptiveContainer();
-                    var TextBlockitemsname = new AdaptiveTextBlock();
-                    TextBlockitemsname.Text = itemsname[i];
-                    containeritemsname.Items.Add(TextBlockitemsname);
-                    Columnitemsname.Items.Add(containeritemsname);
-                    ColumnSetitemname.Columns.Add(Columnitemsname);
-                }
-
-                    var root = JsonConvert.DeserializeObject<foodgroup>(modulefoodjson);
-                    card.Actions = new[] { TaskModuleUIConstants.AdaptiveCard }
-                            .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle, Data = new AdaptiveCardTaskFetchValue<string>() { Data = "" } })
-                            .ToList<AdaptiveAction>();
-                    card.Body.Add(ColumnSetitemname);
-                    foreach (var p in root.Menuproperties)
-                        {
-                            var ColumnSetitem = new AdaptiveColumnSet();
-                            MenuModule(ColumnSetitem, p.Dish_Name, p.Price, p.Dish_Name);
-                            card.Body.Add(ColumnSetitem);
-                        }
-                    return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+            ColumnSetitemname.Separator = true;
+            for (int i = 0; i < itemsname.Length; i++)
+             {
+                var Columnitemsname = new AdaptiveColumn();
+                Columnitemsname.Width = AdaptiveColumnWidth.Stretch;
+                var containeritemsname = new AdaptiveContainer();
+                var TextBlockitemsname = new AdaptiveTextBlock();
+                TextBlockitemsname.Text = itemsname[i];
+                containeritemsname.Items.Add(TextBlockitemsname);
+                Columnitemsname.Items.Add(containeritemsname);
+                ColumnSetitemname.Columns.Add(Columnitemsname);
             }
 
+            var root = JsonConvert.DeserializeObject<foodgroup>(modulefoodjson);
+            card.Actions = new[] { TaskModuleUIConstants.AdaptiveCard }
+                   .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle, Data = new AdaptiveCardTaskFetchValue<string>() { Data = "" } })
+                    .ToList<AdaptiveAction>();
+            card.Body.Add(ColumnSetitemname);
+            foreach (var p in root.Menuproperties)
+            {
+                var ColumnSetitem = new AdaptiveColumnSet();
+                MenuModule(ColumnSetitem, p.Dish_Name, p.Price, p.Dish_Name);
+                card.Body.Add(ColumnSetitem);
+            }
+               return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+        }
 
         private static Attachment GetResultClickfood(string Clickfood)
-            {
+        {
                 // Create an Adaptive Card with an AdaptiveSubmitAction for each Task Module
-                var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2))
+            var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2))
+            {
+
+                Body = new List<AdaptiveElement>()
                 {
-
-                    Body = new List<AdaptiveElement>()
-                    {
-                        new AdaptiveTextBlock(){ Text=Clickfood,Weight=AdaptiveTextWeight.Bolder, Size=AdaptiveTextSize.Large}
-                    }
-                };
-
-                return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
-            }
-
+                    new AdaptiveTextBlock(){ Text=Clickfood,Weight=AdaptiveTextWeight.Bolder, Size=AdaptiveTextSize.Large}
+                }
+            };
+            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+        }
         public JArray GetStoregroup(string json)
         {
             JArray array = JArray.Parse(json);
             return array;
         }
     }
-   
 }

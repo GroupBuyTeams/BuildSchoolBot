@@ -42,9 +42,7 @@ namespace BuildSchoolBot.Dialogs
             string add = (string)stepContext.Result;
             var LatLng = new LatLngService(add);
             string result = await new WebCrawler().GetStores(LatLng.lat, LatLng.lng);
-            await stepContext.Context.SendActivityAsync(MessageFactory.Text(result));
-
-
+            //await stepContext.Context.SendActivityAsync(MessageFactory.Text(result)); //顯示菜單字串
             //范育銨
             var w = new OrderfoodServices();
             var Storedata = w.GetStoregroup(result);

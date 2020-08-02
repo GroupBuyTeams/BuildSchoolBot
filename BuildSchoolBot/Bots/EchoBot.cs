@@ -18,6 +18,7 @@ using System;
 using System.IO;
 using Newtonsoft.Json;
 using BuildSchoolBot.Service;
+using Microsoft.Bot.Schema.Teams;
 
 namespace BuildSchoolBot.Bots
 {
@@ -97,5 +98,20 @@ namespace BuildSchoolBot.Bots
             await ConversationState.SaveChangesAsync(turnContext, false, cancellationToken);
             await UserState.SaveChangesAsync(turnContext, false, cancellationToken);
         }
+
+
+        //­S¨|»Ï
+        protected override Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
+        {
+            var Menumodule = new OrderfoodServices();
+            return Menumodule.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
+        }
+        protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
+        {
+            var Menumodule = new OrderfoodServices();
+            return await Menumodule.OnTeamsTaskModuleSubmitAsync(turnContext, taskModuleRequest, cancellationToken);
+        }
+
+
     }
 }

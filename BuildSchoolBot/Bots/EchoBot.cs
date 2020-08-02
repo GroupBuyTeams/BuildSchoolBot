@@ -18,6 +18,10 @@ using System;
 using System.IO;
 using Newtonsoft.Json;
 using BuildSchoolBot.Service;
+using Microsoft.Extensions.Configuration;
+using System.Linq;
+using Microsoft.Bot.Schema.Teams;
+using BuildSchoolBot.StoreModels;
 
 namespace BuildSchoolBot.Bots
 {
@@ -26,7 +30,8 @@ namespace BuildSchoolBot.Bots
         protected readonly Dialog Dialog;
         protected readonly BotState ConversationState;
         protected readonly BotState UserState;
-        public EchoBot(ConversationState conversationState, UserState userState, T dialog){
+        public EchoBot(ConversationState conversationState, UserState userState, T dialog)
+        {
             ConversationState = conversationState;
             UserState = userState;
             Dialog = dialog;
@@ -37,10 +42,11 @@ namespace BuildSchoolBot.Bots
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
             await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
-
+            var reply = MessageFactory.Attachment(new[] { GetMenuModuleAdaptiveCard() });
+            await turnContext.SendActivityAsync(reply, cancellationToken);
         }
 
-        
+
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
             foreach (var member in membersAdded)
@@ -52,12 +58,12 @@ namespace BuildSchoolBot.Bots
                     var adaptiveCard = File.ReadAllText(Path.Combine(paths));
                     var attachment = new Attachment
                     {
-                        ContentType = AdaptiveCard.ContentType, 
+                        ContentType = AdaptiveCard.ContentType,
                         Content = JsonConvert.DeserializeObject(adaptiveCard),
                     };
                     reply.Attachments.Add(attachment);
 
-                    await turnContext.SendActivityAsync(reply, cancellationToken);  
+                    await turnContext.SendActivityAsync(reply, cancellationToken);
                 }
             }
         }
@@ -69,6 +75,34 @@ namespace BuildSchoolBot.Bots
             // Save any state changes that might have occurred during the turn.
             await ConversationState.SaveChangesAsync(turnContext, false, cancellationToken);
             await UserState.SaveChangesAsync(turnContext, false, cancellationToken);
+        }
+        //§d®aÄ_
+        protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
+        {
+            var reply = MessageFactory.Text("OnTeamsTaskModuleSubmitAsync Value: " + JsonConvert.SerializeObject(taskModuleRequest));
+            await turnContext.SendActivityAsync(reply, cancellationToken);
+
+            return TaskModuleResponseFactory.CreateResponse("Thanks!");
+        }
+        public async Task StoreMenu(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
+        {
+            var reply = MessageFactory.Attachment(new[] { GetMenuModuleAdaptiveCard() });
+            await turnContext.SendActivityAsync(reply, cancellationToken);
+        }
+        private static Attachment GetMenuModuleAdaptiveCard()
+        {
+            var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2))
+            {
+                Body = new List<AdaptiveElement>()
+                    {
+                        new AdaptiveTextBlock(){ Text="Task Module Invocation from Adaptive Card", Weight=AdaptiveTextWeight.Bolder, Size=AdaptiveTextSize.Large}
+                    },
+                Actions = new[] { OrderModuleObj.Submit, OrderModuleObj.Close }
+                            .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle, Data = new Models.AdaptiveCardTaskFetchValue<string>() { Data = cardType.Id } })
+                            .ToList<AdaptiveAction>(),
+            };
+
+            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
     }
 }

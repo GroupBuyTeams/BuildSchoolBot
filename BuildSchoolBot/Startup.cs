@@ -21,6 +21,7 @@ using BuildSchoolBot.Scheduler.Jobs;
 using BuildSchoolBot.Scheduler;
 using BuildSchoolBot.Models;
 using BuildSchoolBot.Service;
+using BuildSchoolBot.Repository;
 
 namespace BuildSchoolBot
 {
@@ -70,6 +71,7 @@ namespace BuildSchoolBot
             services.AddSingleton<NoteBuy>();
             services.AddHostedService<QuartzHostedService>();
             services.AddTransient<TeamsBuyContext>();
+            services.AddTransient<EGRepository<Library>>();
             services.AddTransient<LibraryService>();
         }
 

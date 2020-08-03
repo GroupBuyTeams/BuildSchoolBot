@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using AdaptiveCards;
 using BuildSchoolBot.Models;
+using BuildSchoolBot.Repository;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
 
@@ -11,10 +13,12 @@ namespace BuildSchoolBot.Service
 {
     public class LibraryService
     {
-        private TeamsBuyContext _db;
-        public LibraryService(TeamsBuyContext db)
+        private TeamsBuyContext _context;
+        private EGRepository<Library> _repo;
+        public LibraryService(TeamsBuyContext context, EGRepository<Library> repo)
         {
-            _db = db;
+            _context = context;
+            _repo = repo;
         }
         public void CreateLibraryItem(Guid memberId, string Uri, string libraryName)
         {
@@ -26,20 +30,20 @@ namespace BuildSchoolBot.Service
                 LibraryName = libraryName
             };
 
-            _db.Library.Add(entity);
-            _db.SaveChanges();
+            _repo.Create(entity);
+            _context.SaveChanges();
         }
         public void DeleteLibraryItem(Guid libraryId)
         {
 
-            var entity = _db.Library.FirstOrDefault(x => x.LibraryId.Equals(libraryId));
+            var entity = _repo.GetAll().FirstOrDefault(x => x.LibraryId.Equals(libraryId));
 
-            _db.Library.Remove(entity);
-            _db.SaveChanges();
+            _repo.Delete(entity);
+            _context.SaveChanges();
         }
         public async Task<List<Library>> FindLibraryByMemberId(Guid memberId)
         {
-            var result = _db.Library.Where(x => x.MemberId == memberId).ToList();
+            var result = _repo.GetAll().Where(x => x.MemberId == memberId).ToList();
             return await Task.FromResult(result);
         }
         public static Attachment CreateAdaptiveCardAttachment(List<Library> library)
@@ -51,7 +55,7 @@ namespace BuildSchoolBot.Service
             var libraryCardItemJson = File.ReadAllText(Path.Combine(pathsItem));
             var obj = JsonConvert.DeserializeObject<dynamic>(libraryCardJson);
             var objItem = JsonConvert.DeserializeObject<dynamic>(libraryCardItemJson);
-
+            var card = AdaptiveCards.AdaptiveCard.FromJson(libraryCardJson).Card;
             library.ForEach(item =>
             {
                 objItem.columns[1].items[0].text.Value = item.LibraryName;

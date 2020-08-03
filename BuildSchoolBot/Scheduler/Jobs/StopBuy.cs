@@ -1,6 +1,7 @@
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Schema;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Quartz;
 using System;
@@ -14,16 +15,15 @@ namespace BuildSchoolBot.Scheduler.Jobs
     //[DisallowConcurrentExecution]
     public class StopBuy : IJob
     {
-        private readonly ILogger<NoteBuy> _logger;
         private readonly IBotFrameworkHttpAdapter Adapter;
         private readonly ConcurrentDictionary<string, ConversationReference> ConversationReferences;
         private readonly string AppId;
         private string Message;
-        public StopBuy(ILogger<NoteBuy> logger, IBotFrameworkHttpAdapter adapter, ConcurrentDictionary<string, ConversationReference> conversationReferences)
+        public StopBuy(IConfiguration configuration, IBotFrameworkHttpAdapter adapter, ConcurrentDictionary<string, ConversationReference> conversationReferences)
         {
-            _logger = logger;
             Adapter = adapter;
             ConversationReferences = conversationReferences;
+            AppId = configuration["MicrosoftAppId"];
 
             // If the channel is the Emulator, and authentication is not in use,
             // the AppId will be null.  We generate a random AppId for this case only.
@@ -38,7 +38,7 @@ namespace BuildSchoolBot.Scheduler.Jobs
         {
             string UserId = context.MergedJobDataMap.GetString("UserId");
             Message = "Stop buying!";
-
+            Console.WriteLine(Message);
             var conversationReference = ConversationReferences.GetValueOrDefault(UserId);
             await ((BotAdapter)Adapter).ContinueConversationAsync(AppId, conversationReference, BotCallback, default(CancellationToken));
         }

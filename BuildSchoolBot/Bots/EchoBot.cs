@@ -21,7 +21,6 @@ using BuildSchoolBot.Service;
 using Microsoft.Bot.Schema.Teams;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
-using Microsoft.Bot.Schema.Teams;
 using BuildSchoolBot.StoreModels;
 
 namespace BuildSchoolBot.Bots
@@ -97,45 +96,6 @@ namespace BuildSchoolBot.Bots
             // Save any state changes that might have occurred during the turn.
             await ConversationState.SaveChangesAsync(turnContext, false, cancellationToken);
             await UserState.SaveChangesAsync(turnContext, false, cancellationToken);
-        }
-        //§d®aÄ_
-        protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
-        {
-            var reply = MessageFactory.Text("OnTeamsTaskModuleSubmitAsync Value: " + JsonConvert.SerializeObject(taskModuleRequest));
-            await turnContext.SendActivityAsync(reply, cancellationToken);
-
-            return TaskModuleResponseFactory.CreateResponse("Thanks!");
-        }
-        public async Task StoreMenu(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
-        {
-            var reply = MessageFactory.Attachment(new[] { GetMenuModuleAdaptiveCard() });
-            await turnContext.SendActivityAsync(reply, cancellationToken);
-        }
-        private static Attachment GetMenuModuleAdaptiveCard()
-        {
-            var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2))
-            {
-                Body = new List<AdaptiveElement>()
-                    {
-                        new AdaptiveTextBlock(){ Text="Task Module Invocation from Adaptive Card", Weight=AdaptiveTextWeight.Bolder, Size=AdaptiveTextSize.Large}
-                    },
-                Actions = new[] { OrderModuleObj.Submit, OrderModuleObj.Close }
-                            .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle, Data = new Models.AdaptiveCardTaskFetchValue<string>() { Data = cardType.Id } })
-                            .ToList<AdaptiveAction>(),
-            };
-
-            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
-        }
-
-        protected override Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
-        {
-            var Menumodule = new OrderfoodServices();
-            return Menumodule.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
-        }
-        protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
-        {
-            var Menumodule = new OrderfoodServices();
-            return await Menumodule.OnTeamsTaskModuleSubmitAsync(turnContext, taskModuleRequest, cancellationToken);
         }
     }
 }

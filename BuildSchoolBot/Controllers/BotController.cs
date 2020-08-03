@@ -34,11 +34,5 @@ namespace BuildSchoolBot.Controllers
             // The adapter will invoke the bot.
             await Adapter.ProcessAsync(Request, Response, Bot);
         }
-        //[HttpPost]
-        //public ActionResult ShowOrder(string OrderId)
-        //{
-        //    var showorder = new OrderDetailService();
-        //    return 
-        //}
     }
 }

@@ -4,6 +4,7 @@
 // Generated with Bot Builder V4 SDK Template for Visual Studio EchoBot v4.9.2
 
 using System.Threading.Tasks;
+using BuildSchoolBot.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
@@ -33,5 +34,11 @@ namespace BuildSchoolBot.Controllers
             // The adapter will invoke the bot.
             await Adapter.ProcessAsync(Request, Response, Bot);
         }
+        //[HttpPost]
+        //public ActionResult ShowOrder(string OrderId)
+        //{
+        //    var showorder = new OrderDetailService();
+        //    return 
+        //}
     }
 }

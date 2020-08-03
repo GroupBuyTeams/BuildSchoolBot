@@ -6,7 +6,7 @@ namespace BuildSchoolBot.Models
 {
     public partial class TeamsBuyContext : DbContext
     {
-        public TeamsBuyContext()
+        public TeamsBuyContext()          
         {
         }
 

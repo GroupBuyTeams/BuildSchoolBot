@@ -18,6 +18,7 @@ using System;
 using System.IO;
 using Newtonsoft.Json;
 using BuildSchoolBot.Service;
+using Microsoft.Bot.Schema.Teams;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
 using Microsoft.Bot.Schema.Teams;
@@ -30,22 +31,43 @@ namespace BuildSchoolBot.Bots
         protected readonly Dialog Dialog;
         protected readonly BotState ConversationState;
         protected readonly BotState UserState;
-        public EchoBot(ConversationState conversationState, UserState userState, T dialog)
+        protected readonly LibraryService _libraryService;
+        public EchoBot(ConversationState conversationState, UserState userState, T dialog, LibraryService libraryService)
         {
             ConversationState = conversationState;
             UserState = userState;
             Dialog = dialog;
+            _libraryService = libraryService;
         }
-
-
-        //ting
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
-            var reply = MessageFactory.Attachment(new[] { GetMenuModuleAdaptiveCard() });
-            await turnContext.SendActivityAsync(reply, cancellationToken);
-        }
+            // var memberId = turnContext.Activity.From.AadObjectId;
+            var memberId = "EC7A25B7-6EEB-4FB5-BE96-2FA8B166EAFA";
+            Guid guid;
 
+            if (turnContext.Activity.Text == "Library")
+            {
+                Guid.TryParse(memberId, out guid);
+                var library = await _libraryService.FindLibraryByMemberId(guid);
+                var libraryCard = Service.LibraryService.CreateAdaptiveCardAttachment(library);
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(libraryCard), cancellationToken);
+            }
+            else if (turnContext.Activity.Text == "DeletedLibrary")
+            {
+                dynamic obj = turnContext.Activity.Value;
+                var LibraryId = obj.LibraryId;
+
+                Guid.TryParse(LibraryId.ToString(), out guid);
+                _libraryService.DeleteLibraryItem(guid);
+
+            }
+            else
+            {
+
+                await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
+            }
+
+        }
 
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
@@ -103,6 +125,17 @@ namespace BuildSchoolBot.Bots
             };
 
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+        }
+
+        protected override Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
+        {
+            var Menumodule = new OrderfoodServices();
+            return Menumodule.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
+        }
+        protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
+        {
+            var Menumodule = new OrderfoodServices();
+            return await Menumodule.OnTeamsTaskModuleSubmitAsync(turnContext, taskModuleRequest, cancellationToken);
         }
     }
 }

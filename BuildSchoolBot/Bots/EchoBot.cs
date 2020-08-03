@@ -18,6 +18,7 @@ using System;
 using System.IO;
 using Newtonsoft.Json;
 using BuildSchoolBot.Service;
+using Microsoft.Bot.Schema.Teams;
 
 namespace BuildSchoolBot.Bots
 {
@@ -26,38 +27,61 @@ namespace BuildSchoolBot.Bots
         protected readonly Dialog Dialog;
         protected readonly BotState ConversationState;
         protected readonly BotState UserState;
-        public EchoBot(ConversationState conversationState, UserState userState, T dialog){
+        protected readonly LibraryService _libraryService;
+        public EchoBot(ConversationState conversationState, UserState userState, T dialog, LibraryService libraryService)
+        {
             ConversationState = conversationState;
             UserState = userState;
             Dialog = dialog;
+            _libraryService = libraryService;
         }
-
-
-        //ting �}��
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
+            // var memberId = turnContext.Activity.From.AadObjectId;
+            var memberId = "EC7A25B7-6EEB-4FB5-BE96-2FA8B166EAFA";
+            Guid guid;
+
+            if (turnContext.Activity.Text == "Library")
+            {
+                Guid.TryParse(memberId, out guid);
+                var library = await _libraryService.FindLibraryByMemberId(guid);
+                var libraryCard = Service.LibraryService.CreateAdaptiveCardAttachment(library);
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(libraryCard), cancellationToken);
+            }
+            else if (turnContext.Activity.Text == "DeletedLibrary")
+            {
+                dynamic obj = turnContext.Activity.Value;
+                var LibraryId = obj.LibraryId;
+
+                Guid.TryParse(LibraryId.ToString(), out guid);
+                _libraryService.DeleteLibraryItem(guid);
+
+            }
+            else
+            {
+
+                await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
+            }
 
         }
 
-        //�K�[�����|�]�o�Ӥ�k
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
             foreach (var member in membersAdded)
             {
                 if (member.Id != turnContext.Activity.Recipient.Id)
                 {
-                    var reply = MessageFactory.Text("Welcome to GruopBuyBot!");//���s�����[�J,�|�}�@�ӰT���^�Ǥ�r
-                    var paths = new[] { ".", "Resources", "IntroductionCard.json" };//New�@�ө�bResources�̪�json��
-                    var adaptiveCard = File.ReadAllText(Path.Combine(paths));//�Npaths���r��X�֦��@�Ӹ��|,�ç�LŪ�X��,��b�ܼƸ̭�
-                    var attachment = new Attachment //�s�ؤ@�Ӫ���
+                    var reply = MessageFactory.Text("Welcome to GruopBuyBot!");
+                    var paths = new[] { ".", "Resources", "IntroductionCard.json" };
+                    var adaptiveCard = File.ReadAllText(Path.Combine(paths));
+                    var attachment = new Attachment
                     {
-                        ContentType = AdaptiveCard.ContentType, //AdaptiveCard �����A
-                        Content = JsonConvert.DeserializeObject(adaptiveCard),//��adaptiveCard�r���ഫ��json��
+                        ContentType = AdaptiveCard.ContentType,
+                        Content = JsonConvert.DeserializeObject(adaptiveCard),
                     };
-                    reply.Attachments.Add(attachment);//�^�_reply�o�ӰT��,���[�W�o�ӥd��
+                    reply.Attachments.Add(attachment);
 
-                    await turnContext.SendActivityAsync(reply, cancellationToken); //�����H�^�ǳo�ӰT��    
+                    await turnContext.SendActivityAsync(reply, cancellationToken);
                 }
             }
         }
@@ -69,6 +93,17 @@ namespace BuildSchoolBot.Bots
             // Save any state changes that might have occurred during the turn.
             await ConversationState.SaveChangesAsync(turnContext, false, cancellationToken);
             await UserState.SaveChangesAsync(turnContext, false, cancellationToken);
+        }
+
+        protected override Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
+        {
+            var Menumodule = new OrderfoodServices();
+            return Menumodule.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
+        }
+        protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
+        {
+            var Menumodule = new OrderfoodServices();
+            return await Menumodule.OnTeamsTaskModuleSubmitAsync(turnContext, taskModuleRequest, cancellationToken);
         }
     }
 }

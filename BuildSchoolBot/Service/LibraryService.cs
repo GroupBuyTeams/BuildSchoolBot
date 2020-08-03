@@ -16,12 +16,12 @@ namespace BuildSchoolBot.Service
         {
             _db = db;
         }
-        public void CreateLibraryItem(Guid memberId, string menuUri)
+        public void CreateLibraryItem(Guid memberId, string Uri)
         {
             var entity = new Library()
             {
                 LibraryId = Guid.NewGuid(),
-                MenuUri = menuUri,
+                Uri = Uri,
                 MemberId = memberId
             };
 
@@ -53,7 +53,7 @@ namespace BuildSchoolBot.Service
 
             library.ForEach(item =>
             {
-                objItem.columns[1].items[0].text.Value = item.MenuUri;
+                objItem.columns[1].items[0].text.Value = item.Uri;
                 objItem.columns[2].items[0].actions[0].data.msteams.value.Value = "{\"LibraryId\":\"" + item.LibraryId + "\"}";
                 obj.body.Add(objItem);
             });

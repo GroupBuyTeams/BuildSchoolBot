@@ -19,14 +19,11 @@ using System.IO;
 using Newtonsoft.Json;
 using BuildSchoolBot.Service;
 using Microsoft.Bot.Schema.Teams;
-<<<<<<< HEAD
 using Quartz;
 using System.Collections.Concurrent;
-=======
 using Microsoft.Extensions.Configuration;
 using System.Linq;
 using BuildSchoolBot.StoreModels;
->>>>>>> dev
 
 namespace BuildSchoolBot.Bots
 {
@@ -70,7 +67,6 @@ namespace BuildSchoolBot.Bots
                 _libraryService.DeleteLibraryItem(guid);
 
             }
-<<<<<<< HEAD
             else if (turnContext.Activity.Text == "ccc")//Demo用
             {
                 var services = await SchedulerFactory.GetAllSchedulers();
@@ -79,12 +75,6 @@ namespace BuildSchoolBot.Bots
                 scheduler.CreateSingleGroupBuyNow(DateTime.Now.AddSeconds(15.0f));
                 await turnContext.SendActivityAsync(MessageFactory.Text("schedule a group buy."));
             }
-=======
-            //else if (turnContext.Activity.Text == "Let's buy someting")
-            //{
-            //    await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
-            //}
->>>>>>> dev
             else
             {
                 await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
@@ -93,7 +83,6 @@ namespace BuildSchoolBot.Bots
 
         }
 
-<<<<<<< HEAD
         private void AddConversationReference(Activity activity)
         {
             var conversationReference = activity.GetConversationReference();
@@ -101,8 +90,6 @@ namespace BuildSchoolBot.Bots
         }
 
 
-=======
->>>>>>> dev
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
             foreach (var member in membersAdded)

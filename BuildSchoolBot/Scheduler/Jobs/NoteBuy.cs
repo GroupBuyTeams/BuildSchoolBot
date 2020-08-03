@@ -10,23 +10,22 @@ using Microsoft.Bot.Builder;
 using System.Security.Claims;
 using System.Threading;
 using System;
+using Microsoft.Extensions.Configuration;
 
 namespace BuildSchoolBot.Scheduler.Jobs
 {
     //[DisallowConcurrentExecution]
     public class NoteBuy : IJob
     {
-        private readonly ILogger<NoteBuy> _logger;
         private readonly IBotFrameworkHttpAdapter Adapter;
         private readonly ConcurrentDictionary<string, ConversationReference> ConversationReferences;
         private readonly string AppId;
         private string Message;
-        public NoteBuy(ILogger<NoteBuy> logger, IBotFrameworkHttpAdapter adapter, ConcurrentDictionary<string, ConversationReference> conversationReferences)
+        public NoteBuy(IConfiguration configuration, IBotFrameworkHttpAdapter adapter, ConcurrentDictionary<string, ConversationReference> conversationReferences)
         {
-            _logger = logger;
             Adapter = adapter;
             ConversationReferences = conversationReferences;
-
+            AppId = configuration["MicrosoftAppId"];
             // If the channel is the Emulator, and authentication is not in use,
             // the AppId will be null.  We generate a random AppId for this case only.
             // This is not required for production, since the AppId will have a value.
@@ -41,9 +40,10 @@ namespace BuildSchoolBot.Scheduler.Jobs
             // IDialog d = new IDialog();
             string UserId = context.MergedJobDataMap.GetString("UserId");
             Message = context.MergedJobDataMap.GetString("Information");
-
+            Console.WriteLine(Message);
             var conversationReference = ConversationReferences.GetValueOrDefault(UserId);
             await ((BotAdapter)Adapter).ContinueConversationAsync(AppId, conversationReference, BotCallback, default(CancellationToken));
+            // return Task.CompletedTask;
         }
         private async Task BotCallback(ITurnContext turnContext, CancellationToken cancellationToken)
         {

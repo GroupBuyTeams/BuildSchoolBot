@@ -18,27 +18,28 @@ namespace BuildSchoolBot.Service
             _schedId = Guid.NewGuid().ToString();
         }
 
-        public void CreateSingleGroupBuyNow(int Duration)
+        public void CreateSingleGroupBuyNow(DateTime EndTime)
         {
-            CreateSingleGroupBuy(DateTime.UtcNow, Duration, true);
+            CreateSingleGroupBuy(DateTime.UtcNow, EndTime, true);
         }
 
-        public void CreateSingleGroupBuy(DateTime startAt, int Duration, bool Now)
+        public void CreateSingleGroupBuy(DateTime startAt, DateTime endAt, bool Now)
         {
-            DateTimeOffset date = new DateTimeOffset(startAt);
+            DateTimeOffset startDate = new DateTimeOffset(startAt);
+            DateTimeOffset endDate = new DateTimeOffset(endAt);
             // TimeSpan ts = new TimeSpan(0, Duration, 0);
             // TimeSpan ten = new TimeSpan(0, 10, 0);
 
             // only for demo
-            TimeSpan ts = new TimeSpan(0, 0, Duration);
+            // TimeSpan ts = new TimeSpan(0, 0, Duration);
             TimeSpan ten = new TimeSpan(0, 0, 10);
             if (!Now)
             {
-                ScheduleSingleJob<NoteBuy>(date - ten, ScheduleText.NoteStartState, ScheduleText.NoteStartMsg);
+                ScheduleSingleJob<NoteBuy>(startDate - ten, ScheduleText.NoteStartState, ScheduleText.NoteStartMsg);
             }
-            ScheduleSingleJob<StartBuy>(date, ScheduleText.StartState, ScheduleText.StartMsg);
-            ScheduleSingleJob<NoteBuy>(date + ts - ten, ScheduleText.NoteStopState, ScheduleText.NoteStopMsg);
-            ScheduleSingleJob<StopBuy>(date + ts, ScheduleText.StopState, null);
+            ScheduleSingleJob<StartBuy>(startDate, ScheduleText.StartState, ScheduleText.StartMsg);
+            ScheduleSingleJob<NoteBuy>(endAt - ten, ScheduleText.NoteStopState, ScheduleText.NoteStopMsg);
+            ScheduleSingleJob<StopBuy>(endAt, ScheduleText.StopState, null);
         }
 
         public void CreateRepeatedGroupBuy(int startAt, int Duration, int WeekDays)
@@ -62,7 +63,6 @@ namespace BuildSchoolBot.Service
 
         private void ScheduleRepeatJob<T>(int startAt, int WeekDaysFlag, string stateInfo, string NotificationText) where T : IJob
         {
-
             string hour = (startAt / 60).ToString();
             string min = (startAt % 60).ToString();
             string week = new WeekdaysEnum().GetWeekDays(WeekDaysFlag);

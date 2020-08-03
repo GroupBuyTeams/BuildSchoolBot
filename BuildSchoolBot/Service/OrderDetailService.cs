@@ -21,17 +21,21 @@ namespace BuildSchoolBot.Service
             context.SaveChanges();
         }
         //delete OrderDetail
-        public void DeleteOrderDetail(string jdata)
+        public void DeleteOrderDetail(string orderId , string userId)
         {
-            var delete_detail = context.OrderDetail.FirstOrDefault(x => x.OrderId.ToString().Equals(jdata));
-            context.OrderDetail.Remove(delete_detail);
+            var delete_details = GetUserOrder(orderId, userId);
+            foreach (var detail in delete_details)
+            {
+                context.OrderDetail.Remove(detail);
+            }
             context.SaveChanges();
 
         }
-        //該用戶只能移除該用戶的order
-        public OrderDetail GetUserOrder(string OrderId, string MemberId)
+        //該用戶只能移除該用戶的order //IEnumerable多筆資料
+        public IEnumerable<OrderDetail> GetUserOrder(string orderId, string userId)
         {
-            return context.OrderDetail.FirstOrDefault(x => x.OrderId.ToString().Equals(OrderId) && x.Member.ToString().Equals(MemberId));
+            return context.OrderDetail.Where(x => x.OrderId.ToString().Equals(orderId) && x.Member.ToString().Equals(userId));
+
         }
     }
 }

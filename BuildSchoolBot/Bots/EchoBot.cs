@@ -60,10 +60,15 @@ namespace BuildSchoolBot.Bots
                 _libraryService.DeleteLibraryItem(guid);
 
             }
+            //else if (turnContext.Activity.Text == "Let's buy someting")
+            //{
+            //    await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
+            //}
             else
             {
 
                 await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
+
             }
 
         }

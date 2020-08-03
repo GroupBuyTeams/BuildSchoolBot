@@ -19,8 +19,14 @@ using System.IO;
 using Newtonsoft.Json;
 using BuildSchoolBot.Service;
 using Microsoft.Bot.Schema.Teams;
+<<<<<<< HEAD
 using Quartz;
 using System.Collections.Concurrent;
+=======
+using Microsoft.Extensions.Configuration;
+using System.Linq;
+using BuildSchoolBot.StoreModels;
+>>>>>>> dev
 
 namespace BuildSchoolBot.Bots
 {
@@ -42,9 +48,6 @@ namespace BuildSchoolBot.Bots
             SchedulerFactory = schedulerFactory;
             ConversationReferences = conversationReferences;
         }
-
-
-        //ting
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
             // var memberId = turnContext.Activity.From.AadObjectId;
@@ -67,6 +70,7 @@ namespace BuildSchoolBot.Bots
                 _libraryService.DeleteLibraryItem(guid);
 
             }
+<<<<<<< HEAD
             else if (turnContext.Activity.Text == "ccc")//Demo用
             {
                 var services = await SchedulerFactory.GetAllSchedulers();
@@ -75,13 +79,21 @@ namespace BuildSchoolBot.Bots
                 scheduler.CreateSingleGroupBuyNow(DateTime.Now.AddSeconds(15.0f));
                 await turnContext.SendActivityAsync(MessageFactory.Text("schedule a group buy."));
             }
+=======
+            //else if (turnContext.Activity.Text == "Let's buy someting")
+            //{
+            //    await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
+            //}
+>>>>>>> dev
             else
             {
                 await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
+
             }
 
         }
 
+<<<<<<< HEAD
         private void AddConversationReference(Activity activity)
         {
             var conversationReference = activity.GetConversationReference();
@@ -89,6 +101,8 @@ namespace BuildSchoolBot.Bots
         }
 
 
+=======
+>>>>>>> dev
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
             foreach (var member in membersAdded)
@@ -118,9 +132,6 @@ namespace BuildSchoolBot.Bots
             await ConversationState.SaveChangesAsync(turnContext, false, cancellationToken);
             await UserState.SaveChangesAsync(turnContext, false, cancellationToken);
         }
-
-
-        //�S�|��
         protected override Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
             var Menumodule = new OrderfoodServices();
@@ -131,7 +142,5 @@ namespace BuildSchoolBot.Bots
             var Menumodule = new OrderfoodServices();
             return await Menumodule.OnTeamsTaskModuleSubmitAsync(turnContext, taskModuleRequest, cancellationToken);
         }
-
-
     }
 }

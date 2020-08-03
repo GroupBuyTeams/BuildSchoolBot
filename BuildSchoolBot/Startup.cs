@@ -19,6 +19,8 @@ using BuildSchoolBot.Dialogs;
 using BuildSchoolBot.Bots;
 using BuildSchoolBot.Scheduler.Jobs;
 using BuildSchoolBot.Scheduler;
+using BuildSchoolBot.Models;
+using BuildSchoolBot.Service;
 
 namespace BuildSchoolBot
 {
@@ -67,6 +69,8 @@ namespace BuildSchoolBot
             services.AddSingleton<StopBuy>();
             services.AddSingleton<NoteBuy>();
             services.AddHostedService<QuartzHostedService>();
+            services.AddTransient<TeamsBuyContext>();
+            services.AddTransient<LibraryService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

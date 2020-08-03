@@ -18,6 +18,7 @@ using System;
 using System.IO;
 using Newtonsoft.Json;
 using BuildSchoolBot.Service;
+using Microsoft.Bot.Schema.Teams;
 
 namespace BuildSchoolBot.Bots
 {
@@ -26,21 +27,48 @@ namespace BuildSchoolBot.Bots
         protected readonly Dialog Dialog;
         protected readonly BotState ConversationState;
         protected readonly BotState UserState;
-        public EchoBot(ConversationState conversationState, UserState userState, T dialog){
+        protected readonly LibraryService _libraryService;
+        public EchoBot(ConversationState conversationState, UserState userState, T dialog, LibraryService libraryService)
+        {
             ConversationState = conversationState;
             UserState = userState;
             Dialog = dialog;
+            _libraryService = libraryService;
         }
 
 
         //ting
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
+            // var memberId = turnContext.Activity.From.AadObjectId;
+            var memberId = "EC7A25B7-6EEB-4FB5-BE96-2FA8B166EAFA";
+            Guid guid;
+
+            if (turnContext.Activity.Text == "Library")
+            {
+                Guid.TryParse(memberId, out guid);
+                var library = await _libraryService.FindLibraryByMemberId(guid);
+                var libraryCard = Service.LibraryService.CreateAdaptiveCardAttachment(library);
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(libraryCard), cancellationToken);
+            }
+            else if (turnContext.Activity.Text == "DeletedLibrary")
+            {
+                dynamic obj = turnContext.Activity.Value;
+                var LibraryId = obj.LibraryId;
+
+                Guid.TryParse(LibraryId.ToString(), out guid);
+                _libraryService.DeleteLibraryItem(guid);
+
+            }
+            else
+            {
+
+                await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
+            }
 
         }
 
-        
+
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
             foreach (var member in membersAdded)
@@ -52,12 +80,12 @@ namespace BuildSchoolBot.Bots
                     var adaptiveCard = File.ReadAllText(Path.Combine(paths));
                     var attachment = new Attachment
                     {
-                        ContentType = AdaptiveCard.ContentType, 
+                        ContentType = AdaptiveCard.ContentType,
                         Content = JsonConvert.DeserializeObject(adaptiveCard),
                     };
                     reply.Attachments.Add(attachment);
 
-                    await turnContext.SendActivityAsync(reply, cancellationToken);  
+                    await turnContext.SendActivityAsync(reply, cancellationToken);
                 }
             }
         }
@@ -70,5 +98,20 @@ namespace BuildSchoolBot.Bots
             await ConversationState.SaveChangesAsync(turnContext, false, cancellationToken);
             await UserState.SaveChangesAsync(turnContext, false, cancellationToken);
         }
+
+
+        //�S�|��
+        protected override Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
+        {
+            var Menumodule = new OrderfoodServices();
+            return Menumodule.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
+        }
+        protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
+        {
+            var Menumodule = new OrderfoodServices();
+            return await Menumodule.OnTeamsTaskModuleSubmitAsync(turnContext, taskModuleRequest, cancellationToken);
+        }
+
+
     }
 }

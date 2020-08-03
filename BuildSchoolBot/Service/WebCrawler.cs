@@ -30,7 +30,6 @@ namespace BuildSchoolBot.Service
             //設定要爬蟲的資訊
             var StoreName = Store_document.QuerySelectorAll(".vendor-list-section .name");
             var StoreUrl = Store_document.QuerySelectorAll(".vendor-list-section li a");
-            var StorePic = Store_document.QuerySelectorAll(".vendor-list-section picture");
             //新增搜尋結果List
             List<Store> result_stores = new List<Store>();
 
@@ -39,7 +38,6 @@ namespace BuildSchoolBot.Service
                 Store _Store = new Store();
                 _Store.Store_Name = StoreName[S_count].TextContent;
                 _Store.Store_Url = "https://www.foodpanda.com.tw" + StoreUrl[S_count].GetAttribute("href");
-                _Store.StorePic_Url = StorePic[S_count].InnerHtml.ToString().Split(new char[2] { '"', '?' })[3];
                 result_stores.Add(_Store);
             }
 

@@ -3,6 +3,7 @@ using BuildSchoolBot.Service;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Dialogs.Choices;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -41,7 +42,14 @@ namespace BuildSchoolBot.Dialogs
             string add = (string)stepContext.Result;
             var LatLng = new LatLngService(add);
             string result = await new WebCrawler().GetStores(LatLng.lat, LatLng.lng);
-            await stepContext.Context.SendActivityAsync(MessageFactory.Text(result));
+            //await stepContext.Context.SendActivityAsync(MessageFactory.Text(result)); //顯示菜單字串
+            //范育銨
+            var w = new OrderfoodServices();
+            var Storedata = w.GetStoregroup(result);
+            foreach (JObject item in Storedata)
+            {
+                await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(w.GetStore(item.GetValue("Store_Name").ToString(), item.GetValue("Store_Url").ToString())));
+            }
 
             //var cards = new int[20];
 

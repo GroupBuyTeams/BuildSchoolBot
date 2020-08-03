@@ -67,6 +67,10 @@ namespace BuildSchoolBot.Service
                 dish.Dish_Name = Item_Name[I_count].TextContent;
                 var Raw_Num = Item_Price[I_count].TextContent;
                 dish.Price = decimal.Parse(Regex.Replace(Raw_Num, @"[^\d.\d]", ""));
+                if (dish.Price == 0)
+                {
+                    continue;
+                }
                 result_order.Add(dish);
             }
 

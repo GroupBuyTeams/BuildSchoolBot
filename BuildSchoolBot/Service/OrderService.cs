@@ -23,12 +23,12 @@ namespace BuildSchoolBot.Service
             context.SaveChanges();
         }
         //delete Order
-        public void DeleteOrder(string jdata)
-        {
-            var delete_order = context.Order.FirstOrDefault(x => x.OrderId.ToString().Equals(jdata));
-            context.Order.Remove(delete_order);
-            context.SaveChanges();
-        }
+        //public void DeleteOrder(string jdata)
+        //{
+        //    var delete_order = context.Order.FirstOrDefault(x => x.OrderId.ToString().Equals(jdata));
+        //    context.Order.Remove(delete_order);
+        //    context.SaveChanges();
+        //}
         
     }
 }

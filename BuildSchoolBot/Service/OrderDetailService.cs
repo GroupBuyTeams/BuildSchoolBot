@@ -29,7 +29,6 @@ namespace BuildSchoolBot.Service
                 context.OrderDetail.Remove(detail);
             }
             context.SaveChanges();
-
         }
         //該用戶只能移除該用戶的order //IEnumerable多筆資料
         public IEnumerable<OrderDetail> GetUserOrder(string orderId, string userId)

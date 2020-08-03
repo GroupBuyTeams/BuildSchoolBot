@@ -29,7 +29,7 @@ namespace BuildSchoolBot.Models
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=tcp:groupbuyserver.database.windows.net,1433;Initial Catalog=TeamsBuy;Persist Security Info=False;User ID=groupbuy;Password=GBuy@123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;");
+                optionsBuilder.UseSqlServer("Server=groupbuyserver.database.windows.net;Database=TeamsBuy;Trusted_Connection=False;User ID=groupbuy;Password=GBuy@123;");
             }
         }
 
@@ -89,7 +89,11 @@ namespace BuildSchoolBot.Models
             {
                 entity.Property(e => e.LibraryId).ValueGeneratedNever();
 
-                entity.Property(e => e.MenuUri).IsRequired();
+                entity.Property(e => e.LibraryName)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.Uri).IsRequired();
             });
 
             modelBuilder.Entity<Order>(entity =>

@@ -35,9 +35,6 @@ namespace BuildSchoolBot.Bots
             Dialog = dialog;
             _libraryService = libraryService;
         }
-
-
-        //ting
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
             // var memberId = turnContext.Activity.From.AadObjectId;
@@ -67,7 +64,6 @@ namespace BuildSchoolBot.Bots
             }
 
         }
-
 
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
@@ -99,8 +95,6 @@ namespace BuildSchoolBot.Bots
             await UserState.SaveChangesAsync(turnContext, false, cancellationToken);
         }
 
-
-        //�S�|��
         protected override Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
             var Menumodule = new OrderfoodServices();
@@ -111,7 +105,5 @@ namespace BuildSchoolBot.Bots
             var Menumodule = new OrderfoodServices();
             return await Menumodule.OnTeamsTaskModuleSubmitAsync(turnContext, taskModuleRequest, cancellationToken);
         }
-
-
     }
 }

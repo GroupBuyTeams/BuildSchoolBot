@@ -24,6 +24,8 @@ using System.Collections.Concurrent;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
 using BuildSchoolBot.StoreModels;
+using System.Net.Http;
+using Newtonsoft.Json.Linq;
 
 namespace BuildSchoolBot.Bots
 {
@@ -57,7 +59,7 @@ namespace BuildSchoolBot.Bots
             var memberId = "EC7A25B7-6EEB-4FB5-BE96-2FA8B166EAFA";
             Guid guid;
 
-            if (turnContext.Activity.Text == "Library")
+            if (turnContext.Activity.Text == "Library " || turnContext.Activity.Text == "<at>TestAppByJerry</at> Library \n")
             {
                 Guid.TryParse(memberId, out guid);
                 var library = await _libraryService.FindLibraryByMemberId(guid);

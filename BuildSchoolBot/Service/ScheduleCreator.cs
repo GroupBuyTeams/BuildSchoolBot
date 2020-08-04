@@ -30,7 +30,7 @@ namespace BuildSchoolBot.Service
             // TimeSpan ten = new TimeSpan(0, 10, 0);
 
             // only for demo
-            TimeSpan ten = new TimeSpan(0, 0, 30);
+            TimeSpan ten = new TimeSpan(0, 0, 10);
             if (!Now)
             {
                 ScheduleSingleJob<NoteBuy>(startDate - ten, ScheduleText.NoteStartState, ScheduleText.NoteStartMsg);

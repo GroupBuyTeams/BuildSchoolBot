@@ -24,6 +24,8 @@ using System.Collections.Concurrent;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
 using BuildSchoolBot.StoreModels;
+using System.Net.Http;
+using Newtonsoft.Json.Linq;
 
 namespace BuildSchoolBot.Bots
 {
@@ -57,7 +59,7 @@ namespace BuildSchoolBot.Bots
             var memberId = "EC7A25B7-6EEB-4FB5-BE96-2FA8B166EAFA";
             Guid guid;
 
-            if (turnContext.Activity.Text == "Library")
+            if (turnContext.Activity.Text.Contains("Library"))
             {
                 Guid.TryParse(memberId, out guid);
                 var library = await _libraryService.FindLibraryByMemberId(guid);
@@ -76,14 +78,14 @@ namespace BuildSchoolBot.Bots
             //Only for Demo.
             //please don't delete it, please don't delete it, please don't delete it!!!!
 
-            // else if (turnContext.Activity.Text.Contains("ccc")) 
-            // {
-            //     var services = await SchedulerFactory.GetAllSchedulers();
-            //     var scheduler = new ScheduleCreator(services[0], turnContext.Activity.From.Id, "GUID");
-            //     AddConversationReference(turnContext.Activity as Activity);
-            //     scheduler.CreateSingleGroupBuyNow(DateTime.Now.AddSeconds(15.0f));
-            //     await turnContext.SendActivityAsync(MessageFactory.Text("schedule a group buy."));
-            // }
+            else if (turnContext.Activity.Text.Contains("ccc")) 
+            {
+                var services = await SchedulerFactory.GetAllSchedulers();
+                var scheduler = new ScheduleCreator(services[0], turnContext.Activity.From.Id, "GUID");
+                AddConversationReference(turnContext.Activity as Activity);
+                scheduler.CreateSingleGroupBuyNow(DateTime.Now.AddSeconds(15.0f));
+                await turnContext.SendActivityAsync(MessageFactory.Text("schedule a group buy."));
+            }
             else
             {
                 var activity = turnContext.Activity;

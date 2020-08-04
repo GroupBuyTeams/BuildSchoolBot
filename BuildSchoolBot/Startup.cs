@@ -72,6 +72,8 @@ namespace BuildSchoolBot
             services.AddHostedService<QuartzHostedService>();
             services.AddTransient<TeamsBuyContext>();
             services.AddTransient<LibraryService>();
+            services.AddTransient<OrderfoodServices>();
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

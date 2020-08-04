@@ -27,7 +27,8 @@ namespace BuildSchoolBot.Dialogs
             var waterfallSteps = new WaterfallStep[]
             {
                 DateSelectStepAsync,
-                HandleResponseAsync
+                HandleResponseAsync,
+                ShowhistorytStepAsync
             };
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), waterfallSteps));
             AddDialog(new TextPrompt(nameof(TextPrompt)));
@@ -41,7 +42,7 @@ namespace BuildSchoolBot.Dialogs
         private async Task<DialogTurnResult> DateSelectStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             var message = MessageFactory.Text("");
-            message.Attachments = new List<Attachment>() { CreateAdaptiveCardUsingJson() };
+            message.Attachments = new List<Attachment>() { CreateAdaptiveCardUsingJson("DateSelectCard.json") };
             await stepContext.Context.SendActivityAsync(message, cancellationToken);
 
             var opts = new PromptOptions
@@ -58,30 +59,28 @@ namespace BuildSchoolBot.Dialogs
 
         private async Task<DialogTurnResult> HandleResponseAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
+
+            var start = stepContext.Result;
             // Do something with step.result
             // Adaptive Card submissions are objects, so you likely need to JObject.Parse(step.result)
-            await stepContext.Context.SendActivityAsync($"INPUT: {stepContext.Result}");
+            await stepContext.Context.SendActivityAsync($"INPUT: {start}");
             return await stepContext.NextAsync();
         }
 
-        //protected async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
-        //{
-        //    // Capture input from adaptive card
-        //    if (string.IsNullOrEmpty(turnContext.Activity.Text) && turnContext.Activity.Value != null)
-        //    {
-        //        // Conditionally convert based off of input ID of Adaptive Card
-        //        if ((turnContext.Activity.Value as JObject)["<adaptiveCardInputId>"] != null)
-        //        {
-        //            turnContext.Activity.Text = (turnContext.Activity.Value as JObject)["<adaptiveCardInputId>"].ToString();
-        //        }
-        //    }
-        //}
+        private async Task<DialogTurnResult> ShowhistorytStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        {
+            var message = MessageFactory.Text("");
+            message.Attachments = new List<Attachment>() { CreateAdaptiveCardUsingJson("HistoryCard.json") };
+            await stepContext.Context.SendActivityAsync(message, cancellationToken);
+
+            return await stepContext.EndDialogAsync();
+        }
 
 
         //產生卡片
-        private Attachment CreateAdaptiveCardUsingJson()
+        private Attachment CreateAdaptiveCardUsingJson(string json)
         {
-            var paths = new[] { ".", "Resources", "DateSelectCard.json" };
+            var paths = new[] { ".", "Resources", json };
             var HistoryCardJson = File.ReadAllText(Path.Combine(paths));
 
             var HistoryCardAttachment = new Attachment()

@@ -20,7 +20,7 @@ namespace BuildSchoolBot.Service
             _context = context;
             _repo = repo;
         }
-        public void CreateLibraryItem(Guid memberId, string Uri, string libraryName)
+        public void CreateLibraryItem(string memberId, string Uri, string libraryName)
         {
             var entity = new Library()
             {
@@ -41,7 +41,7 @@ namespace BuildSchoolBot.Service
             _repo.Delete(entity);
             _context.SaveChanges();
         }
-        public async Task<List<Library>> FindLibraryByMemberId(Guid memberId)
+        public async Task<List<Library>> FindLibraryByMemberId(string memberId)
         {
             var result = _repo.GetAll().Where(x => x.MemberId == memberId).ToList();
             return await Task.FromResult(result);

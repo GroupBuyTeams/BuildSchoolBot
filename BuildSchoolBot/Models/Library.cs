@@ -7,7 +7,7 @@ namespace BuildSchoolBot.Models
     {
         public Guid LibraryId { get; set; }
         public string Uri { get; set; }
-        public Guid MemberId { get; set; }
+        public string MemberId { get; set; }
         public string LibraryName { get; set; }
     }
 }

@@ -55,15 +55,15 @@ namespace BuildSchoolBot.Bots
         }
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            // var memberId = turnContext.Activity.From.AadObjectId;
-            var memberId = "EC7A25B7-6EEB-4FB5-BE96-2FA8B166EAFA";
+            var memberId = turnContext.Activity.From.Id;
+            //var memberId = "EC7A25B7-6EEB-4FB5-BE96-2FA8B166EAFA";
             Guid guid;
 
             if (turnContext.Activity.Text.Contains("Library"))
             {
-                Guid.TryParse(memberId, out guid);
-                var library = await _libraryService.FindLibraryByMemberId(guid);
-                var libraryCard = Service.LibraryService.CreateAdaptiveCardAttachment(library);
+                //Guid.TryParse(memberId, out guid);
+                var libraries = await _libraryService.FindLibraryByMemberId(memberId);
+                var libraryCard = Service.LibraryService.CreateAdaptiveCardAttachment(libraries);
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(libraryCard), cancellationToken);
             }
             else if (turnContext.Activity.Text == "DeletedLibrary")

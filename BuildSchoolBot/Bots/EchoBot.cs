@@ -24,6 +24,8 @@ using System.Collections.Concurrent;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
 using BuildSchoolBot.StoreModels;
+using System.Net.Http;
+using Newtonsoft.Json.Linq;
 
 namespace BuildSchoolBot.Bots
 {

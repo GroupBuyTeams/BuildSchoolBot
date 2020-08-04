@@ -13,11 +13,13 @@ namespace BuildSchoolBot.Dialogs
     public class MainDialog : ComponentDialog
     {
         public MainDialog(AddressDialogs addressDialog, HistoryDialog historyDialog) : base(nameof(MainDialog))
+        public MainDialog(AddressDialogs addressDialog, Demo demo) : base(nameof(MainDialog))
         {
 
             AddDialog(new ChoicePrompt(nameof(ChoicePrompt)));
             AddDialog(new TextPrompt(nameof(TextPrompt)));
             AddDialog(addressDialog);
+            AddDialog(demo);
             AddDialog(historyDialog);
             AddDialog(new WaterfallDialog(
                 nameof(WaterfallDialog),
@@ -38,7 +40,7 @@ namespace BuildSchoolBot.Dialogs
             new PromptOptions
             {
                 Prompt = MessageFactory.Text("How can I serve you, darlin?"),
-                Choices = ChoiceFactory.ToChoices(new List<string> { "Buy", "History", "Favorate" }),
+                Choices = ChoiceFactory.ToChoices(new List<string> { "Buy", "History", "Demo" }),
             }, cancellationToken);
         }
         private async Task<DialogTurnResult> MiddleStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
@@ -51,6 +53,8 @@ namespace BuildSchoolBot.Dialogs
                     return await stepContext.BeginDialogAsync(nameof(AddressDialogs));
                 case "History":
                     return await stepContext.BeginDialogAsync(nameof(HistoryDialog));
+                case "Demo":
+                    return await stepContext.BeginDialogAsync(nameof(Demo));
                 default:
                     await stepContext.Context.SendActivityAsync(MessageFactory.Text("Your choise is not 'Buy'."));
                     return await stepContext.NextAsync();

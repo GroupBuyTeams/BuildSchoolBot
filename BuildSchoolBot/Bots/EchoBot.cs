@@ -83,7 +83,6 @@ namespace BuildSchoolBot.Bots
                     activity.Text = JsonConvert.SerializeObject(activity.Value);
                 }
                 await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
-
             }
 
         }

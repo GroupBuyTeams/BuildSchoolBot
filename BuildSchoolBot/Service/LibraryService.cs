@@ -13,11 +13,9 @@ namespace BuildSchoolBot.Service
 {
     public class LibraryService
     {
-        private TeamsBuyContext _context;
         private EGRepository<Library> _repo;
-        public LibraryService(TeamsBuyContext context, EGRepository<Library> repo)
+        public LibraryService(EGRepository<Library> repo)
         {
-            _context = context;
             _repo = repo;
         }
         public void CreateLibraryItem(string memberId, string Uri, string libraryName)
@@ -31,7 +29,7 @@ namespace BuildSchoolBot.Service
             };
 
             _repo.Create(entity);
-            _context.SaveChanges();
+            _repo.context.SaveChanges();
         }
         public void DeleteLibraryItem(Guid libraryId)
         {
@@ -39,7 +37,7 @@ namespace BuildSchoolBot.Service
             var entity = _repo.GetAll().FirstOrDefault(x => x.LibraryId.Equals(libraryId));
 
             _repo.Delete(entity);
-            _context.SaveChanges();
+            _repo.context.SaveChanges();
         }
         public async Task<List<Library>> FindLibraryByMemberId(string memberId)
         {

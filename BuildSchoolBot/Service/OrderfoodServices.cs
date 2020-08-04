@@ -33,10 +33,10 @@ namespace BuildSchoolBot.Service
             //texta + "FoodData2468" + menuurl + "GuidStr13579" + Guidstr
             var asJobject = JObject.FromObject(taskModuleRequest.Data);
             var value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
-            var Storname = GetStoreName(value);
-            var FoodAndGuidProcessUrl = GetProcessFoodUrl(value);
-            var FoodUrl = GetFoodUrl(FoodAndGuidProcessUrl);
-            var Guidstr = GetGuidStr(FoodAndGuidProcessUrl);
+            var Storname = GetStoreName(value, "FoodData2468");
+            var FoodAndGuidProcessUrl = GetResultGuidStr(value, "FoodData2468");
+            var FoodUrl = GetStoreName(FoodAndGuidProcessUrl, "GuidStr13579");
+            var Guidstr = GetResultGuidStr(FoodAndGuidProcessUrl, "GuidStr13579");
             var taskInfo = new TaskModuleTaskInfo();         
             string Getmenujson = await new WebCrawler().GetOrderInfo(FoodUrl);
             JArray array = JArray.Parse(Getmenujson);
@@ -47,13 +47,14 @@ namespace BuildSchoolBot.Service
             SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
             return await Task.FromResult(taskInfo.ToTaskModuleResponse());
         }
-        public async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
+        public async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken,string DueTime)
         {
+            var taskInfo = new TaskModuleTaskInfo();
             var taskModuleRequestjson = JsonConvert.SerializeObject(taskModuleRequest.Data);
             JObject data = JObject.Parse(taskModuleRequestjson);
             var StoreAndGuid = data.Property("data").Value.ToString();
-            var StoreName = GetResultStoreName(StoreAndGuid);
-            var Guid = GetResultGuidStr(StoreAndGuid);
+            var StoreName = GetStoreName(StoreAndGuid, "FoodGuid2468");
+            var Guid = GetResultGuidStr(StoreAndGuid, "FoodGuid2468");
             data.Property("msteams").Remove();
             data.Property("data").Remove();
             var MenudataGroups = data.ToString();
@@ -63,24 +64,12 @@ namespace BuildSchoolBot.Service
             {
                 inputlist.Add(item.Key.ToString());
                 inputlist.Add(item.Value.ToString());
-            }
-            var ProcessDueTimeName = inputlist[inputlist.Count()-2];
-            var ProcessDueTime = inputlist[inputlist.Count() - 1];
-            string DueTimeName = "";
-            string DueTime = "";
-            if (ProcessDueTimeName == "DueTime")
-            {
-                DueTimeName = ProcessDueTimeName;
-                DueTime = ProcessDueTime;
-                inputlist.RemoveAt(inputlist.Count() - 2);
-                inputlist.RemoveAt(inputlist.Count() - 1);
-            }
-            string DueTimeitem = "DueTime:" + DueTime;
+            }       
             List<SelectMenuData> parts = new List<SelectMenuData>();
 
             for (int i = 0; 4 * i < inputlist.Count(); i++)
             {
-                parts.Add(new SelectMenuData() { Quantity = inputlist[4 * i + 1], Remarks = inputlist[4 * i + 3], Dish_Name = GetDish_Name(inputlist[4 * i]), Price = GetDish_Price(inputlist[4 * i]) });
+                parts.Add(new SelectMenuData() { Quantity = inputlist[4 * i + 1], Remarks = inputlist[4 * i + 3], Dish_Name = GetStoreName(inputlist[4 * i],"Quantity1357"), Price = GetResultGuidStr(inputlist[4 * i], "Quantity1357") });
             }
 
             JsonSerializer serializer = new JsonSerializer();
@@ -91,28 +80,31 @@ namespace BuildSchoolBot.Service
             JObject o = new JObject();
             o["SelectMenu"] = array;
             string json = o.ToString();
+            taskInfo.Card = GetResultClickfood(Guid, StoreName, json, DueTime);
+            SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
             await turnContext.SendActivityAsync(MessageFactory.Attachment(GetResultClickfood(Guid,StoreName, json, DueTime)));
-            return TaskModuleResponseFactory.CreateResponse("Thanks!");
+            return await Task.FromResult(taskInfo.ToTaskModuleResponse());
         }
-        public string GetResultStoreName(string Str)
+        public string GetStoreName(string Str,string Peername)
         {
             int count = 0;
             List<char> Processname = new List<char>();
-            string QuantityTxt = "FoodGuid2468";
+            string QuantityTxt = Peername;
             string strArray;
             for (int i = 0; i < Str.Length; i++)
             {
                 Processname.Add(Str[i]);
                 strArray = string.Concat(Processname.ToArray());
                 var Firstname = strArray[0].ToString();
-                if (Firstname != "F")
+                var PeerFirstTxt = Peername[0].ToString();
+                if (Firstname != PeerFirstTxt)
                 {
                     count++;
                     Processname.Clear();
                 }
                 else
                 {
-                    if (strArray == "FoodGuid2468")
+                    if (strArray == Peername)
                     {
                         break;
                     }
@@ -130,25 +122,26 @@ namespace BuildSchoolBot.Service
             return Str.Substring(0, count - 11);
         }
 
-        public string GetResultGuidStr(string Str)
+        public string GetResultGuidStr(string Str, string Peername)
         {
             int count = 0;
             List<char> Processname = new List<char>();
-            string QuantityTxt = "FoodGuid2468";
-            string strArray;
+            string QuantityTxt = Peername;
+            string strArray;       
             for (int i = 0; i < Str.Length; i++)
             {
                 Processname.Add(Str[i]);
                 strArray = string.Concat(Processname.ToArray());
                 var Firstname = strArray[0].ToString();
-                if (Firstname != "F")
+                var PeerFirstTxt = Peername[0].ToString();
+                if (Firstname != PeerFirstTxt)
                 {
                     count++;
                     Processname.Clear();
                 }
                 else
                 {
-                    if (strArray == "FoodGuid2468")
+                    if (strArray == Peername)
                     {
                         break;
                     }
@@ -164,227 +157,7 @@ namespace BuildSchoolBot.Service
                 }
             }
             return Str.Substring(count + 1, Str.Length - count - 1);
-        }
-
-
-        public string GetStoreName(string Str)
-        {
-            int count = 0;
-            List<char> Processname = new List<char>();
-            string QuantityTxt = "FoodData2468";
-            string strArray;
-            for (int i = 0; i < Str.Length; i++)
-            {
-                Processname.Add(Str[i]);
-                strArray = string.Concat(Processname.ToArray());
-                var Firstname = strArray[0].ToString();
-                if (Firstname != "F")
-                {
-                    count++;
-                    Processname.Clear();
-                }
-                else
-                {
-                    if (strArray == "FoodData2468")
-                    {
-                        break;
-                    }
-                    else if (QuantityTxt.Contains(strArray))
-                    {
-                        count++;
-                    }
-                    else
-                    {
-                        count++;
-                        Processname.Clear();
-                    }
-                }
-            }
-            return Str.Substring(0, count - 11);
-        }
-
-        public string GetProcessFoodUrl(string Str)
-        {
-            int count = 0;
-            List<char> Processname = new List<char>();
-            string QuantityTxt = "FoodData2468";
-            string strArray;
-            for (int i = 0; i < Str.Length; i++)
-            {
-                Processname.Add(Str[i]);
-                strArray = string.Concat(Processname.ToArray());
-                var Firstname = strArray[0].ToString();
-                if (Firstname != "F")
-                {
-                    count++;
-                    Processname.Clear();
-                }
-                else
-                {
-                    if (strArray == "FoodData2468")
-                    {
-                        break;
-                    }
-                    else if (QuantityTxt.Contains(strArray))
-                    {
-                        count++;
-                    }
-                    else
-                    {
-                        count++;
-                        Processname.Clear();
-                    }
-                }
-            }
-            return Str.Substring(count + 1, Str.Length - count - 1);
-        }
-
-        public string GetFoodUrl(string Str)
-        {
-            int count = 0;
-            List<char> Processname = new List<char>();
-            string QuantityTxt = "GuidStr13579";
-            string strArray;
-            for (int i = 0; i < Str.Length; i++)
-            {
-                Processname.Add(Str[i]);
-                strArray = string.Concat(Processname.ToArray());
-                var Firstname = strArray[0].ToString();
-                if (Firstname != "G")
-                {
-                    count++;
-                    Processname.Clear();
-                }
-                else
-                {
-                    if (strArray == "GuidStr13579")
-                    {
-                        break;
-                    }
-                    else if (QuantityTxt.Contains(strArray))
-                    {
-                        count++;
-                    }
-                    else
-                    {
-                        count++;
-                        Processname.Clear();
-                    }
-                }
-            }
-            return Str.Substring(0, count - 11);
-        }
-
-        public string GetGuidStr(string Str)
-        {
-            int count = 0;
-            List<char> Processname = new List<char>();
-            string QuantityTxt = "GuidStr13579";
-            string strArray;
-            for (int i = 0; i < Str.Length; i++)
-            {
-                Processname.Add(Str[i]);
-                strArray = string.Concat(Processname.ToArray());
-                var Firstname = strArray[0].ToString();
-                if (Firstname != "G")
-                {
-                    count++;
-                    Processname.Clear();
-                }
-                else
-                {
-                    if (strArray == "GuidStr13579")
-                    {
-                        break;
-                    }
-                    else if (QuantityTxt.Contains(strArray))
-                    {
-                        count++;
-                    }
-                    else
-                    {
-                        count++;
-                        Processname.Clear();
-                    }
-                }
-            }
-            return Str.Substring(count + 1, Str.Length - count - 1);
-        }
-
-        public string GetDish_Name(string Str)
-        {
-            int count = 0;
-            List<char> Processname = new List<char>();
-            string QuantityTxt = "Quantity13579";
-            string strArray;
-            for (int i = 0; i < Str.Length; i++)
-            {             
-                Processname.Add(Str[i]);
-                strArray = string.Concat(Processname.ToArray());
-                var Firstname = strArray[0].ToString();
-                if (Firstname != "Q")
-                {
-                    count++;
-                    Processname.Clear();
-                }
-                else 
-                {
-                    if(strArray== "Quantity13579")
-                    {
-                        break;
-                    }
-                    else if(QuantityTxt.Contains(strArray))
-                    {
-                        count++;
-                    }
-                    else
-                    {
-                        count++;
-                        Processname.Clear();
-                    }
-                }
-            }
-            return Str.Substring(0, count-12);
-        }
-
-
-        public string GetDish_Price(string Str)
-        {
-            int count = 0;
-            List<char> Processname = new List<char>();
-            string QuantityTxt = "Quantity13579";
-            string strArray;
-            for (int i = 0; i < Str.Length; i++)
-            {
-                Processname.Add(Str[i]);
-                strArray = string.Concat(Processname.ToArray());
-                var Firstname = strArray[0].ToString();
-                if (Firstname != "Q")
-                {
-                    count++;
-                    Processname.Clear();
-                }
-                else
-                {
-                    if (strArray == "Quantity13579")
-                    {
-                        break;
-                    }
-                    else if (QuantityTxt.Contains(strArray))
-                    {
-                        count++;
-                    }
-                    else
-                    {
-                        count++;
-                        Processname.Clear();
-                    }
-                }
-            }
-            return Str.Substring(count+1, Str.Length-count-1);
-        }
-
-
+        }     
         private static void SetTaskInfo(TaskModuleTaskInfo taskInfo, UISettings uIConstants)
         {
             taskInfo.Height = uIConstants.Height;
@@ -404,8 +177,8 @@ namespace BuildSchoolBot.Service
             card.Body.Add(TextBlockStorName);
 
             //actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "click", Data = new AdaptiveCardTaskFetchValue<string>() { Data = texta + "FoodData2468" + menuurl } });
-            actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "click", Data = new AdaptiveCardTaskFetchValue<string>() { Data = texta + "FoodData2468" + menuurl+"GuidStr13579"+ Guidstr } });
-            actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "click(收藏庫)", Data = new AdaptiveCardTaskFetchValue<string>() { Data = "" } });
+            actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "Join", Data = new AdaptiveCardTaskFetchValue<string>() { Data = texta + "FoodData2468" + menuurl+"GuidStr13579"+ Guidstr } });
+            actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "Favorite", Data = new AdaptiveCardTaskFetchValue<string>() { Data = "" } });
             card.Body.Add(actionSet);
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
@@ -435,7 +208,7 @@ namespace BuildSchoolBot.Service
             Columnnumberitem.Width = AdaptiveColumnWidth.Stretch;
             var containernumberiitem = new AdaptiveContainer();
             var Inputnumberiitem = new AdaptiveNumberInput();
-            Inputnumberiitem.Id = Dishname+"Quantity13579"+money;
+            Inputnumberiitem.Id = Dishname+"Quantity1357"+money;
             Inputnumberiitem.Placeholder = "Enter a number";
             Inputnumberiitem.Min = 0;
             Inputnumberiitem.Value = 0;
@@ -506,46 +279,9 @@ namespace BuildSchoolBot.Service
             var TextBlockDueTime = new AdaptiveTextBlock();
             TextBlockDueTime.Size = AdaptiveTextSize.Medium;
             TextBlockDueTime.Weight = AdaptiveTextWeight.Bolder;
-            TextBlockDueTime.Text = "Due Time:";
+            TextBlockDueTime.Text = "Due Time:  123";
             TextBlockDueTime.HorizontalAlignment = AdaptiveHorizontalAlignment.Left;
             card.Body.Add(TextBlockDueTime);
-
-            var ColumnSetTime = new AdaptiveColumnSet();
-            ColumnSetTime.Separator = true;
-
-            var ColumnTime = new AdaptiveColumn();
-            ColumnTime.Width = AdaptiveColumnWidth.Stretch;
-            var containerTime = new AdaptiveContainer();
-            var InputTime = new AdaptiveTimeInput();
-            InputTime.Id = "DueTime";
-            containerTime.Items.Add(InputTime);
-            ColumnTime.Items.Add(containerTime);
-            ColumnSetTime.Columns.Add(ColumnTime);
-
-            //card.Body.Add(ColumnSetitem);
-
-       
-                var ColumnBlank = new AdaptiveColumn();
-                ColumnBlank.Width = AdaptiveColumnWidth.Stretch;
-                var containerBlank = new AdaptiveContainer();
-                var TextBlockBlank = new AdaptiveTextBlock();
-                TextBlockBlank.Text = "";
-                containerBlank.Items.Add(TextBlockBlank);
-                ColumnBlank.Items.Add(containerBlank);
-                ColumnSetTime.Columns.Add(ColumnBlank);
-
-            var ColumnBlank1 = new AdaptiveColumn();
-            ColumnBlank1.Width = AdaptiveColumnWidth.Stretch;
-            var containerBlank1 = new AdaptiveContainer();
-            var TextBlockBlank1 = new AdaptiveTextBlock();
-            TextBlockBlank1.Text = "";
-            containerBlank1.Items.Add(TextBlockBlank1);
-            ColumnBlank1.Items.Add(containerBlank1);
-            ColumnSetTime.Columns.Add(ColumnBlank1);
-
-
-            card.Body.Add(ColumnSetTime);
-
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
 

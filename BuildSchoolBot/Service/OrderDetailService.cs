@@ -33,7 +33,7 @@ namespace BuildSchoolBot.Service
         //該用戶只能移除該用戶的order //IEnumerable多筆資料
         public IEnumerable<OrderDetail> GetUserOrder(string orderId, string userId)
         {
-            return context.OrderDetail.Where(x => x.OrderId.ToString().Equals(orderId) && x.Member.ToString().Equals(userId));
+            return context.OrderDetail.Where(x => x.OrderId.ToString().Equals(orderId) && x.MemberId.ToString().Equals(userId));
 
         }
     }

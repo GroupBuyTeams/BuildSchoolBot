@@ -15,7 +15,7 @@ namespace BuildSchoolBot.Service
             var order = new Order
             {
                 OrderId = Guid.Parse(OrderId),
-                GroupId = Guid.Parse(GroupId),
+                GroupId = GroupId,
                 Date = DateTime.Now
 
             };

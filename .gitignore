@@ -343,4 +343,4 @@ healthchecksdb
 .vscode
 
 # Project appsettings
-BuildSchoolBot/appsettings.json
+appsettings.json

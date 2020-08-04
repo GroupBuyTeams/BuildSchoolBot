@@ -6,7 +6,7 @@ namespace BuildSchoolBot.Models
 {
     public partial class TeamsBuyContext : DbContext
     {
-        public TeamsBuyContext()          
+        public TeamsBuyContext()
         {
         }
 
@@ -92,6 +92,8 @@ namespace BuildSchoolBot.Models
                 entity.Property(e => e.LibraryName)
                     .IsRequired()
                     .HasMaxLength(100);
+
+                entity.Property(e => e.MemberId).IsRequired();
 
                 entity.Property(e => e.Uri).IsRequired();
             });

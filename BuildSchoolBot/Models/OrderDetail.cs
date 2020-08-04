@@ -11,6 +11,7 @@ namespace BuildSchoolBot.Models
         public int Number { get; set; }
         public string Mark { get; set; }
         public Guid Member { get; set; }
+
         public virtual Order Order { get; set; }
     }
 }

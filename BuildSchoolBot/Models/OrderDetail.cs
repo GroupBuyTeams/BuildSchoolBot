@@ -10,7 +10,7 @@ namespace BuildSchoolBot.Models
         public decimal Amount { get; set; }
         public int Number { get; set; }
         public string Mark { get; set; }
-        public Guid Member { get; set; }
+        public string MemberId { get; set; }
 
         public virtual Order Order { get; set; }
     }

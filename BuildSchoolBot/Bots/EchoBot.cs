@@ -19,6 +19,8 @@ using System.IO;
 using Newtonsoft.Json;
 using BuildSchoolBot.Service;
 using Microsoft.Bot.Schema.Teams;
+using Quartz;
+using System.Collections.Concurrent;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
 using BuildSchoolBot.StoreModels;
@@ -31,12 +33,17 @@ namespace BuildSchoolBot.Bots
         protected readonly BotState ConversationState;
         protected readonly BotState UserState;
         protected readonly LibraryService _libraryService;
-        public EchoBot(ConversationState conversationState, UserState userState, T dialog, LibraryService libraryService)
+        protected readonly ISchedulerFactory SchedulerFactory;
+        protected readonly ConcurrentDictionary<string, ConversationReference> ConversationReferences;
+
+        public EchoBot(ConversationState conversationState, UserState userState, T dialog, LibraryService libraryService, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences)
         {
             ConversationState = conversationState;
             UserState = userState;
             Dialog = dialog;
             _libraryService = libraryService;
+            SchedulerFactory = schedulerFactory;
+            ConversationReferences = conversationReferences;
         }
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
@@ -60,13 +67,28 @@ namespace BuildSchoolBot.Bots
                 _libraryService.DeleteLibraryItem(guid);
 
             }
+            else if (turnContext.Activity.Text == "ccc")//Demo用
+            {
+                var services = await SchedulerFactory.GetAllSchedulers();
+                var scheduler = new ScheduleCreator(services[0], turnContext.Activity.From.Id);
+                AddConversationReference(turnContext.Activity as Activity);
+                scheduler.CreateSingleGroupBuyNow(DateTime.Now.AddSeconds(15.0f));
+                await turnContext.SendActivityAsync(MessageFactory.Text("schedule a group buy."));
+            }
             else
             {
-
                 await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
+
             }
 
         }
+
+        private void AddConversationReference(Activity activity)
+        {
+            var conversationReference = activity.GetConversationReference();
+            ConversationReferences.AddOrUpdate(conversationReference.User.Id, conversationReference, (key, newValue) => conversationReference);
+        }
+
 
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {

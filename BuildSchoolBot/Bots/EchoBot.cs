@@ -67,14 +67,17 @@ namespace BuildSchoolBot.Bots
                 _libraryService.DeleteLibraryItem(guid);
 
             }
-            else if (turnContext.Activity.Text == "ccc")//Demo用
-            {
-                var services = await SchedulerFactory.GetAllSchedulers();
-                var scheduler = new ScheduleCreator(services[0], turnContext.Activity.From.Id);
-                AddConversationReference(turnContext.Activity as Activity);
-                scheduler.CreateSingleGroupBuyNow(DateTime.Now.AddSeconds(15.0f));
-                await turnContext.SendActivityAsync(MessageFactory.Text("schedule a group buy."));
-            }
+            //Only for Demo.
+            //please don't delete it, please don't delete it, please don't delete it!!!!
+
+            // else if (turnContext.Activity.Text.Contains("ccc")) 
+            // {
+            //     var services = await SchedulerFactory.GetAllSchedulers();
+            //     var scheduler = new ScheduleCreator(services[0], turnContext.Activity.From.Id, "GUID");
+            //     AddConversationReference(turnContext.Activity as Activity);
+            //     scheduler.CreateSingleGroupBuyNow(DateTime.Now.AddSeconds(15.0f));
+            //     await turnContext.SendActivityAsync(MessageFactory.Text("schedule a group buy."));
+            // }
             else
             {
                 var activity = turnContext.Activity;

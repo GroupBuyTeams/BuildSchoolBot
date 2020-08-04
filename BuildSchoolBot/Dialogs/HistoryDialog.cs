@@ -64,18 +64,18 @@ namespace BuildSchoolBot.Dialogs
             return await stepContext.NextAsync();
         }
 
-        protected async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
-        {
-            // Capture input from adaptive card
-            if (string.IsNullOrEmpty(turnContext.Activity.Text) && turnContext.Activity.Value != null)
-            {
-                // Conditionally convert based off of input ID of Adaptive Card
-                if ((turnContext.Activity.Value as JObject)["<adaptiveCardInputId>"] != null)
-                {
-                    turnContext.Activity.Text = (turnContext.Activity.Value as JObject)["<adaptiveCardInputId>"].ToString();
-                }
-            }
-        }
+        //protected async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
+        //{
+        //    // Capture input from adaptive card
+        //    if (string.IsNullOrEmpty(turnContext.Activity.Text) && turnContext.Activity.Value != null)
+        //    {
+        //        // Conditionally convert based off of input ID of Adaptive Card
+        //        if ((turnContext.Activity.Value as JObject)["<adaptiveCardInputId>"] != null)
+        //        {
+        //            turnContext.Activity.Text = (turnContext.Activity.Value as JObject)["<adaptiveCardInputId>"].ToString();
+        //        }
+        //    }
+        //}
 
 
         //產生卡片

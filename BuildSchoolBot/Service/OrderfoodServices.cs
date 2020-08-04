@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using static BuildSchoolBot.StoreModels.AllSelectData;
 using static BuildSchoolBot.StoreModels.fooditem;
 using static BuildSchoolBot.StoreModels.GetStore;
 using static BuildSchoolBot.StoreModels.SelectMenu;
@@ -47,7 +48,7 @@ namespace BuildSchoolBot.Service
             SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
             return await Task.FromResult(taskInfo.ToTaskModuleResponse());
         }
-        public async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken,string DueTime)
+        public async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken,string DueTime,string UserId)
         {
             var taskInfo = new TaskModuleTaskInfo();
             var taskModuleRequestjson = JsonConvert.SerializeObject(taskModuleRequest.Data);
@@ -80,6 +81,33 @@ namespace BuildSchoolBot.Service
             JObject o = new JObject();
             o["SelectMenu"] = array;
             string json = o.ToString();
+            //資料完整
+            List<SelectData> SelectOrder = new List<SelectData>();
+            var ProcessAllDataJson = JsonConvert.SerializeObject(o);
+            var ProcessSelectObject = JsonConvert.DeserializeObject<SelectMenuDatagroup>(ProcessAllDataJson);
+           foreach(var item in ProcessSelectObject.SelectMenu)
+            {
+                if (item.Quantity != "0")
+                {
+                    SelectOrder.Add(new SelectData() { Quantity = item.Quantity, Remarks = item.Remarks, Dish_Name = item.Dish_Name, Price = item.Price });
+                }
+            }
+            JsonSerializer serializerAllOrderDatas = new JsonSerializer();
+            StringWriter SAllOrderDatas = new StringWriter();
+            serializer.Serialize(new JsonTextWriter(SAllOrderDatas), SelectOrder);
+            string SelectJsonAllOrderDatas = SAllOrderDatas.GetStringBuilder().ToString();
+            JArray arrayAllOrderDatas = JArray.Parse(SelectJsonAllOrderDatas);
+            JObject OAllOrderDatas = new JObject();
+            OAllOrderDatas["SelectAllOrders"] = arrayAllOrderDatas;
+            var OAllOrderDatasStr = OAllOrderDatas.ToString();
+            var userid = UserId;
+            var SelectObject = JsonConvert.DeserializeObject<SelectAllDataGroup>(OAllOrderDatasStr);
+            //SelectObject.SelectAllOrders = SelectOrder;
+            SelectObject.UserID = userid;
+            SelectObject.StoreName = StoreName;
+            var SelectAllDataJson = JsonConvert.SerializeObject(SelectObject);
+
+
             taskInfo.Card = GetResultClickfood(Guid, StoreName, json, DueTime);
             SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
             await turnContext.SendActivityAsync(MessageFactory.Attachment(GetResultClickfood(Guid,StoreName, json, DueTime)));

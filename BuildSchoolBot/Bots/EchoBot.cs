@@ -41,7 +41,7 @@ namespace BuildSchoolBot.Bots
         protected readonly OrderService _orderService;
         protected readonly OrderDetailService _orderDetailService;
 
-        public EchoBot(ConversationState conversationState, UserState userState, T dialog, LibraryService libraryService, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, OrderService orderService, OrderDetailService orderDetailService,ConcurrentDictionary<string, ConversationReference> conversationReferences)
+        public EchoBot(ConversationState conversationState, UserState userState, T dialog, LibraryService libraryService, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, OrderService orderService, OrderDetailService orderDetailService, ConcurrentDictionary<string, ConversationReference> conversationReferences)
         {
             ConversationState = conversationState;
             UserState = userState;
@@ -59,14 +59,7 @@ namespace BuildSchoolBot.Bots
             //var memberId = "EC7A25B7-6EEB-4FB5-BE96-2FA8B166EAFA";
             Guid guid;
 
-            if (turnContext.Activity.Text.Contains("Library"))
-            {
-                //Guid.TryParse(memberId, out guid);
-                var libraries = await _libraryService.FindLibraryByMemberId(memberId);
-                var libraryCard = Service.LibraryService.CreateAdaptiveCardAttachment(libraries);
-                await turnContext.SendActivityAsync(MessageFactory.Attachment(libraryCard), cancellationToken);
-            }
-            else if (turnContext.Activity.Text == "DeletedLibrary")
+            if (turnContext.Activity.Text.Contains("DeletedLibrary"))
             {
                 dynamic obj = turnContext.Activity.Value;
                 var LibraryId = obj.LibraryId;
@@ -75,10 +68,17 @@ namespace BuildSchoolBot.Bots
                 _libraryService.DeleteLibraryItem(guid);
 
             }
+            else if (turnContext.Activity.Text.Contains("Library"))
+            {
+                //Guid.TryParse(memberId, out guid);
+                var libraries = await _libraryService.FindLibraryByMemberId(memberId);
+                var libraryCard = Service.LibraryService.CreateAdaptiveCardAttachment(libraries);
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(libraryCard), cancellationToken);
+            }
             //Only for Demo.
             //please don't delete it, please don't delete it, please don't delete it!!!!
 
-            else if (turnContext.Activity.Text.Contains("ccc")) 
+            else if (turnContext.Activity.Text.Contains("ccc"))
             {
                 var services = await SchedulerFactory.GetAllSchedulers();
                 var scheduler = new ScheduleCreator(services[0], turnContext.Activity.From.Id, "GUID");
@@ -89,7 +89,8 @@ namespace BuildSchoolBot.Bots
             else
             {
                 var activity = turnContext.Activity;
-                if(string.IsNullOrEmpty(activity.Text) && activity.Value != null){
+                if (string.IsNullOrEmpty(activity.Text) && activity.Value != null)
+                {
                     activity.Text = JsonConvert.SerializeObject(activity.Value);
                 }//for card input & waterfall dialog
                 await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
@@ -140,7 +141,7 @@ namespace BuildSchoolBot.Bots
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
             var UserId = turnContext.Activity.From.Id;
-            return await _orderfoodServices.OnTeamsTaskModuleSubmitAsync(turnContext, taskModuleRequest, cancellationToken,"12:00", UserId);
+            return await _orderfoodServices.OnTeamsTaskModuleSubmitAsync(turnContext, taskModuleRequest, cancellationToken, "12:00", UserId);
         }
     }
 }

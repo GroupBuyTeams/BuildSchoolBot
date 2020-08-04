@@ -86,6 +86,15 @@ namespace BuildSchoolBot.Bots
                 scheduler.CreateSingleGroupBuyNow(DateTime.Now.AddSeconds(15.0f));
                 await turnContext.SendActivityAsync(MessageFactory.Text("schedule a group buy."));
             }
+            else if (turnContext.Activity.Text.Contains("vvv"))
+            {
+                var datas = await TeamsInfo.GetMembersAsync(turnContext, cancellationToken);
+                foreach (var data in datas)
+                {
+                    var str = data.Name + "\r\n" + data.Id;
+                    await turnContext.SendActivityAsync(MessageFactory.Text(str));
+                }
+            }
             else
             {
                 var activity = turnContext.Activity;

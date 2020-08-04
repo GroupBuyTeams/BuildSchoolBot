@@ -73,6 +73,9 @@ namespace BuildSchoolBot
             services.AddTransient<TeamsBuyContext>();
             services.AddTransient<LibraryService>();
             services.AddTransient<OrderfoodServices>();
+            services.AddTransient<OrderDetailService>();
+            services.AddTransient<OrderService>();
+
 
         }
 

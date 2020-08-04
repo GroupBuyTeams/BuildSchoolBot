@@ -79,8 +79,11 @@ namespace BuildSchoolBot.Bots
             }
             else
             {
+                var activity = turnContext.Activity;
+                if(string.IsNullOrEmpty(activity.Text) && activity.Value != null){
+                    activity.Text = JsonConvert.SerializeObject(activity.Value);
+                }//for card input & waterfall dialog
                 await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
-
             }
 
         }

@@ -36,8 +36,10 @@ namespace BuildSchoolBot.Bots
         protected readonly ISchedulerFactory SchedulerFactory;
         protected readonly ConcurrentDictionary<string, ConversationReference> ConversationReferences;
         protected readonly OrderfoodServices _orderfoodServices;
+        protected readonly OrderService _orderService;
+        protected readonly OrderDetailService _orderDetailService;
 
-        public EchoBot(ConversationState conversationState, UserState userState, T dialog, LibraryService libraryService, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences)
+        public EchoBot(ConversationState conversationState, UserState userState, T dialog, LibraryService libraryService, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, OrderService orderService, OrderDetailService orderDetailService,ConcurrentDictionary<string, ConversationReference> conversationReferences)
         {
             ConversationState = conversationState;
             UserState = userState;
@@ -46,6 +48,8 @@ namespace BuildSchoolBot.Bots
             SchedulerFactory = schedulerFactory;
             ConversationReferences = conversationReferences;
             _orderfoodServices = orderfoodServices;
+            _orderService = orderService;
+            _orderDetailService = orderDetailService;
         }
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
@@ -79,8 +83,11 @@ namespace BuildSchoolBot.Bots
             }
             else
             {
+                var activity = turnContext.Activity;
+                if(string.IsNullOrEmpty(activity.Text) && activity.Value != null){
+                    activity.Text = JsonConvert.SerializeObject(activity.Value);
+                }//for card input & waterfall dialog
                 await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
-
             }
 
         }

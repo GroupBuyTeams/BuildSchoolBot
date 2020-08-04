@@ -35,8 +35,11 @@ namespace BuildSchoolBot.Bots
         protected readonly LibraryService _libraryService;
         protected readonly ISchedulerFactory SchedulerFactory;
         protected readonly ConcurrentDictionary<string, ConversationReference> ConversationReferences;
+        protected readonly OrderfoodServices _orderfoodServices;
+        protected readonly OrderService _orderService;
+        protected readonly OrderDetailService _orderDetailService;
 
-        public EchoBot(ConversationState conversationState, UserState userState, T dialog, LibraryService libraryService, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences)
+        public EchoBot(ConversationState conversationState, UserState userState, T dialog, LibraryService libraryService, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, OrderService orderService, OrderDetailService orderDetailService,ConcurrentDictionary<string, ConversationReference> conversationReferences)
         {
             ConversationState = conversationState;
             UserState = userState;
@@ -44,6 +47,9 @@ namespace BuildSchoolBot.Bots
             _libraryService = libraryService;
             SchedulerFactory = schedulerFactory;
             ConversationReferences = conversationReferences;
+            _orderfoodServices = orderfoodServices;
+            _orderService = orderService;
+            _orderDetailService = orderDetailService;
         }
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
@@ -127,13 +133,11 @@ namespace BuildSchoolBot.Bots
         }
         protected override Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
-            var Menumodule = new OrderfoodServices();
-            return Menumodule.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
+            return _orderfoodServices.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
         }
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
-            var Menumodule = new OrderfoodServices();
-            return await Menumodule.OnTeamsTaskModuleSubmitAsync(turnContext, taskModuleRequest, cancellationToken);
+            return await _orderfoodServices.OnTeamsTaskModuleSubmitAsync(turnContext, taskModuleRequest, cancellationToken,"12:00");
         }
     }
 }

@@ -102,17 +102,22 @@ namespace BuildSchoolBot.Models
             {
                 entity.Property(e => e.OrderId).ValueGeneratedNever();
 
+                entity.Property(e => e.ChannelId).IsRequired();
+
                 entity.Property(e => e.Date).HasColumnType("datetime");
 
-                entity.Property(e => e.GroupId).IsRequired();
+                entity.Property(e => e.StoreName)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .IsFixedLength();
             });
 
             modelBuilder.Entity<OrderDetail>(entity =>
             {
-                entity.HasNoKey();
-
                 entity.HasIndex(e => e.OrderId)
                     .HasName("IX_OrderDetail");
+
+                entity.Property(e => e.OrderDetailId).ValueGeneratedNever();
 
                 entity.Property(e => e.Amount).HasColumnType("money");
 
@@ -125,7 +130,7 @@ namespace BuildSchoolBot.Models
                     .HasMaxLength(500);
 
                 entity.HasOne(d => d.Order)
-                    .WithMany()
+                    .WithMany(p => p.OrderDetail)
                     .HasForeignKey(d => d.OrderId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_OrderDetail_Order");

@@ -9,8 +9,13 @@ namespace BuildSchoolBot.Service
 {
     public class OrderDetailService
     {
-        public TeamsBuyContext context;
-
+        //protected 保護不能做修改
+        protected readonly TeamsBuyContext context;
+        //當在記憶體內新增這個類別的執行個體時,要先做這個程式(建構式)
+        public OrderDetailService(TeamsBuyContext _context)
+        {
+            context = _context;
+        }//middleware
         //create OrderDetail
         public void CreateOrderDetail(SelectAllDataGroup SelectObject, List<SelectData> SelectAllOrders,string OrderId)
         {
@@ -38,10 +43,17 @@ namespace BuildSchoolBot.Service
             }
             context.SaveChanges();
         }
+        //顯示OrderDetail
+        public IEnumerable<OrderDetail> GetOrderDetail(string orderId)
+        {
+            return context.OrderDetail.Where(x => x.OrderId.ToString().Equals(orderId));
+
+        }
         //該用戶只能移除該用戶的order //IEnumerable多筆資料
         public IEnumerable<OrderDetail> GetUserOrder(string orderId, string userId)
         {
             return context.OrderDetail.Where(x => x.OrderId.ToString().Equals(orderId) && x.MemberId.ToString().Equals(userId));
+
 
         }
     }

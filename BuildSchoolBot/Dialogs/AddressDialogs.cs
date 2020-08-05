@@ -26,6 +26,7 @@ namespace BuildSchoolBot.Dialogs
             var waterfallSteps = new WaterfallStep[]
             {
                 AddressStepAsync,
+                ConfirmAddressAsync,
                 GetStoreAsync
             };
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), waterfallSteps));
@@ -36,6 +37,16 @@ namespace BuildSchoolBot.Dialogs
         {
             return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { Prompt = MessageFactory.Text("Please enter your address.") }, cancellationToken);
             
+        }
+        //吳家寶
+        private static async Task<DialogTurnResult> ConfirmAddressAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        {
+            string add = (string)stepContext.Result;
+            var LatLng = new LatLngService(add);
+            string result = await new WebCrawler().GetStores(LatLng.lat, LatLng.lng);
+            var get_store = new GetStoreList();
+            await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(get_store.GetStore(add,result)));
+            return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { Prompt = MessageFactory.Text("Please Confirm Your Address.") }, cancellationToken);
         }
         private static async Task<DialogTurnResult> GetStoreAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {

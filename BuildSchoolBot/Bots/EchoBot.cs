@@ -108,7 +108,7 @@ namespace BuildSchoolBot.Bots
                 if (string.IsNullOrEmpty(activity.Text) && activity.Value != null)
                 {
                     activity.Text = JsonConvert.SerializeObject(activity.Value);
-                }//for card input & waterfall dialog
+                }
                 await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
             }
 
@@ -144,6 +144,11 @@ namespace BuildSchoolBot.Bots
 
         public override async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default)
         {
+            var activity = turnContext.Activity;
+            if (string.IsNullOrWhiteSpace(activity.Text) && activity.Value != null)
+            {
+                activity.Text = JsonConvert.SerializeObject(activity.Value);
+            }
             await base.OnTurnAsync(turnContext, cancellationToken);
 
             // Save any state changes that might have occurred during the turn.
@@ -152,6 +157,11 @@ namespace BuildSchoolBot.Bots
         }
         protected override Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
+            if (taskModuleRequest.Data.ToString().Split('"').FirstOrDefault(x => x.Equals("GetStore")) == "GetStore")
+            {
+                var StoreModule = new GetStoreList();
+                return StoreModule.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
+            }
             return _orderfoodServices.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
         }
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)

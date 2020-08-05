@@ -13,7 +13,7 @@
             {
               "type": "Input.Date",
               "spacing": "Medium",
-              "id": "StartDate"
+              "id": "DateFrom"
             }
           ]
         },
@@ -36,7 +36,7 @@
             {
               "type": "Input.Date",
               "spacing": "Medium",
-              "id": "EndDate"
+              "id": "DateTo"
             }
           ]
         }

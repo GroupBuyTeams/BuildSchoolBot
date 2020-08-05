@@ -121,6 +121,9 @@ namespace BuildSchoolBot.Service
                 MenuModule(ColumnSetitem, s.Store_Name,s.Store_Url);
                 card.Body.Add(ColumnSetitem);
             }
+            card.Actions = new[] { TaskModuleUIConstants.AdaptiveCard }
+                   .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle, Data = new AdaptiveCardTaskFetchValue<string>() { Data = Jdata } })
+                    .ToList<AdaptiveAction>();
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
         private static void SetTaskInfo(TaskModuleTaskInfo taskInfo, UISettings uIConstants)

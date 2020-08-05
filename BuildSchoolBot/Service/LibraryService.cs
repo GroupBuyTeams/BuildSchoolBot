@@ -56,10 +56,10 @@ namespace BuildSchoolBot.Service
             var card = AdaptiveCards.AdaptiveCard.FromJson(libraryCardJson).Card;
             library.ForEach(item =>
             {
+                obj.body.Add(objItem);
                 objItem.columns[1].items[0].text.Value = item.LibraryName;
                 objItem.columns[1].items[1].text.Value = item.Uri;
                 objItem.columns[2].items[0].actions[0].data.msteams.value.Value = "{\"LibraryId\":\"" + item.LibraryId + "\"}";
-                obj.body.Add(objItem);
             });
 
             var adaptiveCardAttachment = new Attachment()

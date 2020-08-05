@@ -12,12 +12,13 @@ namespace BuildSchoolBot.Dialogs
 {
     public class MainDialog : ComponentDialog
     {
-        public MainDialog(AddressDialogs addressDialog) : base(nameof(MainDialog))
+        public MainDialog(AddressDialogs addressDialog,HistoryDialog historyDialog) : base(nameof(MainDialog))
         {
 
             AddDialog(new ChoicePrompt(nameof(ChoicePrompt)));
             AddDialog(new TextPrompt(nameof(TextPrompt)));
             AddDialog(addressDialog);
+            AddDialog(historyDialog);
             AddDialog(new WaterfallDialog(
                 nameof(WaterfallDialog),
                 new WaterfallStep[] { ChooseStepAsync, MiddleStepAsync, FinalStepAscnc }));

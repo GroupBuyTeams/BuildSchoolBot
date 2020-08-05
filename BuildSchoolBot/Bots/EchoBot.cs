@@ -42,7 +42,7 @@ namespace BuildSchoolBot.Bots
         protected readonly OrderService _orderService;
         protected readonly OrderDetailService _orderDetailService;
 
-        public EchoBot(ConversationState conversationState, UserState userState, T dialog, LibraryService libraryService, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, OrderService orderService, OrderDetailService orderDetailService, ConcurrentDictionary<string, ConversationReference> conversationReferences)
+        public EchoBot(ConversationState conversationState, LibraryService libraryService, OrderService orderService, OrderDetailService orderDetailService, UserState userState, T dialog,  OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences)
         {
             ConversationState = conversationState;
             UserState = userState;
@@ -67,11 +67,18 @@ namespace BuildSchoolBot.Bots
 
                 Guid.TryParse(LibraryId.ToString(), out guid);
                 _libraryService.DeleteLibraryItem(guid);
+                var libraries = await _libraryService.FindLibraryByMemberId(memberId);
+                var libraryCard = Service.LibraryService.CreateAdaptiveCardAttachment(libraries);
+                var activity = MessageFactory.Attachment(libraryCard);
+                activity.Id = turnContext.Activity.ReplyToId;
+
+                await turnContext.UpdateActivityAsync(activity, cancellationToken);
+
 
             }
             else if (turnContext.Activity.Text.Contains("Library"))
             {
-                //Guid.TryParse(memberId, out guid);
+                Guid.TryParse(memberId, out guid);
                 var libraries = await _libraryService.FindLibraryByMemberId(memberId);
                 var libraryCard = Service.LibraryService.CreateAdaptiveCardAttachment(libraries);
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(libraryCard), cancellationToken);
@@ -102,7 +109,7 @@ namespace BuildSchoolBot.Bots
                 if (string.IsNullOrEmpty(activity.Text) && activity.Value != null)
                 {
                     activity.Text = JsonConvert.SerializeObject(activity.Value);
-                }//for card input & waterfall dialog
+                }
                 await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
             }
 

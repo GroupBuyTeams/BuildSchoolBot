@@ -103,6 +103,8 @@ namespace BuildSchoolBot.Models
                 entity.Property(e => e.OrderId).ValueGeneratedNever();
 
                 entity.Property(e => e.Date).HasColumnType("datetime");
+
+                entity.Property(e => e.GroupId).IsRequired();
             });
 
             modelBuilder.Entity<OrderDetail>(entity =>
@@ -115,6 +117,8 @@ namespace BuildSchoolBot.Models
                 entity.Property(e => e.Amount).HasColumnType("money");
 
                 entity.Property(e => e.Mark).HasMaxLength(2000);
+
+                entity.Property(e => e.MemberId).IsRequired();
 
                 entity.Property(e => e.ProductName)
                     .IsRequired()

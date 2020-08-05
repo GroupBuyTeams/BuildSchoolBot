@@ -121,7 +121,7 @@ namespace BuildSchoolBot.Bots
         }
         protected override Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
-            if(taskModuleRequest.Data.ToString().Split('"')[7]=="GetStore")
+            if (taskModuleRequest.Data.ToString().Split('"').FirstOrDefault(x => x.Equals("GetStore")) == "GetStore")
             {
                 var StoreModule = new GetStoreList();
                 return StoreModule.OnTeamsTaskModuleFetchAsync(taskModuleRequest);

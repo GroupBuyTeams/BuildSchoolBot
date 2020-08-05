@@ -1,4 +1,5 @@
 ﻿using AdaptiveCards;
+using BuildSchoolBot.Models;
 using BuildSchoolBot.StoreModels;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
@@ -22,10 +23,54 @@ namespace BuildSchoolBot.Service
             var asJobject = JObject.FromObject(taskModuleRequest.Data);
             var value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
             var taskInfo = new TaskModuleTaskInfo();
-            //string GetStoreJson = await new WebCrawler().GetStores();
-            taskInfo.Card = CreateClickfoodModule("123");
+            var LatLng = GetLatLng(value);
+            string GetStoreJson = await new WebCrawler().GetStores(LatLng.lat,LatLng.lng);
+            JArray array = JArray.Parse(GetStoreJson);
+            JObject JStore = new JObject();
+            JStore["Stores"] = array;
+            string namejson = JStore.ToString();
+            taskInfo.Card = CreateClickStoreModule(namejson);
             SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
             return await Task.FromResult(taskInfo.ToTaskModuleResponse());
+        }
+        private void MenuModule(AdaptiveColumnSet ColumnSetitem, string StoreName ,string Url)
+        {
+            //店家名稱
+            ColumnSetitem.Separator = true;
+            var ColumnStoreItem = new AdaptiveColumn();
+            ColumnStoreItem.Width = AdaptiveColumnWidth.Stretch;
+            var containerfoodiitem = new AdaptiveContainer();
+            var TextBlockfoodiitem = new AdaptiveTextBlock();
+            TextBlockfoodiitem.Text = StoreName;
+            containerfoodiitem.Items.Add(TextBlockfoodiitem);
+            ColumnStoreItem.Items.Add(containerfoodiitem);
+
+            //選擇時間
+            var ColumnTime = new AdaptiveColumn();
+            ColumnTime.Width = AdaptiveColumnWidth.Stretch;
+            var containerTime = new AdaptiveContainer();
+            var InputTime = new AdaptiveTimeInput();
+            InputTime.Id = "DueTime";
+            containerTime.Items.Add(InputTime);
+            ColumnTime.Items.Add(containerTime);
+
+            //勾選欄位
+            var ColumnToggle = new AdaptiveColumn();
+            ColumnToggle.Width = AdaptiveColumnWidth.Stretch;
+            var containermoneyiitem = new AdaptiveContainer();
+            var CheckBox = new AdaptiveToggleInput();
+            CheckBox.Title = "Confirm";
+            containermoneyiitem.Items.Add(CheckBox);
+            ColumnToggle.Items.Add(containermoneyiitem);
+
+            ColumnSetitem.Columns.Add(ColumnStoreItem);
+            ColumnSetitem.Columns.Add(ColumnTime);
+            ColumnSetitem.Columns.Add(ColumnToggle);
+        }
+        public LatLngService GetLatLng(string address)
+        {
+            var LatLng = new LatLngService(address);
+            return LatLng;
         }
         public Attachment GetStore(string Address,string StoreData)
         {
@@ -42,19 +87,19 @@ namespace BuildSchoolBot.Service
             card.Body.Add(actionSet);
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
-        private Attachment CreateClickfoodModule(string StorName)
+        private Attachment CreateClickStoreModule(string Jdata)
         {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
 
             var TextBlockStorName = new AdaptiveTextBlock();
             TextBlockStorName.Size = AdaptiveTextSize.Large;
             TextBlockStorName.Weight = AdaptiveTextWeight.Bolder;
-            TextBlockStorName.Text = StorName;
+            TextBlockStorName.Text = "Chose Order";
             TextBlockStorName.HorizontalAlignment = AdaptiveHorizontalAlignment.Center;
             card.Body.Add(TextBlockStorName);
 
 
-            string[] itemsname = new string[] { "StoreName", "Confirm" };
+            string[] itemsname = new string[] { "StoreName","Time", "Chose Your Order" };
             var ColumnSetitemname = new AdaptiveColumnSet();
 
             ColumnSetitemname.Separator = true;
@@ -68,6 +113,13 @@ namespace BuildSchoolBot.Service
                 containeritemsname.Items.Add(TextBlockitemsname);
                 Columnitemsname.Items.Add(containeritemsname);
                 ColumnSetitemname.Columns.Add(Columnitemsname);
+            }
+            var root = JsonConvert.DeserializeObject<Store_List>(Jdata);
+            foreach (var s in root.Stores)
+            {
+                var ColumnSetitem = new AdaptiveColumnSet();
+                MenuModule(ColumnSetitem, s.Store_Name,s.Store_Url);
+                card.Body.Add(ColumnSetitem);
             }
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }

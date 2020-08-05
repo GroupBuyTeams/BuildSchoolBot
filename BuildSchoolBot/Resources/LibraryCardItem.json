@@ -21,6 +21,13 @@
                     "weight": "Bolder",
                     "text": "${creator.name}",
                     "wrap": true
+                },
+                {
+                    "type": "TextBlock",
+                    "spacing": "None",
+                    "text": "Created {{DATE(${createdUtc},SHORT)}}",
+                    "isSubtle": true,
+                    "wrap": true
                 }
             ],
             "width": "stretch"
@@ -35,18 +42,21 @@
                     "actions": [
                         {
                             "type": "Action.Submit",
-                            "title": "Click me for messageBack",
+                            "title": "Delete",
                             "style": "destructive",
                             "data": {
                                 "msteams": {
                                     "type": "messageBack",
-                                    "displayText": "I clicked this button",
+                                    "displayText": "Already Deleted",
                                     "text": "DeletedLibrary",
                                     "value": "{\"bfKey\": \"bfVal\", \"conflictKey\": \"from value\"}"
                                 }
-                            }
+                            },
+                            "horizontalAlignment": "Center"
                         }
-                    ]
+                    ],
+                    "horizontalAlignment": "Center",
+                    "verticalContentAlignment": "Center"
                 }
             ]
         }

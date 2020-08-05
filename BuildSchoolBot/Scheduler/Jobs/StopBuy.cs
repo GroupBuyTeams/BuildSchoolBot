@@ -38,14 +38,11 @@ namespace BuildSchoolBot.Scheduler.Jobs
         {
             string UserId = context.MergedJobDataMap.GetString("UserId");
             Message = "Stop buying!";
-            Console.WriteLine(Message);
             var conversationReference = ConversationReferences.GetValueOrDefault(UserId);
             await ((BotAdapter)Adapter).ContinueConversationAsync(AppId, conversationReference, BotCallback, default(CancellationToken));
         }
         private async Task BotCallback(ITurnContext turnContext, CancellationToken cancellationToken)
         {
-            // If you encounter permission-related errors when sending this message, see
-            // https://aka.ms/BotTrustServiceUrl
             await turnContext.SendActivityAsync(Message);
         }
     }

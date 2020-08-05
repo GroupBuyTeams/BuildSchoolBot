@@ -1,3 +1,4 @@
+using BuildSchoolBot.Service;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
 using Microsoft.Bot.Schema;
@@ -37,19 +38,24 @@ namespace BuildSchoolBot.Scheduler.Jobs
         public async Task Execute(IJobExecutionContext context)
         {
             string UserId = context.MergedJobDataMap.GetString("UserId");
-            Message = "Start buying!";
-            Console.WriteLine(Message);
-
             var conversationReference = ConversationReferences.GetValueOrDefault(UserId);
-            await ((BotAdapter)Adapter).ContinueConversationAsync(AppId, conversationReference, BotCallback, default(CancellationToken));
+            
+            string channelId = conversationReference.ChannelId;
+            string scheduleId = context.MergedJobDataMap.GetString("ScheduleId");
+            CreateOrder(scheduleId, channelId);
 
             Message = context.MergedJobDataMap.GetString("Information");
             await ((BotAdapter)Adapter).ContinueConversationAsync(AppId, conversationReference, BotCallback, default(CancellationToken));
         }
+
+        private void CreateOrder(string Guid, string GroupId)
+        {
+            var orderService = new OrderService();
+            orderService.CreateOrder(Guid, GroupId);
+        }
+
         private async Task BotCallback(ITurnContext turnContext, CancellationToken cancellationToken)
         {
-            // If you encounter permission-related errors when sending this message, see
-            // https://aka.ms/BotTrustServiceUrl
             await turnContext.SendActivityAsync(Message);
         }
     }

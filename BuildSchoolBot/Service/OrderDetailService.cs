@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static BuildSchoolBot.StoreModels.AllSelectData;
 
 namespace BuildSchoolBot.Service
 {
@@ -11,13 +12,20 @@ namespace BuildSchoolBot.Service
         public TeamsBuyContext context;
 
         //create OrderDetail
-        public void CreateOrderDetail(string OrderId)
+        public void CreateOrderDetail(SelectAllDataGroup SelectObject, List<SelectData> SelectAllOrders,string OrderId)
         {
-            var detail = new OrderDetail
+            foreach(var lists in SelectAllOrders)
             {
-                OrderId = Guid.Parse(OrderId),
-            };
-            context.OrderDetail.Add(detail);
+                var detail = new OrderDetail
+                {
+                    OrderId = Guid.Parse(OrderId),                   
+                    ProductName = lists.Dish_Name,
+                    Amount = decimal.Parse(lists.Price),
+                    Number = int.Parse(lists.Quantity),
+                    MemberId = SelectObject.UserID,
+                };
+                context.OrderDetail.Add(detail);               
+            }
             context.SaveChanges();
         }
         //delete OrderDetail
@@ -33,7 +41,7 @@ namespace BuildSchoolBot.Service
         //該用戶只能移除該用戶的order //IEnumerable多筆資料
         public IEnumerable<OrderDetail> GetUserOrder(string orderId, string userId)
         {
-            return context.OrderDetail.Where(x => x.OrderId.ToString().Equals(orderId) && x.Member.ToString().Equals(userId));
+            return context.OrderDetail.Where(x => x.OrderId.ToString().Equals(orderId) && x.MemberId.ToString().Equals(userId));
 
         }
     }

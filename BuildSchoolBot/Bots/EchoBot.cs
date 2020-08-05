@@ -24,6 +24,8 @@ using System.Collections.Concurrent;
 using Microsoft.Extensions.Configuration;
 using System.Linq;
 using BuildSchoolBot.StoreModels;
+using System.Net.Http;
+using Newtonsoft.Json.Linq;
 
 namespace BuildSchoolBot.Bots
 {
@@ -35,8 +37,11 @@ namespace BuildSchoolBot.Bots
         protected readonly LibraryService _libraryService;
         protected readonly ISchedulerFactory SchedulerFactory;
         protected readonly ConcurrentDictionary<string, ConversationReference> ConversationReferences;
+        protected readonly OrderfoodServices _orderfoodServices;
+        protected readonly OrderService _orderService;
+        protected readonly OrderDetailService _orderDetailService;
 
-        public EchoBot(ConversationState conversationState, UserState userState, T dialog, LibraryService libraryService, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences)
+        public EchoBot(ConversationState conversationState, UserState userState, T dialog, LibraryService libraryService, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, OrderService orderService, OrderDetailService orderDetailService, ConcurrentDictionary<string, ConversationReference> conversationReferences)
         {
             ConversationState = conversationState;
             UserState = userState;
@@ -44,21 +49,17 @@ namespace BuildSchoolBot.Bots
             _libraryService = libraryService;
             SchedulerFactory = schedulerFactory;
             ConversationReferences = conversationReferences;
+            _orderfoodServices = orderfoodServices;
+            _orderService = orderService;
+            _orderDetailService = orderDetailService;
         }
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            // var memberId = turnContext.Activity.From.AadObjectId;
-            var memberId = "EC7A25B7-6EEB-4FB5-BE96-2FA8B166EAFA";
+            var memberId = turnContext.Activity.From.Id;
+            //var memberId = "EC7A25B7-6EEB-4FB5-BE96-2FA8B166EAFA";
             Guid guid;
 
-            if (turnContext.Activity.Text == "Library")
-            {
-                Guid.TryParse(memberId, out guid);
-                var library = await _libraryService.FindLibraryByMemberId(guid);
-                var libraryCard = Service.LibraryService.CreateAdaptiveCardAttachment(library);
-                await turnContext.SendActivityAsync(MessageFactory.Attachment(libraryCard), cancellationToken);
-            }
-            else if (turnContext.Activity.Text == "DeletedLibrary")
+            if (turnContext.Activity.Text.Contains("DeletedLibrary"))
             {
                 dynamic obj = turnContext.Activity.Value;
                 var LibraryId = obj.LibraryId;
@@ -67,18 +68,37 @@ namespace BuildSchoolBot.Bots
                 _libraryService.DeleteLibraryItem(guid);
 
             }
-            else if (turnContext.Activity.Text == "ccc")//Demo用
+            else if (turnContext.Activity.Text.Contains("Library"))
+            {
+                //Guid.TryParse(memberId, out guid);
+                var libraries = await _libraryService.FindLibraryByMemberId(memberId);
+                var libraryCard = Service.LibraryService.CreateAdaptiveCardAttachment(libraries);
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(libraryCard), cancellationToken);
+            }
+            //Only for Demo.
+            //please don't delete it, please don't delete it, please don't delete it!!!!
+
+            else if (turnContext.Activity.Text.Contains("ccc"))
             {
                 var services = await SchedulerFactory.GetAllSchedulers();
-                var scheduler = new ScheduleCreator(services[0], turnContext.Activity.From.Id);
+                var scheduler = new ScheduleCreator(services[0], turnContext.Activity.From.Id, "GUID");
                 AddConversationReference(turnContext.Activity as Activity);
                 scheduler.CreateSingleGroupBuyNow(DateTime.Now.AddSeconds(15.0f));
                 await turnContext.SendActivityAsync(MessageFactory.Text("schedule a group buy."));
             }
+            else if (turnContext.Activity.Text.Contains("userid"))
+            {
+                var datas = await TeamsInfo.GetMembersAsync(turnContext, cancellationToken);
+                foreach (var data in datas)
+                {
+                    var str = data.Name + "\r\n" + data.Id;
+                    await turnContext.SendActivityAsync(MessageFactory.Text(str));
+                }
+            }
             else
             {
                 var activity = turnContext.Activity;
-                if (string.IsNullOrWhiteSpace(activity.Text) && activity.Value != null)
+                if (string.IsNullOrEmpty(activity.Text) && activity.Value != null)
                 {
                     activity.Text = JsonConvert.SerializeObject(activity.Value);
                 }
@@ -130,13 +150,12 @@ namespace BuildSchoolBot.Bots
         }
         protected override Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
-            var Menumodule = new OrderfoodServices();
-            return Menumodule.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
+            return _orderfoodServices.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
         }
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
-            var Menumodule = new OrderfoodServices();
-            return await Menumodule.OnTeamsTaskModuleSubmitAsync(turnContext, taskModuleRequest, cancellationToken);
+            var UserId = turnContext.Activity.From.Id;
+            return await _orderfoodServices.OnTeamsTaskModuleSubmitAsync(turnContext, taskModuleRequest, cancellationToken, "12:00", UserId);
         }
     }
 }

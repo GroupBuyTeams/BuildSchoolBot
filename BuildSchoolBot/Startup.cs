@@ -21,6 +21,7 @@ using BuildSchoolBot.Scheduler.Jobs;
 using BuildSchoolBot.Scheduler;
 using BuildSchoolBot.Models;
 using BuildSchoolBot.Service;
+using BuildSchoolBot.Repository;
 
 namespace BuildSchoolBot
 {
@@ -73,6 +74,12 @@ namespace BuildSchoolBot
 
             services.AddTransient<TeamsBuyContext>();
             services.AddTransient<LibraryService>();
+            services.AddTransient<OrderfoodServices>();
+            services.AddTransient<OrderDetailService>();
+            services.AddTransient<OrderService>();
+            services.AddSingleton<EGRepository<Library>>();
+
+
             services.AddTransient<HistoryService>();
         }
 

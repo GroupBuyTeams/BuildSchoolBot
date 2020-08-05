@@ -1,9 +1,11 @@
 ﻿using AdaptiveCards;
 using BuildSchoolBot.Models.HistoryModels;
+using BuildSchoolBot.Service;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Dialogs.Choices;
 using Microsoft.Bot.Schema;
+using Microsoft.Bot.Schema.Teams;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -20,15 +22,16 @@ namespace BuildSchoolBot.Dialogs
     public class HistoryDialog : ComponentDialog
     {
         protected readonly Dialog Dialog;
-
-        public HistoryDialog() : base()
+        protected readonly HistoryService _historyService;
+        public HistoryDialog(HistoryService historyService) : base()
         {
+            _historyService = historyService;
 
             var waterfallSteps = new WaterfallStep[]
             {
                 DateSelectStepAsync,
                 HandleResponseAsync,
-                ShowhistorytStepAsync
+                //ShowhistorytStepAsync
             };
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), waterfallSteps));
             AddDialog(new TextPrompt(nameof(TextPrompt)));
@@ -50,7 +53,7 @@ namespace BuildSchoolBot.Dialogs
                 Prompt = new Activity
                 {
                     Type = ActivityTypes.Message,
-                    Text = "waiting for user input..."
+                    Text = "waiting for user select..."
                 }
             };
 
@@ -59,20 +62,20 @@ namespace BuildSchoolBot.Dialogs
 
         private async Task<DialogTurnResult> HandleResponseAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
+            
+            var json = stepContext.Result;
 
-            var start = stepContext.Result;
+            var username = stepContext.Context.Activity.From.Name;
+            var start = DateTime.Parse(JObject.Parse(json.ToString())["DateFrom"].ToString());
+            var end = DateTime.Parse(JObject.Parse(json.ToString())["DateTo"].ToString());
+
+            var card = _historyService.CreateHistoryCard(start.ToString("yyyy/MM/dd"), username);
             // Do something with step.result
             // Adaptive Card submissions are objects, so you likely need to JObject.Parse(step.result)
-            await stepContext.Context.SendActivityAsync($"INPUT: {start}");
-            return await stepContext.NextAsync();
-        }
 
-        private async Task<DialogTurnResult> ShowhistorytStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
-        {
-            var message = MessageFactory.Text("");
-            message.Attachments = new List<Attachment>() { CreateAdaptiveCardUsingJson("HistoryCard.json") };
-            await stepContext.Context.SendActivityAsync(message, cancellationToken);
+            //await stepContext.Context.SendActivityAsync($"INPUT: {start} {end} {username}");
 
+            await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(card),cancellationToken);
             return await stepContext.EndDialogAsync();
         }
 
@@ -90,5 +93,7 @@ namespace BuildSchoolBot.Dialogs
             };
             return HistoryCardAttachment;
         }
+
+
     }
 }

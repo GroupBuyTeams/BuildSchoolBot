@@ -70,8 +70,10 @@ namespace BuildSchoolBot
             services.AddSingleton<StopBuy>();
             services.AddSingleton<NoteBuy>();
             services.AddHostedService<QuartzHostedService>();
+
             services.AddTransient<TeamsBuyContext>();
             services.AddTransient<LibraryService>();
+            services.AddTransient<HistoryService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -12,7 +12,7 @@ namespace BuildSchoolBot.Dialogs
 {
     public class MainDialog : ComponentDialog
     {
-        public MainDialog(AddressDialogs addressDialog) : base(nameof(MainDialog))
+        public MainDialog(AddressDialogs addressDialog,HistoryDialog historyDialog,Demo demo) : base(nameof(MainDialog))
         {
 
             AddDialog(new ChoicePrompt(nameof(ChoicePrompt)));

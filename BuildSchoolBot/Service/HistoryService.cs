@@ -11,14 +11,15 @@ namespace BuildSchoolBot.Service
 {
     public class HistoryService
     {
-        TeamsBuyContext context;
+        //public TeamsBuyContext context;
+        
+        //public IEnumerable<Order> GetOrder(string Start,string End)
+        //{
+        //    return context.Order.Where(x => x.Date.CompareTo(Start) >= 0 && x.Date.CompareTo(End) <= 0).ToList();
+        //}
 
-        public HistoryService()
-        {
-            context = new TeamsBuyContext(); 
-        }
 
-        public Attachment CreateHistoryCard(string Date, string Id)
+        public Attachment CreateHistoryCard(string Start,string End, string Id)
         {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
 
@@ -30,15 +31,12 @@ namespace BuildSchoolBot.Service
                 Text = Id
             });
 
+            //var getdate = GetOrder(Start, End);
             //get OrderDetails from db ==> IEnumerable<OrderDetail> orderDetails
-            //foreach(var detail in orderDetails) {
-            for (var i = 0; i < 5; i++)
-            {
-                card.Body.Add(appendHistoryDetail(Date));
-            }
-
+            //foreach(var detail in getdate) 
+            //{
+                card.Body.Add(appendHistoryDetail(Start));
             //}
-
 
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }

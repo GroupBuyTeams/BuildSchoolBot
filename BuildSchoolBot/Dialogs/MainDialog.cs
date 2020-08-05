@@ -37,7 +37,7 @@ namespace BuildSchoolBot.Dialogs
             new PromptOptions
             {
                 Prompt = MessageFactory.Text("How can I serve you, darlin?"),
-                Choices = ChoiceFactory.ToChoices(new List<string> { "Buy", "History", "Favorate" }),
+                Choices = ChoiceFactory.ToChoices(new List<string> { "Buy", "History", "Library" }),
             }, cancellationToken);
         }
         private async Task<DialogTurnResult> MiddleStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)

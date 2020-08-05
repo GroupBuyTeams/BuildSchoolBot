@@ -11,7 +11,7 @@ namespace BuildSchoolBot.Service
         private IScheduler _sched { get; set; }
         private string _schedId { get; set; }
         private string _UserId { get; set; }
-        public ScheduleCreator(IScheduler scheduler, string UserId)
+        public ScheduleCreator(IScheduler scheduler, string UserId, string schedId)
         {
             _sched = scheduler;
             _UserId = UserId;
@@ -27,17 +27,15 @@ namespace BuildSchoolBot.Service
         {
             DateTimeOffset startDate = new DateTimeOffset(startAt);
             DateTimeOffset endDate = new DateTimeOffset(endAt);
-            // TimeSpan ts = new TimeSpan(0, Duration, 0);
             // TimeSpan ten = new TimeSpan(0, 10, 0);
 
             // only for demo
-            // TimeSpan ts = new TimeSpan(0, 0, Duration);
             TimeSpan ten = new TimeSpan(0, 0, 10);
             if (!Now)
             {
                 ScheduleSingleJob<NoteBuy>(startDate - ten, ScheduleText.NoteStartState, ScheduleText.NoteStartMsg);
             }
-            ScheduleSingleJob<StartBuy>(startDate, ScheduleText.StartState, ScheduleText.StartMsg);
+            ScheduleSingleJob<NoteBuy>(startDate, ScheduleText.StartState, ScheduleText.StartMsg);//only notify everyone
             ScheduleSingleJob<NoteBuy>(endAt - ten, ScheduleText.NoteStopState, ScheduleText.NoteStopMsg);
             ScheduleSingleJob<StopBuy>(endAt, ScheduleText.StopState, null);
         }
@@ -79,7 +77,7 @@ namespace BuildSchoolBot.Service
         }
         private JobBuilder GetJobBuilder<T>(string stateInfo, string NotificationText) where T : IJob
         {
-            var jb = JobBuilder.Create<T>().WithIdentity(_schedId + stateInfo, _UserId).UsingJobData("UserId",_UserId);
+            var jb = JobBuilder.Create<T>().WithIdentity(_schedId + stateInfo, _UserId).UsingJobData("UserId",_UserId).UsingJobData("ScheduleId",_schedId);
             if(NotificationText == null){
                 return jb;
             }else{
@@ -95,8 +93,8 @@ namespace BuildSchoolBot.Service
     public static class ScheduleText
     {
         public const string NoteStartMsg = "The group buying is about to start.";
-        public const string StartMsg = "The group buying started.";
-        public const string NoteStopMsg = "The group buying is about to close.";
+        public const string StartMsg = "The group buying just started. Let's buy something!";
+        public const string NoteStopMsg = "The group buying is about to close in 10 minutes.";
         public const string NoteStartState = "noteStart";
         public const string StartState = "Start";
         public const string NoteStopState = "noteStop";

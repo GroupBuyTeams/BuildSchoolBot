@@ -11,6 +11,10 @@ using System.Security.Claims;
 using System.Threading;
 using System;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Bot.Schema.Teams;
+using Microsoft.Bot.Builder.Teams;
+using System.Xml;
+using System.Linq;
 
 namespace BuildSchoolBot.Scheduler.Jobs
 {
@@ -40,16 +44,43 @@ namespace BuildSchoolBot.Scheduler.Jobs
             // IDialog d = new IDialog();
             string UserId = context.MergedJobDataMap.GetString("UserId");
             Message = context.MergedJobDataMap.GetString("Information");
-            Console.WriteLine(Message);
             var conversationReference = ConversationReferences.GetValueOrDefault(UserId);
             await ((BotAdapter)Adapter).ContinueConversationAsync(AppId, conversationReference, BotCallback, default(CancellationToken));
             // return Task.CompletedTask;
         }
         private async Task BotCallback(ITurnContext turnContext, CancellationToken cancellationToken)
         {
-            // If you encounter permission-related errors when sending this message, see
-            // https://aka.ms/BotTrustServiceUrl
-            await turnContext.SendActivityAsync(Message);
+
+            // await turnContext.SendActivityAsync(Message);
+            var members = new List<TeamsChannelAccount>();
+            try
+            {
+                var data = await TeamsInfo.GetMembersAsync(turnContext, cancellationToken);
+                members = data.ToList();
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+
+            string str = string.Empty;
+            str += (Message + "\r\n");
+
+            var mentions = new List<Entity>();
+            foreach (var member in members)
+            {
+                var mention = new Mention
+                {
+                    Mentioned = member,
+                    Text = $"<at>{XmlConvert.EncodeName(member.Name)}</at>",
+                };
+                str += (mention.Text+"\r\n");
+                mentions.Add(mention);
+            }
+
+            var replyActivity = MessageFactory.Text(str);
+            replyActivity.Entities = mentions;
+            await turnContext.SendActivityAsync(replyActivity, cancellationToken);
         }
     }
 }

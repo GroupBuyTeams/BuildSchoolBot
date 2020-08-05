@@ -171,7 +171,7 @@ namespace BuildSchoolBot.Bots
             JObject data = JObject.Parse(taskModuleRequestjson);
             var StoreAndGuid = data.Property("data").Value.ToString();
             var StoreName = _orderfoodServices.GetLeftStr(StoreAndGuid, "FoodGuid2468");
-            var Guid = _orderfoodServices.GetRightStr(StoreAndGuid, "FoodGuid2468");
+            var guid = _orderfoodServices.GetRightStr(StoreAndGuid, "FoodGuid2468");
             data.Property("msteams").Remove();
             data.Property("data").Remove();
             var MenudataGroups = data.ToString();
@@ -186,10 +186,12 @@ namespace BuildSchoolBot.Bots
             SelectObject.UserID = UserId;
             SelectObject.StoreName = StoreName;
             var SelectAllDataJson = JsonConvert.SerializeObject(SelectObject);
+            var ExistGuid = Guid.Parse("cf1ed7b9-ae4a-4832-a9f4-fdee6e492085");
+            _orderDetailService.CreateOrderDetail(SelectObject, SelectObject.SelectAllOrders, ExistGuid);
             //_orderService.CreateOrder()
-            taskInfo.Card = _orderfoodServices.GetResultClickfood(Guid, StoreName, json, "12:00", UserName);
+            taskInfo.Card = _orderfoodServices.GetResultClickfood(guid, StoreName, json, "12:00", UserName);
             _orderfoodServices.SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
-            await turnContext.SendActivityAsync(MessageFactory.Attachment(_orderfoodServices.GetResultClickfood(Guid, StoreName, json, "12:00", UserName)));
+            await turnContext.SendActivityAsync(MessageFactory.Attachment(_orderfoodServices.GetResultClickfood(guid, StoreName, json, "12:00", UserName)));
             return await Task.FromResult(taskInfo.ToTaskModuleResponse());
         }
 

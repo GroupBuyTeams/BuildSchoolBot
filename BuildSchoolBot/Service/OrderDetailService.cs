@@ -43,7 +43,7 @@ namespace BuildSchoolBot.Service
             }
             context.SaveChanges();
         }
-
+        //顯示OrderDetail
         public IEnumerable<OrderDetail> GetOrderDetail(string orderId)
         {
             return context.OrderDetail.Where(x => x.OrderId.ToString().Equals(orderId));
@@ -53,6 +53,7 @@ namespace BuildSchoolBot.Service
         public IEnumerable<OrderDetail> GetUserOrder(string orderId, string userId)
         {
             return context.OrderDetail.Where(x => x.OrderId.ToString().Equals(orderId) && x.MemberId.ToString().Equals(userId));
+
 
         }
     }

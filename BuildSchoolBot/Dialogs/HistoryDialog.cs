@@ -1,5 +1,4 @@
 ﻿using AdaptiveCards;
-using BuildSchoolBot.Models.HistoryModels;
 using BuildSchoolBot.Service;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;

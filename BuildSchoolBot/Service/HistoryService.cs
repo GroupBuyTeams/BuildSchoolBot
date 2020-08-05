@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Dapper;
 
 namespace BuildSchoolBot.Service
 {
@@ -23,7 +24,6 @@ namespace BuildSchoolBot.Service
 
             if (string.IsNullOrEmpty(connString))
             {
-                //connString = ConfigurationManager.ConnectionStrings["EGContext"].ConnectionString;
                 connString = config.GetConnectionString("TeamsBuyContext");
             }
             if (conn == null)
@@ -32,21 +32,24 @@ namespace BuildSchoolBot.Service
             }
         }
 
-        public List<Order> GetOrder(string Start, string End)
+        public List<Order> GetOrder(DateTime Start, DateTime End)
         {
             List<Order> orders;
 
             using (conn = new SqlConnection(connString))
             {
-
+                string sql = @"select o.Date
+                                from [Order] o
+                                inner join [OrderDetail] od on o.OrderId = od.OrderId
+                                WHERE o.Date BETWEEN '2020/08/01' AND '2020-08-04'";
+                orders = conn.Query<Order>(sql).ToList();
             }
 
-            //return orders;
-            //return context.Order.Where(x => x.Date.CompareTo("2020/08/01") >= 0 && x.Date.CompareTo("2020/08/05") <= 0).ToList();
+            return orders;
         }
 
 
-        public Attachment CreateHistoryCard(string Start,string End, string Id)
+        public Attachment CreateHistoryCard(DateTime Start,DateTime End, string Id)
         {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
 
@@ -57,19 +60,18 @@ namespace BuildSchoolBot.Service
                 Spacing = AdaptiveSpacing.Default,
                 Text = Id
             });
-            
-            
-            
+
             //get OrderDetails from db ==> IEnumerable < OrderDetail > orderDetails
-            //foreach (var detail in getdate)
-            //{
-                card.Body.Add(appendHistoryDetail(Start));
-            //}
+            var getdate = GetOrder(Start,End);
+            foreach (var detail in getdate)
+            {
+                card.Body.Add(appendHistoryDetail(detail.Date));
+            }
 
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
 
-        private AdaptiveColumnSet appendHistoryDetail(string Date)
+        private AdaptiveColumnSet appendHistoryDetail(DateTime Date)
         {
             var ColumnSet = new AdaptiveColumnSet() { Separator = true };
 
@@ -88,11 +90,11 @@ namespace BuildSchoolBot.Service
             return ColumnSet;
         }
 
-        private void SetColumnDate(AdaptiveColumn col, string date)
+        private void SetColumnDate(AdaptiveColumn col, DateTime date)
         {
             var DateTime = new AdaptiveTextBlock()
             {
-                Text = date,
+                Text = date.ToString("YYYY/MM/DD"),
                 Height = AdaptiveHeight.Stretch,
                 Size = AdaptiveTextSize.Large,
                 Color = AdaptiveTextColor.Attention

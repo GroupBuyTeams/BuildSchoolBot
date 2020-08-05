@@ -67,7 +67,7 @@ namespace BuildSchoolBot.Dialogs
             var start = DateTime.Parse(JObject.Parse(json.ToString())["DateFrom"].ToString());
             var end = DateTime.Parse(JObject.Parse(json.ToString())["DateTo"].ToString());
 
-            var card = _historyService.CreateHistoryCard(start.ToString("yyyy/MM/dd"), end.ToString("yyyy/MM/dd"), username);
+            var card = _historyService.CreateHistoryCard(start, end, username);
             // Do something with step.result
             // Adaptive Card submissions are objects, so you likely need to JObject.Parse(step.result)
 

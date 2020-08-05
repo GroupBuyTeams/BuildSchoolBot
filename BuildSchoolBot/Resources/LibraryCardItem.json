@@ -11,7 +11,8 @@
                     "size": "Small"
                 }
             ],
-            "width": "auto"
+            "width": "auto",
+            "verticalContentAlignment": "Center"
         },
         {
             "type": "Column",
@@ -20,25 +21,29 @@
                     "type": "TextBlock",
                     "weight": "Bolder",
                     "text": "${creator.name}",
-                    "wrap": true
+                    "wrap": true,
+                    "color": "Warning"
                 },
                 {
                     "type": "TextBlock",
                     "spacing": "None",
                     "text": "Created {{DATE(${createdUtc},SHORT)}}",
-                    "isSubtle": true,
-                    "wrap": true
+                    "wrap": true,
+                    "size": "Small",
+                    "fontType": "Default",
+                    "color": "Accent"
                 }
             ],
             "width": "stretch"
         },
         {
             "type": "Column",
-            "width": "stretch",
+            "width": "auto",
             "items": [
                 {
                     "type": "ActionSet",
                     "title": "Click me for messageBack",
+                    "horizontalAlignment": "Center",
                     "actions": [
                         {
                             "type": "Action.Submit",
@@ -47,18 +52,18 @@
                             "data": {
                                 "msteams": {
                                     "type": "messageBack",
-                                    "displayText": "Already Deleted",
                                     "text": "DeletedLibrary",
                                     "value": "{\"bfKey\": \"bfVal\", \"conflictKey\": \"from value\"}"
                                 }
-                            },
-                            "horizontalAlignment": "Center"
+                            }
                         }
-                    ],
-                    "horizontalAlignment": "Center",
-                    "verticalContentAlignment": "Center"
+                    ]
                 }
-            ]
+            ],
+            "horizontalAlignment": "Center",
+            "minHeight": "0px",
+            "verticalContentAlignment": "Center"
         }
-    ]
+    ],
+    "style": "emphasis"
 }

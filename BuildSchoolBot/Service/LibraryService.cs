@@ -50,6 +50,7 @@ namespace BuildSchoolBot.Service
             var paths = new[] { ".", "Resources", "LibraryCard.json" };
             var pathsItem = new[] { ".", "Resources", "LibraryCardItem.json" };
             var libraryCardJson = File.ReadAllText(Path.Combine(paths));
+
             var libraryCardItemJson = File.ReadAllText(Path.Combine(pathsItem));
             var obj = JsonConvert.DeserializeObject<dynamic>(libraryCardJson);
             var objItem = JsonConvert.DeserializeObject<dynamic>(libraryCardItemJson);

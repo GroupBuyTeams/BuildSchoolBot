@@ -157,6 +157,11 @@ namespace BuildSchoolBot.Bots
         }
         protected override Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
+            if (taskModuleRequest.Data.ToString().Split('"').FirstOrDefault(x => x.Equals("GetStore")) == "GetStore")
+            {
+                var StoreModule = new GetStoreList();
+                return StoreModule.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
+            }
             return _orderfoodServices.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
         }
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)

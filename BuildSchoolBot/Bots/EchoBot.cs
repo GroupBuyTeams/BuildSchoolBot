@@ -66,6 +66,13 @@ namespace BuildSchoolBot.Bots
 
                 Guid.TryParse(LibraryId.ToString(), out guid);
                 _libraryService.DeleteLibraryItem(guid);
+                var libraries = await _libraryService.FindLibraryByMemberId(memberId);
+                var libraryCard = Service.LibraryService.CreateAdaptiveCardAttachment(libraries);
+                var activity = MessageFactory.Attachment(libraryCard);
+                activity.Id = turnContext.Activity.ReplyToId;
+                
+                await turnContext.UpdateActivityAsync(activity, cancellationToken);
+
 
             }
             else if (turnContext.Activity.Text.Contains("Library"))
@@ -150,6 +157,11 @@ namespace BuildSchoolBot.Bots
         }
         protected override Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
+            if (taskModuleRequest.Data.ToString().Split('"').FirstOrDefault(x => x.Equals("GetStore")) == "GetStore")
+            {
+                var StoreModule = new GetStoreList();
+                return StoreModule.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
+            }
             return _orderfoodServices.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
         }
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)

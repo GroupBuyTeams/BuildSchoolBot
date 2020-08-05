@@ -13,11 +13,9 @@ namespace BuildSchoolBot.Service
 {
     public class LibraryService
     {
-        private TeamsBuyContext _context;
         private EGRepository<Library> _repo;
-        public LibraryService(TeamsBuyContext context, EGRepository<Library> repo)
+        public LibraryService(EGRepository<Library> repo)
         {
-            _context = context;
             _repo = repo;
         }
         public void CreateLibraryItem(string memberId, string Uri, string libraryName)
@@ -31,7 +29,7 @@ namespace BuildSchoolBot.Service
             };
 
             _repo.Create(entity);
-            _context.SaveChanges();
+            _repo.context.SaveChanges();
         }
         public void DeleteLibraryItem(Guid libraryId)
         {
@@ -39,7 +37,7 @@ namespace BuildSchoolBot.Service
             var entity = _repo.GetAll().FirstOrDefault(x => x.LibraryId.Equals(libraryId));
 
             _repo.Delete(entity);
-            _context.SaveChanges();
+            _repo.context.SaveChanges();
         }
         public async Task<List<Library>> FindLibraryByMemberId(string memberId)
         {
@@ -52,16 +50,17 @@ namespace BuildSchoolBot.Service
             var paths = new[] { ".", "Resources", "LibraryCard.json" };
             var pathsItem = new[] { ".", "Resources", "LibraryCardItem.json" };
             var libraryCardJson = File.ReadAllText(Path.Combine(paths));
+
             var libraryCardItemJson = File.ReadAllText(Path.Combine(pathsItem));
             var obj = JsonConvert.DeserializeObject<dynamic>(libraryCardJson);
             var objItem = JsonConvert.DeserializeObject<dynamic>(libraryCardItemJson);
             var card = AdaptiveCards.AdaptiveCard.FromJson(libraryCardJson).Card;
             library.ForEach(item =>
             {
+                obj.body.Add(objItem);
                 objItem.columns[1].items[0].text.Value = item.LibraryName;
                 objItem.columns[1].items[1].text.Value = item.Uri;
                 objItem.columns[2].items[0].actions[0].data.msteams.value.Value = "{\"LibraryId\":\"" + item.LibraryId + "\"}";
-                obj.body.Add(objItem);
             });
 
             var adaptiveCardAttachment = new Attachment()

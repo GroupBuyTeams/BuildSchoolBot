@@ -29,63 +29,44 @@ namespace BuildSchoolBot.Service
             string str = guid.ToString();
             return str;
         }
-        public async Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(TaskModuleRequest taskModuleRequest)
+
+        public string ArrayPlusName(string MenuJson, string ArrayName)
         {
-            //texta + "FoodData2468" + menuurl + "GuidStr13579" + Guidstr
-            var asJobject = JObject.FromObject(taskModuleRequest.Data);
-            var value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
-            var Storname = GetStoreName(value, "FoodData2468");
-            var FoodAndGuidProcessUrl = GetResultGuidStr(value, "FoodData2468");
-            var FoodUrl = GetStoreName(FoodAndGuidProcessUrl, "GuidStr13579");
-            var Guidstr = GetResultGuidStr(FoodAndGuidProcessUrl, "GuidStr13579");
-            var taskInfo = new TaskModuleTaskInfo();         
-            string Getmenujson = await new WebCrawler().GetOrderInfo(FoodUrl);
-            JArray array = JArray.Parse(Getmenujson);
+            JArray array = JArray.Parse(MenuJson);
             JObject o = new JObject();
-            o["Menuproperties"] = array;
-            string namejson = o.ToString();       
-            taskInfo.Card = CreateClickfoodModule(Guidstr,Storname, namejson);
-            SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
-            return await Task.FromResult(taskInfo.ToTaskModuleResponse());
+            o[ArrayName] = array;
+            string namejson = o.ToString();
+            return namejson;
         }
-        public async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken,string DueTime,string UserId)
+
+        public string ProcessAllSelect(JObject data)
         {
-            var taskInfo = new TaskModuleTaskInfo();
-            var taskModuleRequestjson = JsonConvert.SerializeObject(taskModuleRequest.Data);
-            JObject data = JObject.Parse(taskModuleRequestjson);
-            var StoreAndGuid = data.Property("data").Value.ToString();
-            var StoreName = GetStoreName(StoreAndGuid, "FoodGuid2468");
-            var Guid = GetResultGuidStr(StoreAndGuid, "FoodGuid2468");
-            data.Property("msteams").Remove();
-            data.Property("data").Remove();
-            var MenudataGroups = data.ToString();
             var inputlist = new List<string>();
             //var inputname = new List<string>();
             foreach (var item in data)
             {
                 inputlist.Add(item.Key.ToString());
                 inputlist.Add(item.Value.ToString());
-            }       
+            }
             List<SelectMenuData> parts = new List<SelectMenuData>();
 
             for (int i = 0; 4 * i < inputlist.Count(); i++)
             {
-                parts.Add(new SelectMenuData() { Quantity = inputlist[4 * i + 1], Remarks = inputlist[4 * i + 3], Dish_Name = GetStoreName(inputlist[4 * i],"Quantity1357"), Price = GetResultGuidStr(inputlist[4 * i], "Quantity1357") });
+                parts.Add(new SelectMenuData() { Quantity = inputlist[4 * i + 1], Remarks = inputlist[4 * i + 3], Dish_Name = GetLeftStr(inputlist[4 * i], "Quantity1357"), Price = GetRightStr(inputlist[4 * i], "Quantity1357") });
             }
 
             JsonSerializer serializer = new JsonSerializer();
             StringWriter s = new StringWriter();
             serializer.Serialize(new JsonTextWriter(s), parts);
             string SelectJson = s.GetStringBuilder().ToString();
-            JArray array = JArray.Parse(SelectJson);
-            JObject o = new JObject();
-            o["SelectMenu"] = array;
-            string json = o.ToString();
-            //資料完整
+            return SelectJson;
+        }
+        public string ProcessUnifyData(JObject o)
+        {
             List<SelectData> SelectOrder = new List<SelectData>();
             var ProcessAllDataJson = JsonConvert.SerializeObject(o);
             var ProcessSelectObject = JsonConvert.DeserializeObject<SelectMenuDatagroup>(ProcessAllDataJson);
-           foreach(var item in ProcessSelectObject.SelectMenu)
+            foreach (var item in ProcessSelectObject.SelectMenu)
             {
                 if (item.Quantity != "0")
                 {
@@ -94,26 +75,15 @@ namespace BuildSchoolBot.Service
             }
             JsonSerializer serializerAllOrderDatas = new JsonSerializer();
             StringWriter SAllOrderDatas = new StringWriter();
-            serializer.Serialize(new JsonTextWriter(SAllOrderDatas), SelectOrder);
+            serializerAllOrderDatas.Serialize(new JsonTextWriter(SAllOrderDatas), SelectOrder);
             string SelectJsonAllOrderDatas = SAllOrderDatas.GetStringBuilder().ToString();
             JArray arrayAllOrderDatas = JArray.Parse(SelectJsonAllOrderDatas);
             JObject OAllOrderDatas = new JObject();
             OAllOrderDatas["SelectAllOrders"] = arrayAllOrderDatas;
             var OAllOrderDatasStr = OAllOrderDatas.ToString();
-            var userid = UserId;
-            var SelectObject = JsonConvert.DeserializeObject<SelectAllDataGroup>(OAllOrderDatasStr);
-            //SelectObject.SelectAllOrders = SelectOrder;
-            SelectObject.UserID = userid;
-            SelectObject.StoreName = StoreName;
-            var SelectAllDataJson = JsonConvert.SerializeObject(SelectObject);
-
-
-            taskInfo.Card = GetResultClickfood(Guid, StoreName, json, DueTime);
-            SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
-            await turnContext.SendActivityAsync(MessageFactory.Attachment(GetResultClickfood(Guid,StoreName, json, DueTime)));
-            return await Task.FromResult(taskInfo.ToTaskModuleResponse());
-        }
-        public string GetStoreName(string Str,string Peername)
+            return OAllOrderDatasStr;
+        }    
+        public string GetLeftStr(string Str,string Peername)
         {
             int count = 0;
             List<char> Processname = new List<char>();
@@ -150,7 +120,7 @@ namespace BuildSchoolBot.Service
             return Str.Substring(0, count - 11);
         }
 
-        public string GetResultGuidStr(string Str, string Peername)
+        public string GetRightStr(string Str, string Peername)
         {
             int count = 0;
             List<char> Processname = new List<char>();
@@ -186,7 +156,7 @@ namespace BuildSchoolBot.Service
             }
             return Str.Substring(count + 1, Str.Length - count - 1);
         }     
-        private static void SetTaskInfo(TaskModuleTaskInfo taskInfo, UISettings uIConstants)
+        public void SetTaskInfo(TaskModuleTaskInfo taskInfo, UISettings uIConstants)
         {
             taskInfo.Height = uIConstants.Height;
             taskInfo.Width = uIConstants.Width;
@@ -257,7 +227,7 @@ namespace BuildSchoolBot.Service
             ColumnSetitem.Columns.Add(Columnnumberitem);
             ColumnSetitem.Columns.Add(ColumnRemarksitem);
          }
-        private Attachment CreateClickfoodModule(string Guidstr,string StorName,string modulefoodjson)
+        public Attachment CreateClickfoodModule(string Guidstr,string StorName,string modulefoodjson)
          {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
 
@@ -313,7 +283,7 @@ namespace BuildSchoolBot.Service
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
 
-        private void GetResultClickfoodTem(AdaptiveColumnSet ColumnSetitem, string foodname, string money, string Quantity, string Remarks)
+        public void GetResultClickfoodTem(AdaptiveColumnSet ColumnSetitem, string foodname, string money, string Quantity, string Remarks)
         {
             //數量
             var ColumnQuantityitem = new AdaptiveColumn();
@@ -376,7 +346,7 @@ namespace BuildSchoolBot.Service
             }
         }
 
-        private Attachment GetResultClickfood(string GuidStr,string StoreName,string Orderfoodjson,string DueTime)
+        public Attachment GetResultClickfood(string GuidStr,string StoreName,string Orderfoodjson,string DueTime,string UserName)
         {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
 
@@ -422,6 +392,7 @@ namespace BuildSchoolBot.Service
                 TotalMoney = TotalMoney +TotalSungleMoney;
                 card.Body.Add(ColumnSetitem);
             }
+            
 
             //var TextBlockTotalMoney = new AdaptiveTextBlock();
             //TextBlockTotalMoney.Size = AdaptiveTextSize.Medium;
@@ -450,6 +421,14 @@ namespace BuildSchoolBot.Service
                 ColumnSetTimeAndMoney.Columns.Add(ColumnTimeAndMoney);
             }
             card.Body.Add(ColumnSetTimeAndMoney);
+
+            var TextBlockUserName = new AdaptiveTextBlock();
+            TextBlockUserName.Size = AdaptiveTextSize.Small;
+            TextBlockUserName.Color = AdaptiveTextColor.Light;
+            TextBlockUserName.Weight = AdaptiveTextWeight.Bolder;
+            TextBlockUserName.Text = UserName;
+            TextBlockUserName.HorizontalAlignment = AdaptiveHorizontalAlignment.Left;
+            card.Body.Add(TextBlockUserName);
 
 
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };

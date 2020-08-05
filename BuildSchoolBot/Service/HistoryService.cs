@@ -2,21 +2,48 @@
 using AdaptiveCards.Templating;
 using BuildSchoolBot.Models;
 using Microsoft.Bot.Schema;
+using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace BuildSchoolBot.Service
 {
     public class HistoryService
     {
-        //public TeamsBuyContext context;
-        
-        //public IEnumerable<Order> GetOrder(string Start,string End)
-        //{
-        //    return context.Order.Where(x => x.Date.CompareTo(Start) >= 0 && x.Date.CompareTo(End) <= 0).ToList();
-        //}
+        public static string connString;
+        public SqlConnection conn;
+        private readonly TeamsBuyContext _context;
+
+        public HistoryService(TeamsBuyContext context, IConfiguration config)
+        {
+            _context = context;
+
+            if (string.IsNullOrEmpty(connString))
+            {
+                //connString = ConfigurationManager.ConnectionStrings["EGContext"].ConnectionString;
+                connString = config.GetConnectionString("TeamsBuyContext");
+            }
+            if (conn == null)
+            {
+                conn = new SqlConnection(connString);
+            }
+        }
+
+        public List<Order> GetOrder(string Start, string End)
+        {
+            List<Order> orders;
+
+            using (conn = new SqlConnection(connString))
+            {
+
+            }
+
+            //return orders;
+            //return context.Order.Where(x => x.Date.CompareTo("2020/08/01") >= 0 && x.Date.CompareTo("2020/08/05") <= 0).ToList();
+        }
 
 
         public Attachment CreateHistoryCard(string Start,string End, string Id)
@@ -30,10 +57,11 @@ namespace BuildSchoolBot.Service
                 Spacing = AdaptiveSpacing.Default,
                 Text = Id
             });
-
-            //var getdate = GetOrder(Start, End);
-            //get OrderDetails from db ==> IEnumerable<OrderDetail> orderDetails
-            //foreach(var detail in getdate) 
+            
+            
+            
+            //get OrderDetails from db ==> IEnumerable < OrderDetail > orderDetails
+            //foreach (var detail in getdate)
             //{
                 card.Body.Add(appendHistoryDetail(Start));
             //}

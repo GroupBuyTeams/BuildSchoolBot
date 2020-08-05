@@ -72,11 +72,11 @@ namespace BuildSchoolBot
             services.AddSingleton<NoteBuy>();
             services.AddHostedService<QuartzHostedService>();
             services.AddTransient<TeamsBuyContext>();
+            services.AddTransient<EGRepository<Library>>();
             services.AddTransient<LibraryService>();
             services.AddTransient<OrderfoodServices>();
             services.AddTransient<OrderDetailService>();
             services.AddTransient<OrderService>();
-            services.AddSingleton<EGRepository<Library>>();
 
 
         }

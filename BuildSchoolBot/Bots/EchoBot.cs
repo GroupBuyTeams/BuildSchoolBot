@@ -66,6 +66,13 @@ namespace BuildSchoolBot.Bots
 
                 Guid.TryParse(LibraryId.ToString(), out guid);
                 _libraryService.DeleteLibraryItem(guid);
+                var libraries = await _libraryService.FindLibraryByMemberId(memberId);
+                var libraryCard = Service.LibraryService.CreateAdaptiveCardAttachment(libraries);
+                var activity = MessageFactory.Attachment(libraryCard);
+                activity.Id = turnContext.Activity.ReplyToId;
+                
+                await turnContext.UpdateActivityAsync(activity, cancellationToken);
+
 
             }
             else if (turnContext.Activity.Text.Contains("Library"))

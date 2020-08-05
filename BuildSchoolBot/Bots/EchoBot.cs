@@ -72,8 +72,6 @@ namespace BuildSchoolBot.Bots
                 activity.Id = turnContext.Activity.ReplyToId;
 
                 await turnContext.UpdateActivityAsync(activity, cancellationToken);
-
-
             }
             else if (turnContext.Activity.Text.Contains("Library"))
             {
@@ -111,15 +109,12 @@ namespace BuildSchoolBot.Bots
                 }
                 await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
             }
-
         }
-
         private void AddConversationReference(Activity activity)
         {
             var conversationReference = activity.GetConversationReference();
             ConversationReferences.AddOrUpdate(conversationReference.User.Id, conversationReference, (key, newValue) => conversationReference);
         }
-
 
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {

@@ -52,7 +52,7 @@ namespace BuildSchoolBot.Service
 
             for (int i = 0; 4 * i < inputlist.Count(); i++)
             {
-                parts.Add(new SelectMenuData() { Quantity = inputlist[4 * i + 1], Remarks = inputlist[4 * i + 3], Dish_Name = GetLeftStr(inputlist[4 * i], "Quantity1357"), Price = GetRightStr(inputlist[4 * i], "Quantity1357") });
+                parts.Add(new SelectMenuData() { Quantity = inputlist[4 * i + 1], Remarks = inputlist[4 * i + 3], Dish_Name = GetStr(inputlist[4 * i], "Quantity1357", true), Price = GetStr(inputlist[4 * i], "Quantity1357", false) });
             }
 
             JsonSerializer serializer = new JsonSerializer();
@@ -82,8 +82,8 @@ namespace BuildSchoolBot.Service
             OAllOrderDatas["SelectAllOrders"] = arrayAllOrderDatas;
             var OAllOrderDatasStr = OAllOrderDatas.ToString();
             return OAllOrderDatasStr;
-        }    
-        public string GetLeftStr(string Str,string Peername)
+        }
+        public string GetStr(string Str, string Peername, bool LeftDirection)
         {
             int count = 0;
             List<char> Processname = new List<char>();
@@ -117,45 +117,15 @@ namespace BuildSchoolBot.Service
                     }
                 }
             }
-            return Str.Substring(0, count - 11);
-        }
-
-        public string GetRightStr(string Str, string Peername)
-        {
-            int count = 0;
-            List<char> Processname = new List<char>();
-            string QuantityTxt = Peername;
-            string strArray;       
-            for (int i = 0; i < Str.Length; i++)
+            if (LeftDirection == true)
             {
-                Processname.Add(Str[i]);
-                strArray = string.Concat(Processname.ToArray());
-                var Firstname = strArray[0].ToString();
-                var PeerFirstTxt = Peername[0].ToString();
-                if (Firstname != PeerFirstTxt)
-                {
-                    count++;
-                    Processname.Clear();
-                }
-                else
-                {
-                    if (strArray == Peername)
-                    {
-                        break;
-                    }
-                    else if (QuantityTxt.Contains(strArray))
-                    {
-                        count++;
-                    }
-                    else
-                    {
-                        count++;
-                        Processname.Clear();
-                    }
-                }
+                return Str.Substring(0, count - 11);
             }
-            return Str.Substring(count + 1, Str.Length - count - 1);
-        }     
+            else
+            {
+                return Str.Substring(count + 1, Str.Length - count - 1);
+            }
+        }
         public void SetTaskInfo(TaskModuleTaskInfo taskInfo, UISettings uIConstants)
         {
             taskInfo.Height = uIConstants.Height;
@@ -175,12 +145,12 @@ namespace BuildSchoolBot.Service
             card.Body.Add(TextBlockStorName);
 
             //actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "click", Data = new AdaptiveCardTaskFetchValue<string>() { Data = texta + "FoodData2468" + menuurl } });
-            actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "Join", Data = new AdaptiveCardTaskFetchValue<string>() { Data = texta + "FoodData2468" + menuurl+"GuidStr13579"+ Guidstr } });
+            actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "Join", Data = new AdaptiveCardTaskFetchValue<string>() { Data = texta + "FoodData2468" + menuurl + "GuidStr13579" + Guidstr } });
             actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "Favorite", Data = new AdaptiveCardTaskFetchValue<string>() { Data = "" } });
             card.Body.Add(actionSet);
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
-        private void MenuModule(AdaptiveColumnSet ColumnSetitem, string foodname, string money,string Dishname)
+        private void MenuModule(AdaptiveColumnSet ColumnSetitem, string foodname, string money, string Dishname)
         {
             //食物名稱
             ColumnSetitem.Separator = true;
@@ -206,7 +176,7 @@ namespace BuildSchoolBot.Service
             Columnnumberitem.Width = AdaptiveColumnWidth.Stretch;
             var containernumberiitem = new AdaptiveContainer();
             var Inputnumberiitem = new AdaptiveNumberInput();
-            Inputnumberiitem.Id = Dishname+"Quantity1357"+money;
+            Inputnumberiitem.Id = Dishname + "Quantity1357" + money;
             Inputnumberiitem.Placeholder = "Enter a number";
             Inputnumberiitem.Min = 0;
             Inputnumberiitem.Value = 0;
@@ -218,7 +188,7 @@ namespace BuildSchoolBot.Service
             ColumnRemarksitem.Width = AdaptiveColumnWidth.Stretch;
             var containerRemarksiitem = new AdaptiveContainer();
             var InputRemarksiitem = new AdaptiveTextInput();
-            InputRemarksiitem.Id = Dishname + "Remarks"+ money;
+            InputRemarksiitem.Id = Dishname + "Remarks" + money;
             containerRemarksiitem.Items.Add(InputRemarksiitem);
             ColumnRemarksitem.Items.Add(containerRemarksiitem);
 
@@ -226,9 +196,49 @@ namespace BuildSchoolBot.Service
             ColumnSetitem.Columns.Add(Columnmoneyitem);
             ColumnSetitem.Columns.Add(Columnnumberitem);
             ColumnSetitem.Columns.Add(ColumnRemarksitem);
-         }
-        public Attachment CreateClickfoodModule(string Guidstr,string StorName,string modulefoodjson)
-         {
+        }
+
+        public AdaptiveColumn AddColumn<T>(T adaptiveElement) where T : AdaptiveElement
+        {
+            var result = new AdaptiveColumn();
+            result.Width = AdaptiveColumnWidth.Stretch;
+            var Container = new AdaptiveContainer();
+            Container.Items.Add(adaptiveElement);
+            result.Items.Add(Container);
+            return result;
+        }
+
+        public AdaptiveTextBlock adaptiveTextBlockInput(string InputTxt)
+        {
+            var TextBlock= new AdaptiveTextBlock();
+            TextBlock.Text = InputTxt;
+            return TextBlock;
+        }
+
+        public AdaptiveNumberInput adaptiveNumberInput(string IdInput,string PlaceholderInput)
+        {
+            var NumberInput = new AdaptiveNumberInput()
+            {
+                Id = IdInput,
+                Placeholder = PlaceholderInput,
+                Min = 0,
+                Value = 0
+            };
+            return NumberInput;
+        }
+
+        public AdaptiveTextInput adaptiveTextInput(string IdInput)
+        {
+            var TextInput = new AdaptiveTextInput();
+            TextInput.Id = IdInput;
+            return TextInput;
+        }
+
+
+        //建3個input類型
+
+        public Attachment CreateClickfoodModule(string Guidstr, string StorName, string modulefoodjson)
+        {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
 
             var TextBlockGuid = new AdaptiveTextBlock();
@@ -251,7 +261,7 @@ namespace BuildSchoolBot.Service
 
             ColumnSetitemname.Separator = true;
             for (int i = 0; i < itemsname.Length; i++)
-             {
+            {
                 var Columnitemsname = new AdaptiveColumn();
                 Columnitemsname.Width = AdaptiveColumnWidth.Stretch;
                 var containeritemsname = new AdaptiveContainer();
@@ -264,7 +274,7 @@ namespace BuildSchoolBot.Service
 
             var root = JsonConvert.DeserializeObject<foodgroup>(modulefoodjson);
             card.Actions = new[] { TaskModuleUIConstants.AdaptiveCard }
-                   .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle, Data = new AdaptiveCardTaskFetchValue<string>() { Data = StorName+ "FoodGuid2468"+ Guidstr } })
+                   .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle, Data = new AdaptiveCardTaskFetchValue<string>() { Data = StorName + "FoodGuid2468" + Guidstr } })
                     .ToList<AdaptiveAction>();
             card.Body.Add(ColumnSetitemname);
             foreach (var p in root.Menuproperties)
@@ -282,6 +292,7 @@ namespace BuildSchoolBot.Service
             card.Body.Add(TextBlockDueTime);
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
+
 
         public void GetResultClickfoodTem(AdaptiveColumnSet ColumnSetitem, string foodname, string money, string Quantity, string Remarks)
         {
@@ -306,28 +317,30 @@ namespace BuildSchoolBot.Service
             containerfoodiitem.Items.Add(TextBlockfoodiitem);
             Columnfooditem.Items.Add(containerfoodiitem);
 
-            //錢
-            var Columnmoneyitem = new AdaptiveColumn();
-            Columnmoneyitem.Width = AdaptiveColumnWidth.Stretch;
-            var containermoneyiitem = new AdaptiveContainer();
-            var TextBlockmoneyiitem = new AdaptiveTextBlock();
-            TextBlockmoneyiitem.Text = money;
-            containermoneyiitem.Items.Add(TextBlockmoneyiitem);
-            Columnmoneyitem.Items.Add(containermoneyiitem);
+                //錢
+                var Columnmoneyitem = new AdaptiveColumn();
+                Columnmoneyitem.Width = AdaptiveColumnWidth.Stretch;
+                var containermoneyiitem = new AdaptiveContainer();
+                var TextBlockmoneyiitem = new AdaptiveTextBlock();
+                TextBlockmoneyiitem.Text = money;
+                containermoneyiitem.Items.Add(TextBlockmoneyiitem);
+                Columnmoneyitem.Items.Add(containermoneyiitem);
 
-            
 
-            //備註
-            var ColumnRemarksitem = new AdaptiveColumn();
-            ColumnRemarksitem.Width = AdaptiveColumnWidth.Stretch;
-            var containerRemarksitem = new AdaptiveContainer();
-            var TextBlockRemarksitem = new AdaptiveTextBlock();
-            TextBlockRemarksitem.Text = Remarks;
-            containerRemarksitem.Items.Add(TextBlockRemarksitem);
-            ColumnRemarksitem.Items.Add(containerRemarksitem);
 
-            //菜單品項各總價錢
-            var QuantityInt = int.Parse(Quantity);
+                //備註
+                var ColumnRemarksitem = new AdaptiveColumn();
+                ColumnRemarksitem.Width = AdaptiveColumnWidth.Stretch;
+                var containerRemarksitem = new AdaptiveContainer();
+                var TextBlockRemarksitem = new AdaptiveTextBlock();
+                TextBlockRemarksitem.Text = Remarks;
+                containerRemarksitem.Items.Add(TextBlockRemarksitem);
+                ColumnRemarksitem.Items.Add(containerRemarksitem);
+
+
+
+                //菜單品項各總價錢
+                var QuantityInt = int.Parse(Quantity);
             var MoneyDecimal = Convert.ToDecimal(money);
             var TotalSungleMoney = QuantityInt * MoneyDecimal;
             var ColumnTotalSungleMoneyitem = new AdaptiveColumn();
@@ -345,6 +358,7 @@ namespace BuildSchoolBot.Service
             ColumnSetitem.Columns.Add(ColumnTotalSungleMoneyitem);
             }
         }
+
 
         public Attachment GetResultClickfood(string GuidStr,string StoreName,string Orderfoodjson,string DueTime,string UserName)
         {
@@ -392,19 +406,7 @@ namespace BuildSchoolBot.Service
                 TotalMoney = TotalMoney +TotalSungleMoney;
                 card.Body.Add(ColumnSetitem);
             }
-            
-
-            //var TextBlockTotalMoney = new AdaptiveTextBlock();
-            //TextBlockTotalMoney.Size = AdaptiveTextSize.Medium;
-            //TextBlockTotalMoney.Weight = AdaptiveTextWeight.Bolder;
-            //TextBlockTotalMoney.Text= "總金額:" + TotalMoney.ToString();
-            //TextBlockTotalMoney.HorizontalAlignment = AdaptiveHorizontalAlignment.Right;
-            //card.Body.Add(TextBlockTotalMoney);
-       
-
-           
-
-        
+                      
             string[] TimeAndTotalMoney = new string[] { "DueTime", DueTime, "", "總金額:",TotalMoney.ToString() };
             var ColumnSetTimeAndMoney = new AdaptiveColumnSet();
 

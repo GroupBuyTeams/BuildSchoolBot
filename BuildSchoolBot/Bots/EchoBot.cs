@@ -158,6 +158,13 @@ namespace BuildSchoolBot.Bots
         }
         protected async override Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
+            //家寶
+            if (taskModuleRequest.Data.ToString().Split('"').FirstOrDefault(x => x.Equals("GetStore")) == "GetStore")
+            {
+                var StoreModule = new GetStoreList();
+                return await StoreModule.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
+            }
+            //育銨
             var asJobject = JObject.FromObject(taskModuleRequest.Data);
             var value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
             var Storname = _orderfoodServices.GetLeftStr(value, "FoodData2468");

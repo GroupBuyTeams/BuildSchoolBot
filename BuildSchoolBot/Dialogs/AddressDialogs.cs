@@ -55,8 +55,9 @@ namespace BuildSchoolBot.Dialogs
             string result = await new WebCrawler().GetStores(LatLng.lat, LatLng.lng);
             //await stepContext.Context.SendActivityAsync(MessageFactory.Text(result)); //顯示菜單字串
             //范育銨
-            var w = new OrderfoodServices();
-            var Storedata = w.GetStoregroup(result);
+            var w = new CreateCardService();
+            var o = new OrderfoodServices();
+            var Storedata = o.GetStoregroup(result);
             foreach (JObject item in Storedata)
             {
                 await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(w.GetStore(item.GetValue("Store_Name").ToString(), item.GetValue("Store_Url").ToString())));

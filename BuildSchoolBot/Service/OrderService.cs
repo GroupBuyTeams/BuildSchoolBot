@@ -17,7 +17,7 @@ namespace BuildSchoolBot.Service
                 OrderId = Guid.Parse(_orderId),
                 ChannelId = _channelId,
                 Date = DateTime.Now,
-               // StoreName = storeName
+                //StoreName = storeName
             };
             context.Order.Add(order);
             context.SaveChanges();

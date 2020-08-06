@@ -41,8 +41,9 @@ namespace BuildSchoolBot.Bots
         protected readonly OrderfoodServices _orderfoodServices;
         protected readonly OrderService _orderService;
         protected readonly OrderDetailService _orderDetailService;
+        protected readonly CreateCardService _createCardService;
 
-        public EchoBot(ConversationState conversationState, LibraryService libraryService, OrderService orderService, OrderDetailService orderDetailService, UserState userState, T dialog, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences)
+        public EchoBot(ConversationState conversationState, LibraryService libraryService, OrderService orderService, OrderDetailService orderDetailService, UserState userState, T dialog, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences, CreateCardService createCardService)
         {
             ConversationState = conversationState;
             UserState = userState;
@@ -53,6 +54,7 @@ namespace BuildSchoolBot.Bots
             _orderfoodServices = orderfoodServices;
             _orderService = orderService;
             _orderDetailService = orderDetailService;
+            _createCardService = createCardService;
         }
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
@@ -167,7 +169,7 @@ namespace BuildSchoolBot.Bots
             var taskInfo = new TaskModuleTaskInfo();
             string Getmenujson = await new WebCrawler().GetOrderInfo(FoodUrl);
             var namejson = _orderfoodServices.ArrayPlusName(Getmenujson, "Menuproperties");
-            taskInfo.Card = _orderfoodServices.CreateClickfoodModule(Guidstr, Storname, namejson);
+            taskInfo.Card = _createCardService.CreateClickfoodModule(Guidstr, Storname, namejson);
             _orderfoodServices.SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
             return await Task.FromResult(taskInfo.ToTaskModuleResponse());
         }
@@ -200,9 +202,9 @@ namespace BuildSchoolBot.Bots
             //_orderDetailService.CreateOrderDetail(SelectObject, SelectObject.SelectAllOrders, ExistGuid);
 
             //_orderService.CreateOrder()
-            taskInfo.Card = _orderfoodServices.GetResultClickfood(guid, StoreName, json, "12:00", UserName);
+            taskInfo.Card = _createCardService.GetResultClickfood(guid, StoreName, json, "12:00", UserName);
             _orderfoodServices.SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
-            await turnContext.SendActivityAsync(MessageFactory.Attachment(_orderfoodServices.GetResultClickfood(guid, StoreName, json, "12:00", UserName)));
+            await turnContext.SendActivityAsync(MessageFactory.Attachment(_createCardService.GetResultClickfood(guid, StoreName, json, "12:00", UserName)));
             return await Task.FromResult(taskInfo.ToTaskModuleResponse());
         }
 

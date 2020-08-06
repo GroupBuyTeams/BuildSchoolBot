@@ -29,6 +29,7 @@ namespace BuildSchoolBot.Service
                     Amount = decimal.Parse(lists.Price),
                     Number = int.Parse(lists.Quantity),
                     MemberId = SelectObject.UserID,
+                    Mark = lists.Remarks,
                 };
                 context.OrderDetail.Add(detail);               
             }

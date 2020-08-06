@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Dapper;
+using BuildSchoolBot.ViewModels;
 
 namespace BuildSchoolBot.Service
 {
@@ -32,24 +33,59 @@ namespace BuildSchoolBot.Service
             }
         }
 
-        public List<Order> GetOrder(DateTime Start, DateTime End)
+        public List<Order> GetOrderDate(DateTime Start, DateTime End,string Id)
         {
             List<Order> orders;
 
             using (conn = new SqlConnection(connString))
             {
-                string sql = @"select o.Date
+                var datas = new { START = Start,END = End, MID = Id };
+                string sql = @"select distinct o.date
                                 from [Order] o
-                                inner join [OrderDetail] od on o.OrderId = od.OrderId
-                                WHERE o.Date BETWEEN '2020/08/01' AND '2020-08-04'";
-                orders = conn.Query<Order>(sql).ToList();
+                                inner join OrderDetail od on od.orderid = o.orderid
+                                where od.memberid = @MID
+                                and o.Date BETWEEN @START AND @END";
+                orders = conn.Query<Order>(sql,datas).ToList();
             }
-
             return orders;
         }
 
+        public List<OrderDetail> GetOrder(DateTime date, string Id)
+        {
+            List<OrderDetail> orders;
 
-        public Attachment CreateHistoryCard(DateTime Start,DateTime End, string Id)
+            using (conn = new SqlConnection(connString))
+            {
+                var datas = new { DATE = date, MID = Id };
+                string sql = @"select o.Date, o.StoreName,od.ProductName,od.Amount,od.Number,od.MemberId
+                                from [Order] o
+                                inner join OrderDetail od on od.orderid = o.orderid
+                                where od.memberid = @MID
+                                and o.Date = @DATE";
+                orders = conn.Query<OrderDetail>(sql, datas).ToList();
+            }
+            return orders;
+        }
+
+        //public List<HistoryViewModel> GetTotal(DateTime date, string Id)
+        //{
+        //    List<HistoryViewModel> orders;
+
+        //    using (conn = new SqlConnection(connString))
+        //    {
+        //        var datas = new { DATE = date, MID = Id };
+        //        string sql = @"select o.date, sum(amount)
+        //                        from [Order] o
+        //                        inner join OrderDetail od on od.orderid = o.orderid
+        //                        where od.memberid = @MID
+        //                        and o.Date BETWEEN @START AND @END
+        //                        group by o.date";
+        //        orders = conn.Query<HistoryViewModel>(sql, datas).ToList();
+        //    }
+        //    return orders;
+        //}
+
+        public Attachment CreateHistoryCard(DateTime Start, DateTime End, string Name,string Id)
         {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
 
@@ -58,20 +94,19 @@ namespace BuildSchoolBot.Service
                 Weight = AdaptiveTextWeight.Default,
                 HorizontalAlignment = AdaptiveHorizontalAlignment.Left,
                 Spacing = AdaptiveSpacing.Default,
-                Text = Id
+                Text = Name
             });
 
-            //get OrderDetails from db ==> IEnumerable < OrderDetail > orderDetails
-            var getdate = GetOrder(Start,End);
+            var getdate = GetOrderDate(Start, End,Id);
             foreach (var detail in getdate)
             {
-                card.Body.Add(appendHistoryDetail(detail.Date));
+                card.Body.Add(appendHistoryDetail(detail.Date,Id));
             }
 
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
 
-        private AdaptiveColumnSet appendHistoryDetail(DateTime Date)
+        private AdaptiveColumnSet appendHistoryDetail(DateTime Date,string Id)
         {
             var ColumnSet = new AdaptiveColumnSet() { Separator = true };
 
@@ -81,11 +116,14 @@ namespace BuildSchoolBot.Service
 
             var Column2 = new AdaptiveColumn() { Width = AdaptiveColumnWidth.Stretch };
             ColumnSet.Columns.Add(Column2);
-            for (var i = 0; i < 5; i++)
-            { 
-                SetColumnContent(Column2, "text + pirce", AdaptiveTextSize.Medium);
-            } 
-            SetColumnContent(Column2, "Total: 100", AdaptiveTextSize.Medium);
+
+            var getorder = GetOrder(Date, Id);
+            foreach (var order in getorder)
+            {
+                SetColumnContent(Column2,order.ProductName,order.Number,order.Amount, AdaptiveTextSize.Medium);
+            }
+            
+            //SetColumnContent(Column2, "Total: 100", AdaptiveTextSize.Medium);
 
             return ColumnSet;
         }
@@ -94,7 +132,7 @@ namespace BuildSchoolBot.Service
         {
             var DateTime = new AdaptiveTextBlock()
             {
-                Text = date.ToString("YYYY/MM/DD"),
+                Text = date.ToString("yyyy/MM/dd"),
                 Height = AdaptiveHeight.Stretch,
                 Size = AdaptiveTextSize.Large,
                 Color = AdaptiveTextColor.Attention
@@ -102,10 +140,10 @@ namespace BuildSchoolBot.Service
             col.Items.Add(DateTime);
         }
 
-        private void SetColumnContent(AdaptiveColumn col, string text, AdaptiveTextSize size)
+        private void SetColumnContent(AdaptiveColumn col,string productname,int number,decimal amount, AdaptiveTextSize size)
         {
             var Container = new AdaptiveContainer();
-            var Total = new AdaptiveTextBlock() { Text = text, Size = size };
+            var Total = new AdaptiveTextBlock() { Text = $"{productname} X {number}  ${decimal.Round(amount)}", Size = size };
             Container.Items.Add(Total);
             col.Items.Add(Container);
         }

@@ -60,20 +60,23 @@ namespace BuildSchoolBot.Dialogs
 
         private async Task<DialogTurnResult> HandleResponseAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            
+
             var json = stepContext.Result;
 
+            var userid = stepContext.Context.Activity.From.Id;
             var username = stepContext.Context.Activity.From.Name;
             var start = DateTime.Parse(JObject.Parse(json.ToString())["DateFrom"].ToString());
             var end = DateTime.Parse(JObject.Parse(json.ToString())["DateTo"].ToString());
+            var card = _historyService.CreateHistoryCard(start, end, username, userid);
+            if (end < start)
+            {
+                await stepContext.BeginDialogAsync(nameof(HistoryDialog));
+            }
+            else
+            {
+                await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(card), cancellationToken);
+            }
 
-            var card = _historyService.CreateHistoryCard(start, end, username);
-            // Do something with step.result
-            // Adaptive Card submissions are objects, so you likely need to JObject.Parse(step.result)
-
-            await stepContext.Context.SendActivityAsync($"INPUT: {start} {end} {username}");
-
-            await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(card),cancellationToken);
             return await stepContext.EndDialogAsync();
         }
 

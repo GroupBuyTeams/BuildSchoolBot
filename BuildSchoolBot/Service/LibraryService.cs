@@ -44,7 +44,7 @@ namespace BuildSchoolBot.Service
             var result = _repo.GetAll().Where(x => x.MemberId == memberId).ToList();
             return await Task.FromResult(result);
         }
-        public static Attachment CreateAdaptiveCardAttachment(List<Library> library)
+        public static Attachment CreateAdaptiveCardAttachment(List<Library> library, string Name)
         {
             // combine path for cross platform support
             var paths = new[] { ".", "Resources", "LibraryCard.json" };
@@ -55,6 +55,9 @@ namespace BuildSchoolBot.Service
             var obj = JsonConvert.DeserializeObject<dynamic>(libraryCardJson);
             var objItem = JsonConvert.DeserializeObject<dynamic>(libraryCardItemJson);
             var card = AdaptiveCards.AdaptiveCard.FromJson(libraryCardJson).Card;
+
+            obj.body[0].columns[1].items[0].text.Value = Name;
+
             library.ForEach(item =>
             {
                 obj.body.Add(objItem);

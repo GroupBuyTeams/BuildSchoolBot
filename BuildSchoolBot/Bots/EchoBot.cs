@@ -104,7 +104,7 @@ namespace BuildSchoolBot.Bots
             else
             {
                 var activity = turnContext.Activity;
-                if (string.IsNullOrEmpty(activity.Text) && activity.Value != null)
+                if (string.IsNullOrWhiteSpace(activity.Text) && activity.Value != null)
                 {
                     activity.Text = JsonConvert.SerializeObject(activity.Value);
                 }
@@ -152,6 +152,13 @@ namespace BuildSchoolBot.Bots
 
         public override async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default)
         {
+            var activity = turnContext.Activity;
+
+            if (string.IsNullOrWhiteSpace(activity.Text) && activity.Value != null)
+            {
+                activity.Text = JsonConvert.SerializeObject(activity.Value);
+            }
+
             await base.OnTurnAsync(turnContext, cancellationToken);
 
             // Save any state changes that might have occurred during the turn.

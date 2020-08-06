@@ -22,6 +22,12 @@ namespace BuildSchoolBot.Service
             context.Order.Add(order);
             context.SaveChanges();
         }
+        //顯示Order
+        public IEnumerable<Order> GetOrder(string orderId)
+        {
+            return context.Order.Where(x => x.OrderId.ToString().Equals(orderId));
+
+        }
         //delete Order
         //public void DeleteOrder(string jdata)
         //{
@@ -29,6 +35,6 @@ namespace BuildSchoolBot.Service
         //    context.Order.Remove(delete_order);
         //    context.SaveChanges();
         //}
-        
+
     }
 }

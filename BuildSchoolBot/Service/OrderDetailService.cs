@@ -17,13 +17,14 @@ namespace BuildSchoolBot.Service
             context = _context;
         }//middleware
         //create OrderDetail
-        public void CreateOrderDetail(SelectAllDataGroup SelectObject, List<SelectData> SelectAllOrders,string OrderId)
+        public void CreateOrderDetail(SelectAllDataGroup SelectObject, List<SelectData> SelectAllOrders,Guid orderId)
         {
             foreach(var lists in SelectAllOrders)
             {
                 var detail = new OrderDetail
                 {
-                    OrderId = Guid.Parse(OrderId),                   
+                    OrderId = orderId,
+                    OrderDetailId = Guid.NewGuid(),
                     ProductName = lists.Dish_Name,
                     Amount = decimal.Parse(lists.Price),
                     Number = int.Parse(lists.Quantity),

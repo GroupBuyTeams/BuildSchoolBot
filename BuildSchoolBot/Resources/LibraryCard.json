@@ -2,10 +2,34 @@
     "type": "AdaptiveCard",
     "body": [
         {
-            "type": "TextBlock",
-            "size": "medium",
-            "weight": "bolder",
-            "text": "My Library"
+            "type": "ColumnSet",
+            "columns": [
+                {
+                    "type": "Column",
+                    "width": "stretch",
+                    "items": [
+                        {
+                            "type": "TextBlock",
+                            "size": "medium",
+                            "weight": "bolder",
+                            "text": "My Library"
+                        }
+                    ]
+                },
+                {
+                    "type": "Column",
+                    "width": "stretch",
+                    "items": [
+                        {
+                            "type": "TextBlock",
+                            "size": "medium",
+                            "weight": "bolder",
+                            "text": "Name",
+                            "color": "good"
+                        }
+                    ]
+                }
+            ]
         }
     ],
     "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",

@@ -424,7 +424,7 @@ namespace BuildSchoolBot.Service
 
             var TextBlockUserName = new AdaptiveTextBlock();
             TextBlockUserName.Size = AdaptiveTextSize.Small;
-            TextBlockUserName.Color = AdaptiveTextColor.Light;
+            TextBlockUserName.Color = AdaptiveTextColor.Good;
             TextBlockUserName.Weight = AdaptiveTextWeight.Bolder;
             TextBlockUserName.Text = UserName;
             TextBlockUserName.HorizontalAlignment = AdaptiveHorizontalAlignment.Left;

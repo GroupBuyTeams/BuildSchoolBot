@@ -95,6 +95,7 @@ namespace BuildSchoolBot.Service
             TextBlockStorName.Size = AdaptiveTextSize.Large;
             TextBlockStorName.Weight = AdaptiveTextWeight.Bolder;
             TextBlockStorName.Text = "Chose Order";
+            TextBlockStorName.Id = "GetStore";
             TextBlockStorName.HorizontalAlignment = AdaptiveHorizontalAlignment.Center;
             card.Body.Add(TextBlockStorName);
 

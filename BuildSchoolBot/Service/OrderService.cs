@@ -10,14 +10,14 @@ namespace BuildSchoolBot.Service
     {
         public TeamsBuyContext context;
         //create Order
-        public void CreateOrder(string OrderId , string GroupId)
+        public void CreateOrder(string _orderId , string _channelId)
         {
             var order = new Order
             {
-                OrderId = Guid.Parse(OrderId),
-                GroupId = GroupId,
-                Date = DateTime.Now
-
+                OrderId = Guid.Parse(_orderId),
+                ChannelId = _channelId,
+                Date = DateTime.Now,
+               // StoreName = storeName
             };
             context.Order.Add(order);
             context.SaveChanges();

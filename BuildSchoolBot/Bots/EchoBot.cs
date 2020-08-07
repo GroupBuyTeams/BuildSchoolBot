@@ -41,8 +41,9 @@ namespace BuildSchoolBot.Bots
         protected readonly OrderfoodServices _orderfoodServices;
         protected readonly OrderService _orderService;
         protected readonly OrderDetailService _orderDetailService;
+        protected readonly CreateCardService _createCardService;
 
-        public EchoBot(ConversationState conversationState, LibraryService libraryService, OrderService orderService, OrderDetailService orderDetailService, UserState userState, T dialog, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences)
+        public EchoBot(ConversationState conversationState, LibraryService libraryService, OrderService orderService, OrderDetailService orderDetailService, UserState userState, T dialog, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences, CreateCardService createCardService)
         {
             ConversationState = conversationState;
             UserState = userState;
@@ -53,6 +54,7 @@ namespace BuildSchoolBot.Bots
             _orderfoodServices = orderfoodServices;
             _orderService = orderService;
             _orderDetailService = orderDetailService;
+            _createCardService = createCardService;
         }
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
@@ -167,14 +169,14 @@ namespace BuildSchoolBot.Bots
         {
             var asJobject = JObject.FromObject(taskModuleRequest.Data);
             var value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
-            var Storname = _orderfoodServices.GetLeftStr(value, "FoodData2468");
-            var FoodAndGuidProcessUrl = _orderfoodServices.GetRightStr(value, "FoodData2468");
-            var FoodUrl = _orderfoodServices.GetLeftStr(FoodAndGuidProcessUrl, "GuidStr13579");
-            var Guidstr = _orderfoodServices.GetRightStr(FoodAndGuidProcessUrl, "GuidStr13579");
+            var Storname = _orderfoodServices.GetStr(value, "FoodData2468",true);
+            var FoodAndGuidProcessUrl = _orderfoodServices.GetStr(value, "FoodData2468",false);
+            var FoodUrl = _orderfoodServices.GetStr(FoodAndGuidProcessUrl, "GuidStr13579",true);
+            var Guidstr = _orderfoodServices.GetStr(FoodAndGuidProcessUrl, "GuidStr13579",false);
             var taskInfo = new TaskModuleTaskInfo();
             string Getmenujson = await new WebCrawler().GetOrderInfo(FoodUrl);
             var namejson = _orderfoodServices.ArrayPlusName(Getmenujson, "Menuproperties");
-            taskInfo.Card = _orderfoodServices.CreateClickfoodModule(Guidstr, Storname, namejson);
+            taskInfo.Card = _createCardService.CreateClickfoodModule(Guidstr, Storname, namejson);
             _orderfoodServices.SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
             return await Task.FromResult(taskInfo.ToTaskModuleResponse());
         }
@@ -187,8 +189,8 @@ namespace BuildSchoolBot.Bots
             var taskModuleRequestjson = JsonConvert.SerializeObject(taskModuleRequest.Data);
             JObject data = JObject.Parse(taskModuleRequestjson);
             var StoreAndGuid = data.Property("data").Value.ToString();
-            var StoreName = _orderfoodServices.GetLeftStr(StoreAndGuid, "FoodGuid2468");
-            var guid = _orderfoodServices.GetRightStr(StoreAndGuid, "FoodGuid2468");
+            var StoreName = _orderfoodServices.GetStr(StoreAndGuid, "FoodGuid2468",true);
+            var guid = _orderfoodServices.GetStr(StoreAndGuid, "FoodGuid2468",false);
             data.Property("msteams").Remove();
             data.Property("data").Remove();
             var MenudataGroups = data.ToString();
@@ -197,18 +199,19 @@ namespace BuildSchoolBot.Bots
             JObject o = new JObject();
             o["SelectMenu"] = array;
             string json = o.ToString();
-            //��Ƨ���
+            //取完整資料
             var OAllOrderDatasStr = _orderfoodServices.ProcessUnifyData(o);
             var SelectObject = JsonConvert.DeserializeObject<SelectAllDataGroup>(OAllOrderDatasStr);
             SelectObject.UserID = UserId;
             SelectObject.StoreName = StoreName;
             var SelectAllDataJson = JsonConvert.SerializeObject(SelectObject);
             var ExistGuid = Guid.Parse("cf1ed7b9-ae4a-4832-a9f4-fdee6e492085");
-            _orderDetailService.CreateOrderDetail(SelectObject, SelectObject.SelectAllOrders, ExistGuid);
+            //_orderDetailService.CreateOrderDetail(SelectObject, SelectObject.SelectAllOrders, ExistGuid);
+
             //_orderService.CreateOrder()
-            taskInfo.Card = _orderfoodServices.GetResultClickfood(guid, StoreName, json, "12:00", UserName);
+            taskInfo.Card = _createCardService.GetResultClickfood(guid, StoreName, json, "12:00", UserName);
             _orderfoodServices.SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
-            await turnContext.SendActivityAsync(MessageFactory.Attachment(_orderfoodServices.GetResultClickfood(guid, StoreName, json, "12:00", UserName)));
+            await turnContext.SendActivityAsync(MessageFactory.Attachment(_createCardService.GetResultClickfood(guid, StoreName, json, "12:00", UserName)));
             return await Task.FromResult(taskInfo.ToTaskModuleResponse());
         }
 

@@ -1,4 +1,6 @@
 ﻿using BuildSchoolBot.Models;
+using BuildSchoolBot.ViewModels;
+using Microsoft.Bot.Schema.Teams;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,9 +19,9 @@ namespace BuildSchoolBot.Service
             context = _context;
         }//middleware
         //create OrderDetail
-        public void CreateOrderDetail(SelectAllDataGroup SelectObject, List<SelectData> SelectAllOrders,Guid orderId)
+        public void CreateOrderDetail(SelectAllDataGroup SelectObject, List<SelectData> SelectAllOrders, Guid orderId)
         {
-            foreach(var lists in SelectAllOrders)
+            foreach (var lists in SelectAllOrders)
             {
                 var detail = new OrderDetail
                 {
@@ -29,13 +31,14 @@ namespace BuildSchoolBot.Service
                     Amount = decimal.Parse(lists.Price),
                     Number = int.Parse(lists.Quantity),
                     MemberId = SelectObject.UserID,
+                    Mark = lists.Remarks,
                 };
-                context.OrderDetail.Add(detail);               
+                context.OrderDetail.Add(detail);
             }
             context.SaveChanges();
         }
         //delete OrderDetail
-        public void DeleteOrderDetail(string orderId , string userId)
+        public void DeleteOrderDetail(string orderId, string userId)
         {
             var delete_details = GetUserOrder(orderId, userId);
             foreach (var detail in delete_details)
@@ -54,8 +57,23 @@ namespace BuildSchoolBot.Service
         public IEnumerable<OrderDetail> GetUserOrder(string orderId, string userId)
         {
             return context.OrderDetail.Where(x => x.OrderId.ToString().Equals(orderId) && x.MemberId.ToString().Equals(userId));
-
-
+        }
+        public IEnumerable<OrderResults> GetOrderResults(string orderId, IEnumerable<TeamsChannelAccount> Accounts)
+        {
+            return context.OrderDetail.Where(x => x.OrderId.ToString().Equals(orderId))
+                                    .GroupBy(x => x.ProductName)
+                                    .Select(x => new OrderResults
+                                    {
+                                        Dish_Name = x.Key,
+                                        Price = x.First(y => true).Amount.ToString(),
+                                        TotalItemsGroup = x.Select(y => new OrderInfo
+                                        {
+                                            UserName = Accounts.FirstOrDefault(z => z.Id.Equals(orderId)).Name,
+                                            MemberId = y.MemberId,
+                                            Quantity = y.Number
+                                        }).ToArray()
+                                    })
+                                    .ToArray();
         }
     }
 }

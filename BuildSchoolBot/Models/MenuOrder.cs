@@ -7,6 +7,7 @@ namespace BuildSchoolBot.Models
     {
         public Guid MenuId { get; set; }
         public string Store { get; set; }
+        public string TeamsId { get; set; }
 
         public virtual MenuDetail Menu { get; set; }
     }

@@ -15,7 +15,7 @@ namespace BuildSchoolBot.Service
         {
             _sched = scheduler;
             _UserId = UserId;
-            _OrderId = Guid.NewGuid().ToString();
+            _OrderId = "cf1ed7b9-ae4a-4832-a9f4-fdee6e492085";//Demo
         }
 
         public void CreateSingleGroupBuyNow(DateTime EndTime)

@@ -10,6 +10,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using BuildSchoolBot.Models;
 
 namespace BuildSchoolBot.Scheduler.Jobs
 {
@@ -18,13 +19,15 @@ namespace BuildSchoolBot.Scheduler.Jobs
     {
         private readonly IBotFrameworkHttpAdapter Adapter;
         private readonly ConcurrentDictionary<string, ConversationReference> ConversationReferences;
+        private readonly OrderService orderService;
         private readonly string AppId;
         private string Message;
-        public StartBuy(IConfiguration configuration, IBotFrameworkHttpAdapter adapter, ConcurrentDictionary<string, ConversationReference> conversationReferences)
+        public StartBuy(IConfiguration configuration, IBotFrameworkHttpAdapter adapter, ConcurrentDictionary<string, ConversationReference> conversationReferences, OrderService _orderService)
         {
             Adapter = adapter;
             ConversationReferences = conversationReferences;
             AppId = configuration["MicrosoftAppId"];
+            orderService = _orderService;
 
             // If the channel is the Emulator, and authentication is not in use,
             // the AppId will be null.  We generate a random AppId for this case only.
@@ -50,7 +53,6 @@ namespace BuildSchoolBot.Scheduler.Jobs
 
         private void CreateOrder(string Guid, string GroupId)
         {
-            var orderService = new OrderService();
             orderService.CreateOrder(Guid, GroupId);
         }
 

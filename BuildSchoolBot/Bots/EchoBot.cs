@@ -59,23 +59,7 @@ namespace BuildSchoolBot.Bots
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
 
-            if (turnContext.Activity.Text.Contains("DeletedLibrary"))
-            {
-                dynamic obj = turnContext.Activity.Value;
-                var LibraryId = obj.LibraryId;
-
-                Guid guid;
-                Guid.TryParse(LibraryId.ToString(), out guid);
-                _libraryService.DeleteLibraryItem(guid);
-
-                var libraryCard = await GetLibraryCard(turnContext);
-                
-                var activity = MessageFactory.Attachment(libraryCard);
-                activity.Id = turnContext.Activity.ReplyToId;
-
-                await turnContext.UpdateActivityAsync(activity, cancellationToken);
-            }
-            else if (turnContext.Activity.Text.Contains("Library"))
+            if (turnContext.Activity.Text.Contains("Library"))
             {
                 var libraryCard = await GetLibraryCard(turnContext);
 
@@ -110,17 +94,6 @@ namespace BuildSchoolBot.Bots
                 }
                 await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
             }
-        }
-
-        private async Task<Attachment> GetLibraryCard(ITurnContext<IMessageActivity> turnContext)
-        {
-            var memberId = turnContext.Activity.From.Id;
-
-            var Name = turnContext.Activity.From.Name;
-            var libraries = await _libraryService.FindLibraryByMemberId(memberId);
-            var libraryCard = Service.LibraryService.CreateAdaptiveCardAttachment(libraries, Name);
-
-            return libraryCard;
         }
 
         private void AddConversationReference(Activity activity)
@@ -169,10 +142,10 @@ namespace BuildSchoolBot.Bots
         {
             var asJobject = JObject.FromObject(taskModuleRequest.Data);
             var value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
-            var Storname = _orderfoodServices.GetStr(value, "FoodData2468",true);
-            var FoodAndGuidProcessUrl = _orderfoodServices.GetStr(value, "FoodData2468",false);
-            var FoodUrl = _orderfoodServices.GetStr(FoodAndGuidProcessUrl, "GuidStr13579",true);
-            var Guidstr = _orderfoodServices.GetStr(FoodAndGuidProcessUrl, "GuidStr13579",false);
+            var Storname = _orderfoodServices.GetStr(value, "FoodData2468", true);
+            var FoodAndGuidProcessUrl = _orderfoodServices.GetStr(value, "FoodData2468", false);
+            var FoodUrl = _orderfoodServices.GetStr(FoodAndGuidProcessUrl, "GuidStr13579", true);
+            var Guidstr = _orderfoodServices.GetStr(FoodAndGuidProcessUrl, "GuidStr13579", false);
             var taskInfo = new TaskModuleTaskInfo();
             string Getmenujson = await new WebCrawler().GetOrderInfo(FoodUrl);
             var namejson = _orderfoodServices.ArrayPlusName(Getmenujson, "Menuproperties");
@@ -189,8 +162,8 @@ namespace BuildSchoolBot.Bots
             var taskModuleRequestjson = JsonConvert.SerializeObject(taskModuleRequest.Data);
             JObject data = JObject.Parse(taskModuleRequestjson);
             var StoreAndGuid = data.Property("data").Value.ToString();
-            var StoreName = _orderfoodServices.GetStr(StoreAndGuid, "FoodGuid2468",true);
-            var guid = _orderfoodServices.GetStr(StoreAndGuid, "FoodGuid2468",false);
+            var StoreName = _orderfoodServices.GetStr(StoreAndGuid, "FoodGuid2468", true);
+            var guid = _orderfoodServices.GetStr(StoreAndGuid, "FoodGuid2468", false);
             data.Property("msteams").Remove();
             data.Property("data").Remove();
             var MenudataGroups = data.ToString();
@@ -213,6 +186,48 @@ namespace BuildSchoolBot.Bots
             _orderfoodServices.SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
             await turnContext.SendActivityAsync(MessageFactory.Attachment(_createCardService.GetResultClickfood(guid, StoreName, json, "12:00", UserName)));
             return await Task.FromResult(taskInfo.ToTaskModuleResponse());
+        }
+        protected override async Task<InvokeResponse> OnInvokeActivityAsync(ITurnContext<IInvokeActivity> turnContext, CancellationToken cancellationToken)
+        {
+            var memberId = turnContext.Activity.From.Id;
+            dynamic obj = turnContext.Activity.Value;
+
+            if (obj.Option.ToString().Contains("Create"))
+            {
+                _libraryService.CreateLibraryItem(memberId, obj.Url.ToString(), obj.Name.ToString());
+            }
+            else if (obj.Option.ToString().Contains("Delete"))
+            {
+                var LibraryId = obj.LibraryId;
+
+                Guid guid;
+                Guid.TryParse(LibraryId.ToString(), out guid);
+                _libraryService.DeleteLibraryItem(guid);
+
+                var libraryCard = await GetLibraryCard(turnContext);
+
+                var activity = MessageFactory.Attachment(libraryCard);
+                activity.Id = turnContext.Activity.ReplyToId;
+
+                await turnContext.UpdateActivityAsync(activity, cancellationToken);
+            }
+
+
+            return await Task.FromResult(new InvokeResponse()
+            {
+                Status = 200
+            });
+        }
+
+        private async Task<Attachment> GetLibraryCard(ITurnContext turnContext)
+        {
+            var memberId = turnContext.Activity.From.Id;
+
+            var Name = turnContext.Activity.From.Name;
+            var libraries = await _libraryService.FindLibraryByMemberId(memberId);
+            var libraryCard = Service.LibraryService.CreateAdaptiveCardAttachment(libraries, Name);
+
+            return libraryCard;
         }
 
     }

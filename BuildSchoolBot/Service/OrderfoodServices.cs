@@ -161,6 +161,13 @@ namespace BuildSchoolBot.Service
             TextBlock.Text = InputTxt;
             return TextBlock;
         }
+        public AdaptiveTextBlock GetadaptiveTextBlock(string InputTxt, AdaptiveTextWeight Weight, AdaptiveTextColor Color)
+        {
+            var TextBlock = GetadaptiveTextBlock(InputTxt);
+            TextBlock.Weight = Weight;
+            TextBlock.Color = Color;
+            return TextBlock;
+        }
 
         public AdaptiveTextBlock GetadaptiveTextBlock(string InputTxt, AdaptiveTextSize Size, AdaptiveTextWeight Weight, AdaptiveHorizontalAlignment adaptiveHorizontalAlignment)
         {
@@ -204,19 +211,48 @@ namespace BuildSchoolBot.Service
             return result;
         }
 
+        public AdaptiveColumnSet FixedtextColumnLeftColor(string[] texts)
+        {
+            var result = new AdaptiveColumnSet() { Separator = true };
+            for (int i = 0; i < texts.Length; i++)
+            {
+                if (i == 0 || i == 1)
+                {
+                    result.Columns.Add(AddColumn(GetadaptiveTextBlock(texts[i], AdaptiveTextWeight.Bolder, AdaptiveTextColor.Good)));
+                }
+                else
+                {
+                    result.Columns.Add(AddColumn(GetadaptiveTextBlock(texts[i])));
+                }
+            }
+            return result;
+        }
+
+
         public void GetResultClickfoodTem(AdaptiveColumnSet ColumnSetitem, string foodname, string money, string Quantity, string Remarks)
         {  
             var TotalSingleMoney = GetTotalMoney(Quantity, money);
-            //食物名稱
-            ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextBlock(foodname)));
-            //錢
-            ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextBlock(money)));
-            //數量
-            ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextBlock(Quantity)));
-            //備註
-            ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextBlock(Remarks)));
+            GetItemTem(ColumnSetitem, foodname, decimal.Parse(money), int.Parse(Quantity), Remarks);
             //菜單品項各總價錢
             ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextBlock(TotalSingleMoney.ToString())));
+        }
+
+        public void GetItemTem(AdaptiveColumnSet ColumnSetitem, string foodname, decimal money, int Quantity, string Remarks)
+        {
+            //食物名稱
+            ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextBlock(foodname)));
+            //單價
+            ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextBlock(money.ToString())));
+            //數量
+            ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextBlock(Quantity.ToString())));
+            //備註
+            ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextBlock(Remarks)));
+        }
+        public void GetTotalResultTem(AdaptiveColumnSet ColumnSetitem, string foodname, decimal money, int Quantity, string Remarks, decimal ItemTotalPrice)
+        {
+            GetItemTem(ColumnSetitem, foodname, money, Quantity, Remarks);
+            //菜單品項各總價錢
+            ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextBlock(ItemTotalPrice.ToString())));
         }
 
 

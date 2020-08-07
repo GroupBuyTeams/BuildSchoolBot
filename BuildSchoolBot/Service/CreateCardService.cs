@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using static BuildSchoolBot.StoreModels.fooditem;
+using static BuildSchoolBot.StoreModels.ResultTotal;
 using static BuildSchoolBot.StoreModels.SelectMenu;
 
 
@@ -19,12 +20,7 @@ namespace BuildSchoolBot.Service
             var Guidstr = new OrderfoodServices().GetGUID();
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
             var actionSet = new AdaptiveActionSet() { Type = AdaptiveActionSet.TypeName, Separator = true };
-            var TextBlockStorName = new AdaptiveTextBlock();
-            TextBlockStorName.Size = AdaptiveTextSize.Large;
-            TextBlockStorName.Weight = AdaptiveTextWeight.Bolder;
-            TextBlockStorName.Text = texta;
-            TextBlockStorName.HorizontalAlignment = AdaptiveHorizontalAlignment.Center;
-            card.Body.Add(TextBlockStorName);
+            card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock(texta, AdaptiveTextSize.Large, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Center));
 
             //actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "click", Data = new AdaptiveCardTaskFetchValue<string>() { Data = texta + "FoodData2468" + menuurl } });
             actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "Join", Data = new AdaptiveCardTaskFetchValue<string>() { Data = texta + "FoodData2468" + menuurl + "GuidStr13579" + Guidstr } });
@@ -73,7 +69,7 @@ namespace BuildSchoolBot.Service
         {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
             card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock(Guidstr, AdaptiveTextSize.Small, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Right));
-            card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock(Guidstr, AdaptiveTextSize.Large, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Center));
+            card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock(StorName, AdaptiveTextSize.Large, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Center));
 
 
             string[] itemsname = new string[] { "菜名", "價錢", "數量", "備註" };
@@ -92,6 +88,50 @@ namespace BuildSchoolBot.Service
             }
             card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock("Due Time:  123", AdaptiveTextSize.Medium, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Left));
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+        }
+
+
+        public Attachment GetResultTotal(string OrderId, string StoreName, string Orderfoodjson, string DueTime)
+        {
+            var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
+            card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock(OrderId, AdaptiveTextSize.Small, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Right));
+            card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock(StoreName + "訂單", AdaptiveTextSize.Large, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Center));
+
+            string[] itemsname = new string[] { "食物名稱", "價錢", "數量", "備註", "單品總金額" };
+            var ColumnSetitemname = new OrderfoodServices().FixedtextColumn(itemsname);
+            var root = JsonConvert.DeserializeObject<AllTotalItemsGroups>(Orderfoodjson);
+            card.Body.Add(ColumnSetitemname);
+            decimal TotalMoney = 0;
+            for (int i = 0; i < root.AllTotalItems.Count; i++)
+            {
+                for (int j = 0; j < 1; j++)
+                {
+                    int TotalQuantity = 0;
+                    string TotalOrderName = "";
+                    decimal TotalMoneyItem = 0;
+
+                    for (int z = 0; z < root.AllTotalItems[i].TotalItemsGroup.Count; z++)
+                    {
+                        var TotalSungleMoney = new OrderfoodServices().GetTotalMoney(root.AllTotalItems[i].TotalItemsGroup[z].Quantity.ToString(), root.AllTotalItems[i].TotalItemsGroup[z].Price.ToString());
+                        TotalMoneyItem = TotalMoneyItem + TotalSungleMoney;
+                        var QuantityInt = root.AllTotalItems[i].TotalItemsGroup[z].Quantity;
+                        TotalQuantity = TotalQuantity + QuantityInt;
+                        var OrderName = root.AllTotalItems[i].TotalItemsGroup[z].UserName;
+                        TotalOrderName = TotalOrderName + "," + OrderName;
+                    }
+                    TotalMoney = TotalMoney + TotalMoneyItem;
+                    var ColumnSetitem = new AdaptiveColumnSet();
+                    ColumnSetitem.Separator = true;
+                    new OrderfoodServices().GetTotalResultTem(ColumnSetitem, root.AllTotalItems[i].TotalItemsGroup[j].Dish_Name, root.AllTotalItems[i].TotalItemsGroup[j].Price, TotalQuantity, TotalOrderName.TrimStart(','), root.AllTotalItems[i].TotalItemsGroup[j].Price * TotalQuantity);
+                    card.Body.Add(ColumnSetitem);
+                }
+            }
+
+            string[] TimeAndTotalMoney = new string[] { "DueTime", DueTime, "", "總金額:", TotalMoney.ToString() };
+            var ColumnSetTimeAndMoney = new OrderfoodServices().FixedtextColumnLeftColor(TimeAndTotalMoney);
+            card.Body.Add(ColumnSetTimeAndMoney);
+            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+
         }
     }
 }

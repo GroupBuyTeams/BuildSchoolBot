@@ -1,5 +1,6 @@
 ﻿using AdaptiveCards;
 using BuildSchoolBot.StoreModels;
+using BuildSchoolBot.ViewModels;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
 using System;
@@ -24,7 +25,23 @@ namespace BuildSchoolBot.Service
 
             //actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "click", Data = new AdaptiveCardTaskFetchValue<string>() { Data = texta + "FoodData2468" + menuurl } });
             actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "Join", Data = new AdaptiveCardTaskFetchValue<string>() { Data = texta + "FoodData2468" + menuurl + "GuidStr13579" + Guidstr } });
-            actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "Favorite", Data = new AdaptiveCardTaskFetchValue<string>() { Data = "" } });
+            actionSet.Actions.Add(new AdaptiveSubmitAction()
+            {
+                Title = "Favorite",
+                Data = new RootMsteams()
+                {
+                    msteams = new Msteams()
+                    {
+                        type = "invoke",
+                        value = new MsteamsValue()
+                        {
+                            Name = texta,
+                            Url = menuurl,
+                            Option = "Create"
+                        }
+                    }
+                }
+            });
             card.Body.Add(actionSet);
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }

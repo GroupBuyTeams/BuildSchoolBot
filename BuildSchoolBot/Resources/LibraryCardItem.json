@@ -51,7 +51,7 @@
                             "style": "destructive",
                             "data": {
                                 "msteams": {
-                                    "type": "messageBack",
+                                    "type": "invoke",
                                     "text": "DeletedLibrary",
                                     "value": "{\"bfKey\": \"bfVal\", \"conflictKey\": \"from value\"}"
                                 }

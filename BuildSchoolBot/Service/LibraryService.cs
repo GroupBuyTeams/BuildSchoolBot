@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AdaptiveCards;
 using BuildSchoolBot.Models;
 using BuildSchoolBot.Repository;
+using BuildSchoolBot.ViewModels;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
 
@@ -63,7 +64,13 @@ namespace BuildSchoolBot.Service
                 obj.body.Add(objItem);
                 objItem.columns[1].items[0].text.Value = item.LibraryName;
                 objItem.columns[1].items[1].text.Value = item.Uri;
-                objItem.columns[2].items[0].actions[0].data.msteams.value.Value = "{\"LibraryId\":\"" + item.LibraryId + "\"}";
+                objItem.columns[2].items[0].actions[0].data.msteams.value.Value = JsonConvert.SerializeObject(new MsteamsValue()
+                {
+                    Name = item.LibraryName,
+                    Url = item.Uri,
+                    Option = "Delete",
+                    LibraryId = item.LibraryId
+                });
             });
 
             var adaptiveCardAttachment = new Attachment()

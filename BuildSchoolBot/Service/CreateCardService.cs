@@ -129,7 +129,7 @@ namespace BuildSchoolBot.Service
 
                     for (int z = 0; z < root.AllTotalItems[i].TotalItemsGroup.Count; z++)
                     {
-                        var TotalSungleMoney = new OrderfoodServices().GetTotalMoney(root.AllTotalItems[i].TotalItemsGroup[z].Quantity.ToString(), root.AllTotalItems[i].TotalItemsGroup[z].Price.ToString());
+                        var TotalSungleMoney = new OrderfoodServices().GetTotalMoney(root.AllTotalItems[i].TotalItemsGroup[z].Quantity.ToString(), root.AllTotalItems[i].Price.ToString());
                         TotalMoneyItem = TotalMoneyItem + TotalSungleMoney;
                         var QuantityInt = root.AllTotalItems[i].TotalItemsGroup[z].Quantity;
                         TotalQuantity = TotalQuantity + QuantityInt;
@@ -139,7 +139,7 @@ namespace BuildSchoolBot.Service
                     TotalMoney = TotalMoney + TotalMoneyItem;
                     var ColumnSetitem = new AdaptiveColumnSet();
                     ColumnSetitem.Separator = true;
-                    new OrderfoodServices().GetTotalResultTem(ColumnSetitem, root.AllTotalItems[i].TotalItemsGroup[j].Dish_Name, root.AllTotalItems[i].TotalItemsGroup[j].Price, TotalQuantity, TotalOrderName.TrimStart(','), root.AllTotalItems[i].TotalItemsGroup[j].Price * TotalQuantity);
+                    new OrderfoodServices().GetTotalResultTem(ColumnSetitem, root.AllTotalItems[i].Dish_Name, root.AllTotalItems[i].Price, TotalQuantity, TotalOrderName.TrimStart(','), root.AllTotalItems[i].Price * TotalQuantity);
                     card.Body.Add(ColumnSetitem);
                 }
             }

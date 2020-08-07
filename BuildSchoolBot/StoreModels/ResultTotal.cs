@@ -10,14 +10,14 @@ namespace BuildSchoolBot.StoreModels
         public class ResultTotalItem
         {
             public int Quantity { get; set; }
-            public string UserName { get; set; }
-            public string Dish_Name { get; set; }
-            public decimal Price { get; set; }
+            public string UserName { get; set; }        
             public string MemberId { get; set; }
         }
         public class ResultTotalItemsGroup
         {
             public List<ResultTotalItem> TotalItemsGroup { get; set; }
+            public string Dish_Name { get; set; }
+            public decimal Price { get; set; }
         }
         public class AllTotalItemsGroups
         {

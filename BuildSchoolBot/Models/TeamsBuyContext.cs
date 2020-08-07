@@ -69,6 +69,10 @@ namespace BuildSchoolBot.Models
                     .IsRequired()
                     .HasMaxLength(100);
 
+                entity.Property(e => e.TeamsId)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
                 entity.HasOne(d => d.Menu)
                     .WithOne(p => p.MenuOrder)
                     .HasForeignKey<MenuOrder>(d => d.MenuId)

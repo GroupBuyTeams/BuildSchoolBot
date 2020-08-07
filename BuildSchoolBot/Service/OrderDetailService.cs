@@ -1,11 +1,12 @@
 ﻿using BuildSchoolBot.Models;
-using BuildSchoolBot.ViewModels;
 using Microsoft.Bot.Schema.Teams;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using static BuildSchoolBot.StoreModels.AllSelectData;
+using BuildSchoolBot.StoreModels;
+using static BuildSchoolBot.StoreModels.ResultTotal;
 
 namespace BuildSchoolBot.Service
 {
@@ -58,22 +59,33 @@ namespace BuildSchoolBot.Service
         {
             return context.OrderDetail.Where(x => x.OrderId.ToString().Equals(orderId) && x.MemberId.ToString().Equals(userId));
         }
-        public IEnumerable<OrderResults> GetOrderResults(string orderId, IEnumerable<TeamsChannelAccount> Accounts)
+        public AllTotalItemsGroups GetOrderResults(string orderId, IEnumerable<TeamsChannelAccount> accounts)
         {
-            return context.OrderDetail.Where(x => x.OrderId.ToString().Equals(orderId))
+
+            return new AllTotalItemsGroups
+            {
+                AllTotalItems = context.OrderDetail.Where(x => x.OrderId.ToString().Equals(orderId))
+                                    .AsEnumerable()
                                     .GroupBy(x => x.ProductName)
-                                    .Select(x => new OrderResults
+                                    .Select(x => new ResultTotalItemsGroup
                                     {
                                         Dish_Name = x.Key,
-                                        Price = x.First(y => true).Amount.ToString(),
-                                        TotalItemsGroup = x.Select(y => new OrderInfo
+                                        Price = x.First(y => true).Amount,
+                                        TotalItemsGroup = x.Select(y => new ResultTotalItem
                                         {
-                                            UserName = Accounts.FirstOrDefault(z => z.Id.Equals(orderId)).Name,
-                                            MemberId = y.MemberId,
-                                            Quantity = y.Number
-                                        }).ToArray()
+                                        UserName = GetUserName(accounts.FirstOrDefault(z => z.Id.Equals(y.MemberId))),
+                                        MemberId = y.MemberId,
+                                        Quantity = y.Number
+                                        }).ToList()
                                     })
-                                    .ToArray();
+                                    .ToList()
+            };
         }
+
+        private string GetUserName(TeamsChannelAccount Accounts)
+        {
+            return Accounts != null ? Accounts.Name : string.Empty;
+        }
+
     }
 }

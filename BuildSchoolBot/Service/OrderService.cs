@@ -8,7 +8,12 @@ namespace BuildSchoolBot.Service
 {
     public class OrderService
     {
-        public TeamsBuyContext context;
+        protected readonly TeamsBuyContext context;
+
+        public OrderService(TeamsBuyContext _context)
+        {
+            context = _context;
+        }
         //create Order
         public void CreateOrder(string _orderId , string _channelId)
         {
@@ -23,10 +28,10 @@ namespace BuildSchoolBot.Service
             context.SaveChanges();
         }
         //顯示Order
-        public IEnumerable<Order> GetOrder(string orderId)
+        public Order GetOrder(string orderId)
         {
-            return context.Order.Where(x => x.OrderId.ToString().Equals(orderId));
-
+            //如搜尋結果可能為多筆資料，則需回傳IEnumerable，否則回傳單一物件即可
+            return context.Order.SingleOrDefault(x => x.OrderId.ToString().Equals(orderId));
         }
         //delete Order
         //public void DeleteOrder(string jdata)

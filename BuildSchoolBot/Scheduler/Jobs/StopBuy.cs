@@ -5,6 +5,7 @@ using Microsoft.Bot.Builder.Teams;
 using Microsoft.Bot.Schema;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Quartz;
 using System;
 using System.Collections.Concurrent;
@@ -17,40 +18,47 @@ namespace BuildSchoolBot.Scheduler.Jobs
     //[DisallowConcurrentExecution]
     public class StopBuy : IJob
     {
-        private readonly IBotFrameworkHttpAdapter Adapter;
-        private readonly ConcurrentDictionary<string, ConversationReference> ConversationReferences;
-        private readonly OrderDetailService OrderDetailServices;
-        private readonly string AppId;
-        private string Message;
-        private string OrderId;
-        public StopBuy(IConfiguration configuration, IBotFrameworkHttpAdapter adapter, ConcurrentDictionary<string, ConversationReference> conversationReferences, OrderDetailService orderDetailServices)
+        private readonly IBotFrameworkHttpAdapter _Adapter;
+        private readonly ConcurrentDictionary<string, ConversationReference> _ConversationReferences;
+        private readonly OrderService _OrderService;
+        private readonly OrderDetailService _OrderDetailServices;
+        private readonly CreateCardService _CreateCardService;
+        private readonly string _AppId;
+        private string _Message;
+        private string _OrderId;
+        public StopBuy(IConfiguration configuration, IBotFrameworkHttpAdapter adapter, ConcurrentDictionary<string, ConversationReference> conversationReferences, OrderService orderService, OrderDetailService orderDetailServices, CreateCardService createCardService)
         {
-            Adapter = adapter;
-            ConversationReferences = conversationReferences;
-            AppId = configuration["MicrosoftAppId"];
-            OrderDetailServices = orderDetailServices;
+            _Adapter = adapter;
+            _ConversationReferences = conversationReferences;
+            _AppId = configuration["MicrosoftAppId"];
+            _OrderService = orderService;
+            _OrderDetailServices = orderDetailServices;
+            _CreateCardService = createCardService;
             // If the channel is the Emulator, and authentication is not in use,
             // the AppId will be null.  We generate a random AppId for this case only.
             // This is not required for production, since the AppId will have a value.
-            if (string.IsNullOrEmpty(AppId))
+            if (string.IsNullOrEmpty(_AppId))
             {
-                AppId = Guid.NewGuid().ToString(); //if no AppId, use a random Guid
+                _AppId = Guid.NewGuid().ToString(); //if no AppId, use a random Guid
             }
         }
 
         public async Task Execute(IJobExecutionContext context)
         {
             string UserId = context.MergedJobDataMap.GetString("UserId");
-            OrderId = context.MergedJobDataMap.GetString("OrderId");
-            Message = "Stop buying!";
-            var conversationReference = ConversationReferences.GetValueOrDefault(UserId);
-            await ((BotAdapter)Adapter).ContinueConversationAsync(AppId, conversationReference, BotCallback, default(CancellationToken));
+            _OrderId = context.MergedJobDataMap.GetString("OrderId");
+            _Message = "Stop buying!";
+            var conversationReference = _ConversationReferences.GetValueOrDefault(UserId);
+            await ((BotAdapter)_Adapter).ContinueConversationAsync(_AppId, conversationReference, BotCallback, default(CancellationToken));
         }
         private async Task BotCallback(ITurnContext turnContext, CancellationToken cancellationToken)
         {
             var members = await TeamsInfo.GetMembersAsync(turnContext, cancellationToken);
-            var OrdersResult = OrderDetailServices.GetOrderResults(OrderId, members);
-            await turnContext.SendActivityAsync(Message);
+            var OrdersResult_Json = JsonConvert.SerializeObject(_OrderDetailServices.GetOrderResults(_OrderId, members));
+            var Order = _OrderService.GetOrder(_OrderId);
+            var attachment = _CreateCardService.GetResultTotal(_OrderId, Order.StoreName, OrdersResult_Json, DateTime.Now.ToString("HH:mm"));
+            await turnContext.SendActivityAsync(MessageFactory.Attachment(attachment));
+            // await turnContext.SendActivityAsync(_Message);
         }
     }
 }

@@ -192,11 +192,15 @@ namespace BuildSchoolBot.Bots
             var memberId = turnContext.Activity.From.Id;
             dynamic obj = turnContext.Activity.Value;
 
-            if (obj.Option.ToString().Contains("Create"))
+            if (obj.Option.ToString().Equals("Create"))
             {
-                _libraryService.CreateLibraryItem(memberId, obj.Url.ToString(), obj.Name.ToString());
+                var uri = (string)obj.Url;
+                var LibraryItem = await _libraryService.FindLibraryByUriAndMemberId(uri, memberId);
+
+                if (LibraryItem.Count.Equals(0))
+                    _libraryService.CreateLibraryItem(memberId, obj.Url.ToString(), obj.Name.ToString());
             }
-            else if (obj.Option.ToString().Contains("Delete"))
+            else if (obj.Option.ToString().Equals("Delete"))
             {
                 var LibraryId = obj.LibraryId;
 

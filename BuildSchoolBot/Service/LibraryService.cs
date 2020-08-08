@@ -42,7 +42,12 @@ namespace BuildSchoolBot.Service
         }
         public async Task<List<Library>> FindLibraryByMemberId(string memberId)
         {
-            var result = _repo.GetAll().Where(x => x.MemberId == memberId).ToList();
+            var result = _repo.GetAll().Where(x => x.MemberId.Equals(memberId)).ToList();
+            return await Task.FromResult(result);
+        }
+        public async Task<List<Library>> FindLibraryByUriAndMemberId(string uri, string memberId)
+        {
+            var result = _repo.GetAll().Where(x => x.MemberId.Equals(memberId) && x.Uri.Equals(uri)).ToList();
             return await Task.FromResult(result);
         }
         public static Attachment CreateAdaptiveCardAttachment(List<Library> library, string Name)

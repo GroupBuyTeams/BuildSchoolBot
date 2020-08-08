@@ -227,8 +227,6 @@ namespace BuildSchoolBot.Service
             }
             return result;
         }
-
-
         public void GetResultClickfoodTem(AdaptiveColumnSet ColumnSetitem, string foodname, string money, string Quantity, string Remarks)
         {  
             var TotalSingleMoney = GetTotalMoney(Quantity, money);
@@ -268,7 +266,5 @@ namespace BuildSchoolBot.Service
             JArray array = JArray.Parse(json);
             return array;
         }
-
-
     }
 }

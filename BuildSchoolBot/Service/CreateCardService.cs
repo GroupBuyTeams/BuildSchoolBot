@@ -150,5 +150,13 @@ namespace BuildSchoolBot.Service
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
 
         }
+        public Attachment GetError(string UserName)
+        {
+            var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
+            card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock("錯誤請重新填寫", AdaptiveTextSize.Large, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Center));
+            card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock(UserName, AdaptiveTextSize.Small, AdaptiveTextColor.Good, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Left));
+            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+
+        }
     }
 }

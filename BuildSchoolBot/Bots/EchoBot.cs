@@ -213,7 +213,7 @@ namespace BuildSchoolBot.Bots
             }
             return await Task.FromResult(taskInfo.ToTaskModuleResponse());
         }
-        protected override async Task<InvokeResponse> OnInvokeActivityAsync(ITurnContext<IInvokeActivity> turnContext, CancellationToken cancellationToken)
+        protected override async Task<InvokeResponse> OnTeamsCardActionInvokeAsync(ITurnContext<IInvokeActivity> turnContext, CancellationToken cancellationToken)
         {
             var memberId = turnContext.Activity.From.Id;
             dynamic obj = turnContext.Activity.Value;
@@ -237,6 +237,7 @@ namespace BuildSchoolBot.Bots
 
                 await turnContext.UpdateActivityAsync(activity, cancellationToken);
             }
+
 
 
             return await Task.FromResult(new InvokeResponse()

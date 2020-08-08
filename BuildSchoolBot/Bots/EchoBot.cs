@@ -27,6 +27,7 @@ using BuildSchoolBot.StoreModels;
 using System.Net.Http;
 using Newtonsoft.Json.Linq;
 using static BuildSchoolBot.StoreModels.AllSelectData;
+using static BuildSchoolBot.StoreModels.SelectMenu;
 
 namespace BuildSchoolBot.Bots
 {
@@ -172,19 +173,44 @@ namespace BuildSchoolBot.Bots
             JObject o = new JObject();
             o["SelectMenu"] = array;
             string json = o.ToString();
-            //取完整資料
-            var OAllOrderDatasStr = _orderfoodServices.ProcessUnifyData(o);
-            var SelectObject = JsonConvert.DeserializeObject<SelectAllDataGroup>(OAllOrderDatasStr);
-            SelectObject.UserID = UserId;
-            SelectObject.StoreName = StoreName;
-            var SelectAllDataJson = JsonConvert.SerializeObject(SelectObject);
-            var ExistGuid = Guid.Parse("cf1ed7b9-ae4a-4832-a9f4-fdee6e492085");
-            //_orderDetailService.CreateOrderDetail(SelectObject, SelectObject.SelectAllOrders, ExistGuid);
 
-            //_orderService.CreateOrder()
-            taskInfo.Card = _createCardService.GetResultClickfood(guid, StoreName, json, "12:00", UserName);
-            _orderfoodServices.SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
-            await turnContext.SendActivityAsync(MessageFactory.Attachment(_createCardService.GetResultClickfood(guid, StoreName, json, "12:00", UserName)));
+            bool DecideQuanRem = true;
+            bool Number = true;
+            var AllSelectDatas = JsonConvert.DeserializeObject<SelectMenuDatagroup>(json);
+            foreach (var item in AllSelectDatas.SelectMenu)
+            {
+                if (item.Quantity == "0" && item.Remarks != "")
+                {
+                    DecideQuanRem = false;
+                }
+                if (Math.Sign(decimal.Parse(item.Quantity)) < 0 || (decimal.Parse(item.Quantity) - Math.Floor(decimal.Parse(item.Quantity))) != 0)
+                {
+                    Number = false;
+                }
+            }
+            if (DecideQuanRem == true && Number == true)
+            {
+                //取完整資料
+                var OAllOrderDatasStr = _orderfoodServices.ProcessUnifyData(o);
+                var SelectObject = JsonConvert.DeserializeObject<SelectAllDataGroup>(OAllOrderDatasStr);
+                SelectObject.UserID = UserId;
+                SelectObject.StoreName = StoreName;
+                var SelectAllDataJson = JsonConvert.SerializeObject(SelectObject);
+                var ExistGuid = Guid.Parse("cf1ed7b9-ae4a-4832-a9f4-fdee6e492085");
+                //_orderDetailService.CreateOrderDetail(SelectObject, SelectObject.SelectAllOrders, ExistGuid);
+
+                //_orderService.CreateOrder()
+                taskInfo.Card = _createCardService.GetResultClickfood(guid, StoreName, json, "12:00", UserName);
+                _orderfoodServices.SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(_createCardService.GetResultClickfood(guid, StoreName, json, "12:00", UserName)));
+            }
+            else
+            {
+                taskInfo.Card = _createCardService.GetError(UserName);
+                _orderfoodServices.SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(_createCardService.GetError(UserName)));
+
+            }
             return await Task.FromResult(taskInfo.ToTaskModuleResponse());
         }
         protected override async Task<InvokeResponse> OnTeamsCardActionInvokeAsync(ITurnContext<IInvokeActivity> turnContext, CancellationToken cancellationToken)

@@ -78,6 +78,7 @@ namespace BuildSchoolBot
             services.AddTransient<OrderDetailService>();
             services.AddTransient<OrderService>();
             services.AddTransient<CreateCardService>();
+            services.AddTransient<OrganizeStructureService>();
 
             services.AddTransient<HistoryService>();
         }

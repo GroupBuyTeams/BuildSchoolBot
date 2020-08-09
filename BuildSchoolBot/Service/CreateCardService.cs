@@ -2,6 +2,7 @@
 using BuildSchoolBot.StoreModels;
 using BuildSchoolBot.ViewModels;
 using Microsoft.Bot.Schema;
+using Microsoft.Bot.Schema.Teams;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;

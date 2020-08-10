@@ -57,5 +57,16 @@ namespace BuildSchoolBot.Service
 
             return adaptiveCardAttachment;
         }
+
+
+        //private async Task<Attachment> GetPayCard(ITurnContext turnContext)
+        //{
+        //    var memberId = turnContext.Activity.From.Id;
+
+        //    var Name = turnContext.Activity.From.Name;
+        //    var payMemberId = await _payMentService.FindPayByMemberId(memberId);
+        //    var payCard = PayMentService.CreatePayAdaptiveAttachment(payMemberId, Name);
+        //    return payCard;
+        //}
     }
 }

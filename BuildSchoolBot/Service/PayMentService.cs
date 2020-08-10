@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using BuildSchoolBot.ViewModels;
 using AdaptiveCards;
 using Microsoft.Bot.Builder;
+using Newtonsoft.Json.Linq;
 
 namespace BuildSchoolBot.Service
 {
@@ -42,8 +43,9 @@ namespace BuildSchoolBot.Service
         {
             var paths = new[] { ".", "Resources", "PayCard.json" };
             var payCardJson = File.ReadAllText(Path.Combine(paths));
+            JObject payCardJObject = JObject.Parse(payCardJson);
 
-            var myCard = JsonConvert.DeserializeObject<AdaptiveCard>(payCardJson);
+            var myCard = JsonConvert.DeserializeObject<AdaptiveCard>((string)payCardJObject);
 
             var adaptiveCardAttachment = new Attachment()
             {

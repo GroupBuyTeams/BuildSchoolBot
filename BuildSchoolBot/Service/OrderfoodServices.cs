@@ -201,6 +201,12 @@ namespace BuildSchoolBot.Service
             TextInput.Id = IdInput;
             return TextInput;
         }
+        public AdaptiveTextInput GetadaptiveText(string IdInput,string Value)
+        {
+            var TextInput = GetadaptiveText(IdInput);
+            TextInput.Value = Value;
+            return TextInput;
+        }
         public AdaptiveColumnSet FixedtextColumn(string[]texts)
         {
             var result = new AdaptiveColumnSet() { Separator = true };

@@ -94,7 +94,7 @@ namespace BuildSchoolBot.Service
             var ColumnSetitemname = new OrderfoodServices().FixedtextColumn(itemsname);
             var root = JsonConvert.DeserializeObject<foodgroup>(modulefoodjson);
             card.Actions = new[] { TaskModuleUIConstants.AdaptiveCard }
-                   .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle, Data = new AdaptiveCardTaskFetchValue<string>() { Data = StorName + "FoodGuid2468" + Guidstr } })
+                   .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle,Data = new AdaptiveCardTaskFetchValue<string>() { Data = StorName + "FoodGuid2468" + Guidstr } })
                     .ToList<AdaptiveAction>();
             card.Body.Add(ColumnSetitemname);
             foreach (var p in root.Menuproperties)
@@ -159,5 +159,12 @@ namespace BuildSchoolBot.Service
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
 
         }
+
+        //public Attachment GetCustomizedModification(string MenuOrderJson, string MenuDetailJson)
+        //{
+        //    var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
+
+        //    card.Body.Add(new OrderfoodServices().GetadaptiveText(string IdInput, string Value));
+        //}
     }
 }

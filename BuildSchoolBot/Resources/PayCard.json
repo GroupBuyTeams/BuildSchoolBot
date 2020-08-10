@@ -16,11 +16,8 @@
       "type": "ActionSet",
       "actions": [
         {
-          "type": "Action.ShowCard",
+          "type": "Action.Submit",
           "title": "Update",
-          "card": {
-            "type": "AdaptiveCard"
-          },
           "id": "update"
         }
       ]

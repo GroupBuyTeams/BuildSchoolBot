@@ -160,6 +160,7 @@ namespace BuildSchoolBot.Bots
 
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
+
             var TaskInfo = new TaskModuleTaskInfo();
             JObject Data = JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data));
             var StoreAndGuid = Data.Property("data").Value.ToString();
@@ -202,6 +203,8 @@ namespace BuildSchoolBot.Bots
 
             }
             return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
+
+
         }
         protected override async Task<InvokeResponse> OnTeamsCardActionInvokeAsync(ITurnContext<IInvokeActivity> turnContext, CancellationToken cancellationToken)
         {

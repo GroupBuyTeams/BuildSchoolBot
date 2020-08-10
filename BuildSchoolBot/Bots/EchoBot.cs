@@ -44,8 +44,9 @@ namespace BuildSchoolBot.Bots
         protected readonly OrderDetailService _orderDetailService;
         protected readonly CreateCardService _createCardService;
         protected readonly OrganizeStructureService _organizeStructureService;
+        protected readonly PayMentService _payMentService;
 
-        public EchoBot(ConversationState conversationState, LibraryService libraryService, OrderService orderService, OrderDetailService orderDetailService, UserState userState, T dialog, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences, CreateCardService createCardService, OrganizeStructureService organizeStructureService)
+        public EchoBot(ConversationState conversationState, LibraryService libraryService, OrderService orderService, OrderDetailService orderDetailService, UserState userState, T dialog, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences, CreateCardService createCardService, OrganizeStructureService organizeStructureService, PayMentService payMentService)
         {
             ConversationState = conversationState;
             UserState = userState;
@@ -58,6 +59,7 @@ namespace BuildSchoolBot.Bots
             _orderDetailService = orderDetailService;
             _createCardService = createCardService;
             _organizeStructureService = organizeStructureService;
+            _payMentService = payMentService;
         }
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
@@ -67,6 +69,11 @@ namespace BuildSchoolBot.Bots
                 var libraryCard = await GetLibraryCard(turnContext);
 
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(libraryCard), cancellationToken);
+            }
+            else if (turnContext.Activity.Text.Contains("Pay"))
+            {
+                var payCard = await GetPayCard(turnContext);
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(payCard), cancellationToken);
             }
             //Only for Demo.
             //please don't delete it, please don't delete it, please don't delete it!!!!
@@ -104,7 +111,7 @@ namespace BuildSchoolBot.Bots
             var conversationReference = activity.GetConversationReference();
             ConversationReferences.AddOrUpdate(conversationReference.User.Id, conversationReference, (key, newValue) => conversationReference);
         }
-
+        //當有新成員加入
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
             foreach (var member in membersAdded)
@@ -134,7 +141,6 @@ namespace BuildSchoolBot.Bots
             {
                 activity.Text = JsonConvert.SerializeObject(activity.Value);
             }
-
             await base.OnTurnAsync(turnContext, cancellationToken);
 
             // Save any state changes that might have occurred during the turn.
@@ -240,6 +246,14 @@ namespace BuildSchoolBot.Bots
 
             return libraryCard;
         }
+        private async Task<Attachment> GetPayCard(ITurnContext turnContext)
+        {
+            var memberId = turnContext.Activity.From.Id;
 
+            var Name = turnContext.Activity.From.Name;
+            var payMemberId = await _payMentService.FindPayByMemberId(memberId);
+            var payCard = PayMentService.CreatePayAdaptiveAttachment(payMemberId, Name);
+            return payCard;
+        }
     }
 }

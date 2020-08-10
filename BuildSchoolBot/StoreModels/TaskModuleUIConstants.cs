@@ -9,5 +9,8 @@ namespace BuildSchoolBot.StoreModels
     {
         public static UISettings AdaptiveCard { get; set; } =
           new UISettings(900, 500, "", TaskModuleIds.AdaptiveCard, "Click");
+
+        public static UISettings Update { get; set; } =
+            new UISettings(600, 400, "", TaskModuleIds.Update, "Click");
     }
 }

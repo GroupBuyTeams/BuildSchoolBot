@@ -10,7 +10,7 @@ using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
 using static BuildSchoolBot.Service.CardAssemblyFactory;
 using static BuildSchoolBot.Service.CardActionFactory;
-
+using BuildSchoolBot.Repository;
 
 namespace BuildSchoolBot.Service
 {
@@ -83,11 +83,18 @@ namespace BuildSchoolBot.Service
 
             return new Attachment() {ContentType = AdaptiveCard.ContentType, Content = card};
         }
-        
+
         //To dear莞婷:
         //
         //    妳不是要做刪除嗎？
-        //
+        //private EGRepository<Order> _repo;
+        //public void DeleteStore(Guid orderId)
+        //{
+        //    var entity = _repo.GetAll().FirstOrDefault(x => x.OrderId.Equals(orderId));
+
+        //    _repo.Delete(entity);
+        //    _repo.context.SaveChanges();
+        //}
         // Sincerely,
         // 阿三
 

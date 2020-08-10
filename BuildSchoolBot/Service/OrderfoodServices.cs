@@ -400,10 +400,6 @@ namespace BuildSchoolBot.Service
             //TextBlockTotalMoney.Text= "總金額:" + TotalMoney.ToString();
             //TextBlockTotalMoney.HorizontalAlignment = AdaptiveHorizontalAlignment.Right;
             //card.Body.Add(TextBlockTotalMoney);
-       
-
-           
-
         
             string[] TimeAndTotalMoney = new string[] { "DueTime", DueTime, "", "總金額:",TotalMoney.ToString() };
             var ColumnSetTimeAndMoney = new AdaptiveColumnSet();

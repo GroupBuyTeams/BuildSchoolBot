@@ -181,6 +181,7 @@ namespace BuildSchoolBot.Bots
 
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
+            var test = turnContext.Activity.Value.ToString();
             var UserId = turnContext.Activity.From.Id;
             var UserName = turnContext.Activity.From.Name;
             var taskInfo = new TaskModuleTaskInfo();

@@ -5,12 +5,15 @@
   "body": [
     {
       "type": "TextBlock",
-      "text": "PayMent",
+      "text": "PayMent Url:",
       "size": "Large",
-      "color": "Good",
-      "isSubtle": true,
-      "weight": "Bolder",
-      "id": "payMent"
+      "color": "Good"
+    },
+    {
+      "type": "Input.Text",
+      "placeholder": "Payment",
+      "style": "Url",
+      "id": "payment"
     },
     {
       "type": "ActionSet",
@@ -18,7 +21,7 @@
         {
           "type": "Action.Submit",
           "title": "Update",
-          "id": "update"
+          "id": "submit"
         }
       ]
     }

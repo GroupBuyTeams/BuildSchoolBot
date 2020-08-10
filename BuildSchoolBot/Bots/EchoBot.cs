@@ -44,9 +44,9 @@ namespace BuildSchoolBot.Bots
         protected readonly OrderDetailService _orderDetailService;
         protected readonly CreateCardService _createCardService;
         protected readonly OrganizeStructureService _organizeStructureService;
-        protected readonly PayMentService _payMentService;
+        protected readonly PayMentService _paymentService;
 
-        public EchoBot(ConversationState conversationState, LibraryService libraryService, OrderService orderService, OrderDetailService orderDetailService, UserState userState, T dialog, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences, CreateCardService createCardService, OrganizeStructureService organizeStructureService, PayMentService payMentService)
+        public EchoBot(ConversationState conversationState, LibraryService libraryService, OrderService orderService, OrderDetailService orderDetailService, UserState userState, T dialog, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences, CreateCardService createCardService, OrganizeStructureService organizeStructureService, PayMentService paymentService)
         {
             ConversationState = conversationState;
             UserState = userState;
@@ -59,11 +59,11 @@ namespace BuildSchoolBot.Bots
             _orderDetailService = orderDetailService;
             _createCardService = createCardService;
             _organizeStructureService = organizeStructureService;
-            _payMentService = payMentService;
+            _paymentService = paymentService;
         }
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-
+            //var test = turnContext.Activity.Value.ToString().Split('"') ;
             if (turnContext.Activity.Text.Contains("Library"))
             {
                 var libraryCard = await GetLibraryCard(turnContext);
@@ -72,8 +72,20 @@ namespace BuildSchoolBot.Bots
             }
             else if (turnContext.Activity.Text.Contains("Pay"))
             {
-                var payCard = await GetPayCard(turnContext);
+                var payCard = _paymentService.CreatePayAdaptiveAttachment();
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(payCard), cancellationToken);
+            }
+            else if (turnContext.Activity.Text.Contains("payment"))
+            {
+                var memberId = turnContext.Activity.From.Id;
+
+                if (turnContext.Activity.Value.ToString().Split('"')[3] == string.Empty)
+                {
+                    var url = turnContext.Activity.Text;
+                    _paymentService.Create(memberId, url);
+                    await turnContext.SendActivityAsync(MessageFactory.Text(url), cancellationToken);
+                }
+                    _paymentService.GetPay(memberId);
             }
             //Only for Demo.
             //please don't delete it, please don't delete it, please don't delete it!!!!
@@ -218,14 +230,14 @@ namespace BuildSchoolBot.Bots
 
             return libraryCard;
         }
-        private async Task<Attachment> GetPayCard(ITurnContext turnContext)
-        {
-            var memberId = turnContext.Activity.From.Id;
+        //private async Task<Attachment> GetPayCard(ITurnContext turnContext)
+        //{
+        //    var memberId = turnContext.Activity.From.Id;
 
-            var Name = turnContext.Activity.From.Name;
-            var payMemberId = await _payMentService.FindPayByMemberId(memberId);
-            var payCard = PayMentService.CreatePayAdaptiveAttachment(payMemberId, Name);
-            return payCard;
-        }
+        //    var Name = turnContext.Activity.From.Name;
+        //    var payMemberId = await _payMentService.FindPayByMemberId(memberId);
+        //    var payCard = PayMentService.CreatePayAdaptiveAttachment(payMemberId, Name);
+        //    return payCard;
+        //}
     }
 }

@@ -44,9 +44,9 @@ namespace BuildSchoolBot.Bots
         protected readonly OrderDetailService _orderDetailService;
         protected readonly CreateCardService _createCardService;
         protected readonly OrganizeStructureService _organizeStructureService;
-        protected readonly PayMentService _payMentService;
+        protected readonly PayMentService _paymentService;
 
-        public EchoBot(ConversationState conversationState, LibraryService libraryService, OrderService orderService, OrderDetailService orderDetailService, UserState userState, T dialog, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences, CreateCardService createCardService, OrganizeStructureService organizeStructureService, PayMentService payMentService)
+        public EchoBot(ConversationState conversationState, LibraryService libraryService, OrderService orderService, OrderDetailService orderDetailService, UserState userState, T dialog, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences, CreateCardService createCardService, OrganizeStructureService organizeStructureService, PayMentService paymentService)
         {
             ConversationState = conversationState;
             UserState = userState;
@@ -59,13 +59,11 @@ namespace BuildSchoolBot.Bots
             _orderDetailService = orderDetailService;
             _createCardService = createCardService;
             _organizeStructureService = organizeStructureService;
-            _payMentService = payMentService;
+            _paymentService = paymentService;
         }
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
             //var test = turnContext.Activity.Value.ToString().Split('"') ;
-
-
             if (turnContext.Activity.Text.Contains("Library"))
             {
                 var libraryCard = await GetLibraryCard(turnContext);
@@ -74,24 +72,20 @@ namespace BuildSchoolBot.Bots
             }
             else if (turnContext.Activity.Text.Contains("Pay"))
             {
-                var card = new PayMentService();
-                var payCard = card.CreatePayAdaptiveAttachment();
+                var payCard = _paymentService.CreatePayAdaptiveAttachment();
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(payCard), cancellationToken);
             }
             else if (turnContext.Activity.Text.Contains("payment"))
             {
-                var createcard = new PayMentService();
                 var memberId = turnContext.Activity.From.Id;
 
                 if (turnContext.Activity.Value.ToString().Split('"')[3] == string.Empty)
                 {
-                    //var createcard = new PayMentService();
-                    //var memberId = turnContext.Activity.From.Id;
                     var url = turnContext.Activity.Text;
-                    createcard.Create(memberId, url);
+                    _paymentService.Create(memberId, url);
                     await turnContext.SendActivityAsync(MessageFactory.Text(url), cancellationToken);
                 }
-                    createcard.GetPay(memberId);
+                    _paymentService.GetPay(memberId);
             }
             //Only for Demo.
             //please don't delete it, please don't delete it, please don't delete it!!!!

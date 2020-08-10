@@ -16,10 +16,10 @@ namespace BuildSchoolBot.Service
     public class PayMentService
     {
         public TeamsBuyContext context;
-        //public PayMentService(TeamsBuyContext _context)
-        //{
-        //    context = _context;
-        //}//middleware
+        public PayMentService(TeamsBuyContext _context)
+        {
+            context = _context;
+        }//middleware
 
         public void Create(string _memberId,string _uri)
         {
@@ -35,7 +35,7 @@ namespace BuildSchoolBot.Service
         //edit
         public Payment GetPay(string memberId)
         {
-            return context.Payment.FirstOrDefault(x => x.MemberId.ToString().Equals(memberId));
+            return context.Payment.FirstOrDefault(x => x.MemberId.Equals(memberId));
 
         }
         public Attachment CreatePayAdaptiveAttachment()
@@ -54,13 +54,6 @@ namespace BuildSchoolBot.Service
             return adaptiveCardAttachment;
         }
 
-        //use memberId to find the pay
-        //public async Task<Payment> FindPayByMemberId(string memberId)
-        //{
-        //    var result = _repo.GetAll().Where(x => x.MemberId == memberId).FirstOrDefault();
-        //    return await Task.FromResult(result);
-
-        //}
         //public async Task<Payment> FindPayByUriAndMemberId(string uri, string memberId)
         //{
         //    var result = _repo.GetAll().Where(x => x.MemberId.Equals(memberId) && x.Url.Equals(uri)).FirstOrDefault();

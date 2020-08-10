@@ -21,5 +21,10 @@ namespace BuildSchoolBot.Service
             context.MenuOrder.Add(menu);
             context.SaveChanges();
         }
+
+        public MenuOrder GetMenuOrder(string MenuId)
+        {
+            return context.MenuOrder.SingleOrDefault(x => x.MenuId.ToString().Equals(MenuId));
+        }
     }
 }

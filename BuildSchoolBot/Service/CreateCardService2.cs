@@ -1,5 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using AdaptiveCards;
+using AdaptiveCards.Rendering;
+using BuildSchoolBot.Models;
 using BuildSchoolBot.StoreModels;
 using BuildSchoolBot.ViewModels;
 using Microsoft.Bot.Schema;
@@ -18,20 +22,36 @@ namespace BuildSchoolBot.Service
         /// <param name="name">餐廳名稱</param>
         /// <param name="url">餐廳網址</param>
         /// <returns>餐廳資訊</returns>
-        public Msteams GetMSTeamsData(string name, string url)
+        public RootMsteams GetMSTeamsData(string name, string url)
         {
-            return new Msteams()
+
+            return new RootMsteams()
             {
-                type = "invoke",
-                value = new MsteamsValue()
+                msteams = new Msteams()
                 {
-                    Name = name,
-                    Url = url,
-                    Option = "Create"
+                    type = "invoke",
+                    value = new MsteamsValue()
+                    {
+                        Name = name,
+                        Url = url,
+                        Option = "Create"
+                    }
                 }
             };
         }
 
+        public CardRootData GetCardData(object data, string dataType)
+        {
+            return new CardRootData()
+            {
+                root = new CardDataModel()
+                {
+                    type = dataType,
+                    value = data
+                }
+            };
+        }
+        
         /// <summary>
         /// 製作收藏庫的餐廳卡片
         /// </summary>
@@ -40,7 +60,13 @@ namespace BuildSchoolBot.Service
         /// <returns>收藏的餐廳卡片</returns>
         public Attachment GetStore(string text, string menuUrl)
         {
-            var textData = text + "FoodData2468" + menuUrl + "GuidStr13579" + Guid.NewGuid().ToString();
+
+            var cardData = new StoreInfoData()
+            {
+                Guid = Guid.NewGuid().ToString(),
+                Name = text,
+                Url = menuUrl
+            };
             var objData = GetMSTeamsData(text, menuUrl);
 
             var card = NewCard()
@@ -51,7 +77,7 @@ namespace BuildSchoolBot.Service
                 })
                 .AddActionsSet(
                     NewActionsSet()
-                        .AddActionToSet(new AdaptiveSubmitAction().SetOpenTaskModule("Join", textData))
+                        .AddActionToSet(new AdaptiveSubmitAction().SetOpenTaskModule("Join", JsonConvert.SerializeObject(cardData)))
                         .AddActionToSet(new AdaptiveSubmitAction() {Title = "Favorite", Data = objData})
                 );
 
@@ -65,6 +91,61 @@ namespace BuildSchoolBot.Service
         // Sincerely,
         // 阿三
 
+        public Attachment CreateMenu(string guid, string storeName, List<Dish> foods)
+        {
+            // var storeInfo = new StoreInfoData() { Name = storeName, Guid = guid };
+            var itemsName = new string[] { "菜名", "價錢", "數量", "備註" };
+
+            var card = NewCard()
+                .AddElement(new AdaptiveTextBlock()
+                {
+                    Text = guid, Size = AdaptiveTextSize.Small, Weight = AdaptiveTextWeight.Bolder,
+                    HorizontalAlignment = AdaptiveHorizontalAlignment.Right
+                })
+                .AddElement(new AdaptiveTextBlock()
+                {
+                    Text = storeName, Size = AdaptiveTextSize.Large, Weight = AdaptiveTextWeight.Bolder,
+                    HorizontalAlignment = AdaptiveHorizontalAlignment.Center
+                })
+                // .AddActionsSet(
+                //     NewActionsSet()
+                //         .AddActionToSet(
+                //             new AdaptiveSubmitAction().SetOpenTaskModule("Order",
+                //                 JsonConvert.SerializeObject(storeInfo))
+                //         )
+                // )
+                .AddRow(new AdaptiveColumnSet() 
+                        .AddColumnsWithStrings(itemsName) 
+                );
+
+            for (int i = 0 ; i < foods.Count; i++)
+            {
+                card
+                    .AddRow(new AdaptiveColumnSet() {Separator = true }
+                        .AddCol(new AdaptiveColumn()
+                            .AddElement(new AdaptiveTextBlock() {Text = foods[i].Dish_Name}))
+                        .AddCol(new AdaptiveColumn() 
+                            .AddElement(new AdaptiveTextBlock() {Text = foods[i].Price.ToString()}))
+                        .AddCol(new AdaptiveColumn()
+                            .AddElement(new AdaptiveNumberInput() {Min = 0, Value = 0, Id = $"{foods[i].Dish_Name}&{foods[i].Price}"} )) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
+                        .AddCol(new AdaptiveColumn()
+                            .AddElement(new AdaptiveTextInput() {Placeholder = "備註", Id = $"{foods[i].Dish_Name}&mark"}))
+                    );
+            }
+
+            card.AddElement(new AdaptiveTextBlock()
+            {
+                Text = "Due Time: 123", Size = AdaptiveTextSize.Medium, Weight = AdaptiveTextWeight.Bolder,
+                HorizontalAlignment = AdaptiveHorizontalAlignment.Left
+            });
+            
+            card.Actions = new[] { TaskModuleUIConstants.AdaptiveCard }
+                .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle, Data = new AdaptiveCardTaskFetchValue<string>() { Data = "FetchSelectedFoods" } })
+                .ToList<AdaptiveAction>();
+            
+            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+        }
+        
         /// <summary>
         /// 計算某餐點的總價
         /// </summary>
@@ -78,7 +159,6 @@ namespace BuildSchoolBot.Service
             var res = quantityInt * moneyDecimal;
             return res;
         }  
-        
         public Attachment GetChosenFoodFromMenu(string guid, string storeName, string orderFoodJson, string dueTime, string userName)
         {
             //顯示於TaskModule上方的欄位名稱

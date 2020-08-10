@@ -25,6 +25,7 @@ using Microsoft.Extensions.Configuration;
 using System.Linq;
 using BuildSchoolBot.StoreModels;
 using System.Net.Http;
+using BuildSchoolBot.ViewModels;
 using Newtonsoft.Json.Linq;
 using static BuildSchoolBot.StoreModels.AllSelectData;
 using static BuildSchoolBot.StoreModels.SelectMenu;
@@ -141,19 +142,35 @@ namespace BuildSchoolBot.Bots
             await ConversationState.SaveChangesAsync(turnContext, false, cancellationToken);
             await UserState.SaveChangesAsync(turnContext, false, cancellationToken);
         }
+        
+        //by Afan
+        // protected async override Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
+        // {
+        //     var asJobject = JObject.FromObject(taskModuleRequest.Data);
+        //     var Value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
+        //     string GetMenuJson = _organizeStructureService.GetFoodUrlStr(Value);
+        //     var TaskInfo = new TaskModuleTaskInfo();
+        //     TaskInfo.Card = _organizeStructureService.GetTaskModuleFetchCard(Value, GetMenuJson,TaskInfo);
+        //     _orderfoodServices.SetTaskInfo(TaskInfo, TaskModuleUIConstants.AdaptiveCard);
+        //     return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
+        // }
+
+        //by 阿三
         protected async override Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
-            var asJobject = JObject.FromObject(taskModuleRequest.Data);
-            var Value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
-            string GetMenuJson = _organizeStructureService.GetFoodUrlStr(Value);
-            var TaskInfo = new TaskModuleTaskInfo();
-            TaskInfo.Card = _organizeStructureService.GetTaskModuleFetchCard(Value, GetMenuJson,TaskInfo);
-            _orderfoodServices.SetTaskInfo(TaskInfo, TaskModuleUIConstants.AdaptiveCard);
-            return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
+            var storeInfo = new AdaptiveCardDataFactory().GetDataWhenOpenTaskModule<StoreInfoData>(taskModuleRequest);
+            var menuData = await new WebCrawler().GetOrderInfo2(storeInfo.Url);
+            var taskInfo = new TaskModuleTaskInfo();
+            taskInfo.Card = new CreateCardService2().CreateMenu(storeInfo.Guid, storeInfo.Name, menuData);
+            _orderfoodServices.SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
+            return await Task.FromResult(taskInfo.ToTaskModuleResponse());
         }
-
+        //尚未完成，要調整
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
+            var asJObject = JObject.FromObject(taskModuleRequest.Data);
+            var value = asJObject.ToObject<CardTaskFetchValue<string>>()?.Data;
+            
             var TaskInfo = new TaskModuleTaskInfo();
             JObject Data = JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data));         
             var StoreAndGuid = Data.Property("data").Value.ToString();

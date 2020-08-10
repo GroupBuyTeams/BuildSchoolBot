@@ -59,24 +59,35 @@ namespace BuildSchoolBot.Service
             var libraryCardJson = File.ReadAllText(Path.Combine(paths));
             var libraryCardItemJson = File.ReadAllText(Path.Combine(pathsItem));
 
-            var myCard = JsonConvert.DeserializeObject<MyAdaptiveCard>(libraryCardJson);
+            var myCard = JsonConvert.DeserializeObject<AdaptiveCard>(libraryCardJson);
 
-            myCard.body[0].columns[1].items[0].text = Name;
+            ((AdaptiveTextBlock)((AdaptiveColumnSet)myCard.Body[0]).Columns[1].Items[0]).Text = Name;
+
 
             library.ForEach(item =>
             {
-                var columnSet = JsonConvert.DeserializeObject<Body>(libraryCardItemJson);
-                myCard.body.Add(columnSet);
-                columnSet.columns[1].items[0].text = item.LibraryName;
-                columnSet.columns[1].items[1].text = item.Uri;
-                columnSet.columns[2].items[0].actions[0].data.msteams.value = new MsteamsValue()
+
+                var columnSet = JsonConvert.DeserializeObject<AdaptiveColumnSet>(libraryCardItemJson);
+                myCard.Body.Add(columnSet);
+                ((AdaptiveTextBlock)columnSet.Columns[1].Items[0]).Text = item.LibraryName;
+                ((AdaptiveTextBlock)columnSet.Columns[1].Items[1]).Text = item.Uri;
+                ((AdaptiveSubmitAction)((AdaptiveActionSet)columnSet.Columns[2].Items[0]).Actions[0]).Data = new Data()
                 {
-                    Name = item.LibraryName,
-                    Url = item.Uri,
-                    Option = "Delete",
-                    LibraryId = item.LibraryId
+                    msteams = new Msteams()
+                    {
+                        type = "invoke",
+                        value = new MsteamsValue()
+                        {
+                            Name = item.LibraryName,
+                            Url = item.Uri,
+                            Option = "Delete",
+                            LibraryId = item.LibraryId
+                        }
+                    }
                 };
             });
+
+
 
             var adaptiveCardAttachment = new Attachment()
             {

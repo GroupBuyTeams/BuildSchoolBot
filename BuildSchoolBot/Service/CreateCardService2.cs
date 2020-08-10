@@ -79,6 +79,8 @@ namespace BuildSchoolBot.Service
                     NewActionsSet()
                         .AddActionToSet(new AdaptiveSubmitAction().SetOpenTaskModule("Join", JsonConvert.SerializeObject(cardData)))
                         .AddActionToSet(new AdaptiveSubmitAction() {Title = "Favorite", Data = objData})
+                        //ting
+                        .AddActionToSet(new AdaptiveSubmitAction() { Title = "Delete"})
                 );
 
             return new Attachment() {ContentType = AdaptiveCard.ContentType, Content = card};
@@ -87,14 +89,14 @@ namespace BuildSchoolBot.Service
         //To dear莞婷:
         //
         //    妳不是要做刪除嗎？
-        //private EGRepository<Order> _repo;
-        //public void DeleteStore(Guid orderId)
-        //{
-        //    var entity = _repo.GetAll().FirstOrDefault(x => x.OrderId.Equals(orderId));
+        private EGRepository<Order> _repo;
+        public void DeleteStore(Guid orderId)
+        {
+            var entity = _repo.GetAll().FirstOrDefault(x => x.OrderId.Equals(orderId));
 
-        //    _repo.Delete(entity);
-        //    _repo.context.SaveChanges();
-        //}
+            _repo.Delete(entity);
+            _repo.context.SaveChanges();
+        }
         // Sincerely,
         // 阿三
 

@@ -63,6 +63,8 @@ namespace BuildSchoolBot.Bots
         }
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
+            //var test = turnContext.Activity.Value.ToString().Split('"') ;
+
 
             if (turnContext.Activity.Text.Contains("Library"))
             {
@@ -72,8 +74,24 @@ namespace BuildSchoolBot.Bots
             }
             else if (turnContext.Activity.Text.Contains("Pay"))
             {
-                var payCard = await GetPayCard(turnContext);
+                var card = new PayMentService();
+                var payCard = card.CreatePayAdaptiveAttachment();
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(payCard), cancellationToken);
+            }
+            else if (turnContext.Activity.Text.Contains("payment"))
+            {
+                var createcard = new PayMentService();
+                var memberId = turnContext.Activity.From.Id;
+
+                if (turnContext.Activity.Value.ToString().Split('"')[3] == string.Empty)
+                {
+                    //var createcard = new PayMentService();
+                    //var memberId = turnContext.Activity.From.Id;
+                    var url = turnContext.Activity.Text;
+                    createcard.Create(memberId, url);
+                    await turnContext.SendActivityAsync(MessageFactory.Text(url), cancellationToken);
+                }
+                    createcard.GetPay(memberId);
             }
             //Only for Demo.
             //please don't delete it, please don't delete it, please don't delete it!!!!
@@ -218,14 +236,14 @@ namespace BuildSchoolBot.Bots
 
             return libraryCard;
         }
-        private async Task<Attachment> GetPayCard(ITurnContext turnContext)
-        {
-            var memberId = turnContext.Activity.From.Id;
+        //private async Task<Attachment> GetPayCard(ITurnContext turnContext)
+        //{
+        //    var memberId = turnContext.Activity.From.Id;
 
-            var Name = turnContext.Activity.From.Name;
-            var payMemberId = await _payMentService.FindPayByMemberId(memberId);
-            var payCard = PayMentService.CreatePayAdaptiveAttachment(payMemberId, Name);
-            return payCard;
-        }
+        //    var Name = turnContext.Activity.From.Name;
+        //    var payMemberId = await _payMentService.FindPayByMemberId(memberId);
+        //    var payCard = PayMentService.CreatePayAdaptiveAttachment(payMemberId, Name);
+        //    return payCard;
+        //}
     }
 }

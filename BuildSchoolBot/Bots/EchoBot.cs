@@ -95,6 +95,15 @@ namespace BuildSchoolBot.Bots
                     await turnContext.SendActivityAsync(MessageFactory.Text(str));
                 }
             }
+            else if (turnContext.Activity.Text.Contains("channel"))
+            {
+                var channel = await TeamsInfo.GetTeamChannelsAsync(turnContext);
+                foreach(var data in channel)
+                {
+                    var str = data.Name + "\r\n" + data.Id;
+                    await turnContext.SendActivityAsync(MessageFactory.Text(str));
+                }
+            }
             else
             {
                 var activity = turnContext.Activity;

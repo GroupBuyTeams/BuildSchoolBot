@@ -87,9 +87,6 @@ namespace BuildSchoolBot.Service
                     }
                 };
             });
-
-
-
             var adaptiveCardAttachment = new Attachment()
             {
                 ContentType = "application/vnd.microsoft.card.adaptive",

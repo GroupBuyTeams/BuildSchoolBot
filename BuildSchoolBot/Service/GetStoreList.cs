@@ -38,19 +38,21 @@ namespace BuildSchoolBot.Service
             //ColumnSetitem.Separator = true;
 
             //店家名稱
-            ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextBlock(StoreName)));
+            ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextBlock(StoreName, "StoreName")));
             //店家連結
-            ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextBlock(Url)));
+            ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextBlock(Url, "Url")));
             //勾選欄位
             var CheckBox = new AdaptiveToggleInput();
+            CheckBox.Id = "ChoseStore";
             CheckBox.Wrap = _Boolean;
             CheckBox.Title = "Confirm";
             ColumnSetitem.Columns.Add(AddColumn(CheckBox));
         }
-        public AdaptiveTextBlock GetadaptiveTextBlock(string InputTxt)
+        public AdaptiveTextBlock GetadaptiveTextBlock(string InputTxt,string _ID)
         {
             var TextBlock = new AdaptiveTextBlock();
             TextBlock.Text = InputTxt;
+            TextBlock.Id = _ID;
             return TextBlock;
         }
         public AdaptiveColumn AddColumn<T>(T adaptiveElement) where T : AdaptiveElement
@@ -111,7 +113,7 @@ namespace BuildSchoolBot.Service
             card.Body.Add(InputTime);
 
             card.Actions = new[] { TaskModuleUIConstants.AdaptiveCard }
-                   .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle, Data = new AdaptiveCardTaskFetchValue<string>() {Data = j } })
+                   .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle, Data = new AdaptiveCardTaskFetchValue<string>() {Data = cardType.Id } })
                     .ToList<AdaptiveAction>();
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }

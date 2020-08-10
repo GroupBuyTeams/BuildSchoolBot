@@ -10,8 +10,14 @@ namespace BuildSchoolBot.Models
         public string Store_Name { get; set; }
         public string Store_Url { get; set; }
     }
+    public class Store_Card
+    {
+        public string Store_Name { get; set; }
+        public string Store_Url { get; set; }
+        public bool Store_bool { get; set; }
+    }
     public class Store_List
     {
-        public List<Store> Stores { get; set; }
+        public List<Store_Card> Stores { get; set; }
     }
 }

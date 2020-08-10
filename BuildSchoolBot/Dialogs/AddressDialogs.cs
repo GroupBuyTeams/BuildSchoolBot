@@ -26,7 +26,7 @@ namespace BuildSchoolBot.Dialogs
             var waterfallSteps = new WaterfallStep[]
             {
                 AddressStepAsync,
-                // ConfirmAddressAsync,
+                ConfirmAddressAsync,
                 GetStoreAsync
             };
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), waterfallSteps));

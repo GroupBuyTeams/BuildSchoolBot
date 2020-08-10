@@ -161,6 +161,7 @@ namespace BuildSchoolBot.Bots
 
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
+            var test = taskModuleRequest.Data.ToString();
             var TaskInfo = new TaskModuleTaskInfo();
             JObject Data = JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data));         
             var StoreAndGuid = Data.Property("data").Value.ToString();

@@ -33,40 +33,34 @@ namespace BuildSchoolBot.Service
             SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
             return await Task.FromResult(taskInfo.ToTaskModuleResponse());
         }
-        private void MenuModule(AdaptiveColumnSet ColumnSetitem, string StoreName, string Url)
+        private void StoreModule(AdaptiveColumnSet ColumnSetitem, string StoreName, string Url,bool _Boolean)
         {
-            ColumnSetitem.Separator = true;
+            //ColumnSetitem.Separator = true;
 
             //店家名稱
-            var ColumnStoreItem = new AdaptiveColumn();
-            ColumnStoreItem.Width = AdaptiveColumnWidth.Stretch;
-            var ContainerStore = new AdaptiveContainer();
-            var TextBlockStoreitem = new AdaptiveTextBlock();
-            TextBlockStoreitem.Text = StoreName;
-            ContainerStore.Items.Add(TextBlockStoreitem);
-            ColumnStoreItem.Items.Add(ContainerStore);
-
+            ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextBlock(StoreName)));
             //店家連結
-            var ColumnUrlItem = new AdaptiveColumn();
-            ColumnUrlItem.Width = AdaptiveColumnWidth.Stretch;
-            var ContainerUrl = new AdaptiveContainer();
-            var TextBlockUrlitem = new AdaptiveTextBlock();
-            TextBlockUrlitem.Text = Url;
-            ContainerUrl.Items.Add(TextBlockUrlitem);
-            ColumnUrlItem.Items.Add(ContainerUrl);
-
+            ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextBlock(Url)));
             //勾選欄位
-            var ColumnToggle = new AdaptiveColumn();
-            ColumnToggle.Width = AdaptiveColumnWidth.Stretch;
-            var containermoneyiitem = new AdaptiveContainer();
             var CheckBox = new AdaptiveToggleInput();
+            CheckBox.Wrap = _Boolean;
             CheckBox.Title = "Confirm";
-            containermoneyiitem.Items.Add(CheckBox);
-            ColumnToggle.Items.Add(containermoneyiitem);
-
-            ColumnSetitem.Columns.Add(ColumnStoreItem);
-            ColumnSetitem.Columns.Add(ColumnUrlItem);
-            ColumnSetitem.Columns.Add(ColumnToggle);
+            ColumnSetitem.Columns.Add(AddColumn(CheckBox));
+        }
+        public AdaptiveTextBlock GetadaptiveTextBlock(string InputTxt)
+        {
+            var TextBlock = new AdaptiveTextBlock();
+            TextBlock.Text = InputTxt;
+            return TextBlock;
+        }
+        public AdaptiveColumn AddColumn<T>(T adaptiveElement) where T : AdaptiveElement
+        {
+            var result = new AdaptiveColumn();
+            result.Width = AdaptiveColumnWidth.Stretch;
+            var Container = new AdaptiveContainer();
+            Container.Items.Add(adaptiveElement);
+            result.Items.Add(Container);
+            return result;
         }
         public LatLngService GetLatLng(string address)
         {
@@ -96,32 +90,28 @@ namespace BuildSchoolBot.Service
             {
                 Size = AdaptiveTextSize.Large,
                 Weight = AdaptiveTextWeight.Bolder,
-                Text = "Chose Order",
-                Id = "GetStore",
+                Text = "Chose Your Order",
                 HorizontalAlignment = AdaptiveHorizontalAlignment.Center
             };
             card.Body.Add(TextBlockStorName);
-            card.Id = "GetStore";
 
             var root = JsonConvert.DeserializeObject<Store_List>(Jdata);
 
             foreach (var s in root.Stores)
             {
                 var ColumnSetitem = new AdaptiveColumnSet();
-                MenuModule(ColumnSetitem, s.Store_Name, s.Store_Url);
+                s.Store_bool = false;
+                StoreModule(ColumnSetitem, s.Store_Name, s.Store_Url, s.Store_bool);
                 card.Body.Add(ColumnSetitem);
             }
 
             //選擇時間
-            var ColumnTime = new AdaptiveColumn { Width = AdaptiveColumnWidth.Auto };
-            var containerTime = new AdaptiveContainer();
-            var InputTime = new AdaptiveTimeInput { Id = "DueTime" };
-            containerTime.Items.Add(InputTime);
-            ColumnTime.Items.Add(containerTime);
-            card.Body.Add(ColumnTime);
+            var InputTime = new AdaptiveTimeInput();
+            InputTime.Id = "DueTime";
+            card.Body.Add(InputTime);
 
             card.Actions = new[] { TaskModuleUIConstants.AdaptiveCard }
-                   .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle, Data = new AdaptiveCardTaskFetchValue<string>() { Data = "" } })
+                   .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle, Data = new AdaptiveCardTaskFetchValue<string>() {Data = j } })
                     .ToList<AdaptiveAction>();
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }

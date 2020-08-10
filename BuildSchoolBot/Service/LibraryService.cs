@@ -42,7 +42,12 @@ namespace BuildSchoolBot.Service
         }
         public async Task<List<Library>> FindLibraryByMemberId(string memberId)
         {
-            var result = _repo.GetAll().Where(x => x.MemberId == memberId).ToList();
+            var result = _repo.GetAll().Where(x => x.MemberId.Equals(memberId)).ToList();
+            return await Task.FromResult(result);
+        }
+        public async Task<List<Library>> FindLibraryByUriAndMemberId(string uri, string memberId)
+        {
+            var result = _repo.GetAll().Where(x => x.MemberId.Equals(memberId) && x.Uri.Equals(uri)).ToList();
             return await Task.FromResult(result);
         }
         public static Attachment CreateAdaptiveCardAttachment(List<Library> library, string Name)
@@ -50,33 +55,44 @@ namespace BuildSchoolBot.Service
             // combine path for cross platform support
             var paths = new[] { ".", "Resources", "LibraryCard.json" };
             var pathsItem = new[] { ".", "Resources", "LibraryCardItem.json" };
+
             var libraryCardJson = File.ReadAllText(Path.Combine(paths));
-
             var libraryCardItemJson = File.ReadAllText(Path.Combine(pathsItem));
-            var obj = JsonConvert.DeserializeObject<dynamic>(libraryCardJson);
-            var objItem = JsonConvert.DeserializeObject<dynamic>(libraryCardItemJson);
-            var card = AdaptiveCards.AdaptiveCard.FromJson(libraryCardJson).Card;
 
-            obj.body[0].columns[1].items[0].text.Value = Name;
+            var myCard = JsonConvert.DeserializeObject<AdaptiveCard>(libraryCardJson);
+
+            ((AdaptiveTextBlock)((AdaptiveColumnSet)myCard.Body[0]).Columns[1].Items[0]).Text = Name;
+
 
             library.ForEach(item =>
             {
-                obj.body.Add(objItem);
-                objItem.columns[1].items[0].text.Value = item.LibraryName;
-                objItem.columns[1].items[1].text.Value = item.Uri;
-                objItem.columns[2].items[0].actions[0].data.msteams.value.Value = JsonConvert.SerializeObject(new MsteamsValue()
+
+                var columnSet = JsonConvert.DeserializeObject<AdaptiveColumnSet>(libraryCardItemJson);
+                myCard.Body.Add(columnSet);
+                ((AdaptiveTextBlock)columnSet.Columns[1].Items[0]).Text = item.LibraryName;
+                ((AdaptiveTextBlock)columnSet.Columns[1].Items[1]).Text = item.Uri;
+                ((AdaptiveSubmitAction)((AdaptiveActionSet)columnSet.Columns[2].Items[0]).Actions[0]).Data = new Data()
                 {
-                    Name = item.LibraryName,
-                    Url = item.Uri,
-                    Option = "Delete",
-                    LibraryId = item.LibraryId
-                });
+                    msteams = new Msteams()
+                    {
+                        type = "invoke",
+                        value = new MsteamsValue()
+                        {
+                            Name = item.LibraryName,
+                            Url = item.Uri,
+                            Option = "Delete",
+                            LibraryId = item.LibraryId
+                        }
+                    }
+                };
             });
+
+
 
             var adaptiveCardAttachment = new Attachment()
             {
                 ContentType = "application/vnd.microsoft.card.adaptive",
-                Content = obj
+                Content = myCard
             };
 
             return adaptiveCardAttachment;

@@ -29,7 +29,7 @@ namespace BuildSchoolBot.Service
             actionSet.Actions.Add(new AdaptiveSubmitAction()
             {
                 Title = "Favorite",
-                Data = new RootMsteams()
+                Data = new Data()
                 {
                     msteams = new Msteams()
                     {

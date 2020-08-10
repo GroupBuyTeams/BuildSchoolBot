@@ -147,7 +147,7 @@ namespace BuildSchoolBot.Bots
             var Value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
             string GetMenuJson = _organizeStructureService.GetFoodUrlStr(Value);
             var TaskInfo = new TaskModuleTaskInfo();
-            TaskInfo.Card = _organizeStructureService.GetTaskModuleFetchCard(Value, GetMenuJson,TaskInfo);
+            TaskInfo.Card = _organizeStructureService.GetTaskModuleFetchCard(Value, GetMenuJson, TaskInfo);
             _orderfoodServices.SetTaskInfo(TaskInfo, TaskModuleUIConstants.AdaptiveCard);
             return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
         }
@@ -155,7 +155,7 @@ namespace BuildSchoolBot.Bots
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
             var TaskInfo = new TaskModuleTaskInfo();
-            JObject Data = JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data));         
+            JObject Data = JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data));
             var StoreAndGuid = Data.Property("data").Value.ToString();
             _organizeStructureService.RemoveNeedlessStructure(Data);
             string SelectJson = _orderfoodServices.ProcessAllSelect(Data);
@@ -184,7 +184,7 @@ namespace BuildSchoolBot.Bots
                 var ExistGuid = Guid.Parse("cf1ed7b9-ae4a-4832-a9f4-fdee6e492085");
                 //_orderDetailService.CreateOrderDetail(SelectObject, SelectObject.SelectAllOrders, ExistGuid);
 
-                TaskInfo.Card = _createCardService.GetResultClickfood(_organizeStructureService.GetOrderID(StoreAndGuid),_organizeStructureService.GetStoreName(StoreAndGuid), o.ToString(), "12:00", turnContext.Activity.From.Name);
+                TaskInfo.Card = _createCardService.GetResultClickfood(_organizeStructureService.GetOrderID(StoreAndGuid), _organizeStructureService.GetStoreName(StoreAndGuid), o.ToString(), "12:00", turnContext.Activity.From.Name);
                 _orderfoodServices.SetTaskInfo(TaskInfo, TaskModuleUIConstants.AdaptiveCard);
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(_createCardService.GetResultClickfood(_organizeStructureService.GetOrderID(StoreAndGuid), _organizeStructureService.GetStoreName(StoreAndGuid), o.ToString(), "12:00", turnContext.Activity.From.Name)));
             }
@@ -200,13 +200,17 @@ namespace BuildSchoolBot.Bots
         protected override async Task<InvokeResponse> OnTeamsCardActionInvokeAsync(ITurnContext<IInvokeActivity> turnContext, CancellationToken cancellationToken)
         {
             var memberId = turnContext.Activity.From.Id;
-            dynamic obj = turnContext.Activity.Value;
+            var obj = JObject.FromObject(turnContext.Activity.Value).ToObject<ViewModels.MsteamsValue>();
 
-            if (obj.Option.ToString().Contains("Create"))
+            if (obj.Option.Equals("Create"))
             {
-                _libraryService.CreateLibraryItem(memberId, obj.Url.ToString(), obj.Name.ToString());
+                var uri = obj.Url;
+                var LibraryItem = await _libraryService.FindLibraryByUriAndMemberId(uri, memberId);
+
+                if (LibraryItem.Count.Equals(0))
+                    _libraryService.CreateLibraryItem(memberId, obj.Url, obj.Name);
             }
-            else if (obj.Option.ToString().Contains("Delete"))
+            else if (obj.Option.Equals("Delete"))
             {
                 var LibraryId = obj.LibraryId;
 

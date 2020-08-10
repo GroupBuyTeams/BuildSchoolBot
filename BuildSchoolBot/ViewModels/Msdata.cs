@@ -11,6 +11,7 @@ namespace BuildSchoolBot.ViewModels
     public class Msteams
     {
         public string type { get; set; }
+        public string text { get; set; }
         public MsteamsValue value { get; set; }
     }
 
@@ -29,7 +30,7 @@ namespace BuildSchoolBot.ViewModels
         public Guid LibraryId { get; set; }
     }
 
-    public class RootMsteams
+    public class Data
     {
         public Msteams msteams { get; set; }
     }

@@ -9,13 +9,13 @@ namespace BuildSchoolBot.Service
     public class ScheduleCreator
     {
         private IScheduler _sched { get; set; }
-        private string _schedId { get; set; }
+        private string _OrderId { get; set; }
         private string _UserId { get; set; }
         public ScheduleCreator(IScheduler scheduler, string UserId, string schedId)
         {
             _sched = scheduler;
             _UserId = UserId;
-            _schedId = Guid.NewGuid().ToString();
+            _OrderId = "cf1ed7b9-ae4a-4832-a9f4-fdee6e492085";//Demo
         }
 
         public void CreateSingleGroupBuyNow(DateTime EndTime)
@@ -77,7 +77,7 @@ namespace BuildSchoolBot.Service
         }
         private JobBuilder GetJobBuilder<T>(string stateInfo, string NotificationText) where T : IJob
         {
-            var jb = JobBuilder.Create<T>().WithIdentity(_schedId + stateInfo, _UserId).UsingJobData("UserId",_UserId).UsingJobData("ScheduleId",_schedId);
+            var jb = JobBuilder.Create<T>().WithIdentity(_OrderId + stateInfo, _UserId).UsingJobData("UserId",_UserId).UsingJobData("OrderId",_OrderId);
             if(NotificationText == null){
                 return jb;
             }else{
@@ -86,7 +86,7 @@ namespace BuildSchoolBot.Service
         }
         private TriggerBuilder GetTriggerBuilder(string stateInfo)
         {
-            return TriggerBuilder.Create().WithIdentity(_schedId + stateInfo, _UserId);
+            return TriggerBuilder.Create().WithIdentity(_OrderId + stateInfo, _UserId);
         }
     }
 

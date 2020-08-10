@@ -15,13 +15,12 @@ namespace BuildSchoolBot.Models
         {
         }
 
-        public virtual DbSet<Additional> Additional { get; set; }
-        public virtual DbSet<AdditionalDetail> AdditionalDetail { get; set; }
-        public virtual DbSet<CustomizedOrder> CustomizedOrder { get; set; }
-        public virtual DbSet<CustomizedOrderDetail> CustomizedOrderDetail { get; set; }
         public virtual DbSet<Library> Library { get; set; }
+        public virtual DbSet<MenuDetail> MenuDetail { get; set; }
+        public virtual DbSet<MenuOrder> MenuOrder { get; set; }
         public virtual DbSet<Order> Order { get; set; }
         public virtual DbSet<OrderDetail> OrderDetail { get; set; }
+        public virtual DbSet<Payment> Payment { get; set; }
         public virtual DbSet<Schedule> Schedule { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -35,56 +34,6 @@ namespace BuildSchoolBot.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Additional>(entity =>
-            {
-                entity.HasKey(e => e.AddId);
-
-                entity.Property(e => e.AddId).ValueGeneratedNever();
-
-                entity.Property(e => e.AddType).HasMaxLength(200);
-            });
-
-            modelBuilder.Entity<AdditionalDetail>(entity =>
-            {
-                entity.HasNoKey();
-
-                entity.Property(e => e.AddItem).HasMaxLength(200);
-
-                entity.HasOne(d => d.Add)
-                    .WithMany()
-                    .HasForeignKey(d => d.AddId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_AdditionalDetail_Additional");
-            });
-
-            modelBuilder.Entity<CustomizedOrder>(entity =>
-            {
-                entity.HasNoKey();
-
-                entity.Property(e => e.Name)
-                    .IsRequired()
-                    .HasMaxLength(500);
-
-                entity.HasOne(d => d.CustomizedMenu)
-                    .WithMany()
-                    .HasForeignKey(d => d.CustomizedMenuId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_CustomizedOrder_CustomizedOrderDetail");
-            });
-
-            modelBuilder.Entity<CustomizedOrderDetail>(entity =>
-            {
-                entity.HasKey(e => e.CustomizedMenuId);
-
-                entity.Property(e => e.CustomizedMenuId).ValueGeneratedNever();
-
-                entity.Property(e => e.Money).HasColumnType("money");
-
-                entity.Property(e => e.ProductName)
-                    .IsRequired()
-                    .HasMaxLength(500);
-            });
-
             modelBuilder.Entity<Library>(entity =>
             {
                 entity.Property(e => e.LibraryId).ValueGeneratedNever();
@@ -96,6 +45,39 @@ namespace BuildSchoolBot.Models
                 entity.Property(e => e.MemberId).IsRequired();
 
                 entity.Property(e => e.Uri).IsRequired();
+            });
+
+            modelBuilder.Entity<MenuDetail>(entity =>
+            {
+                entity.Property(e => e.MenuDetailId).ValueGeneratedNever();
+
+                entity.Property(e => e.Amount).HasColumnType("money");
+
+                entity.Property(e => e.ProductName)
+                    .IsRequired()
+                    .HasMaxLength(100);
+            });
+
+            modelBuilder.Entity<MenuOrder>(entity =>
+            {
+                entity.HasKey(e => e.MenuId)
+                    .HasName("PK_CustomizedOrder");
+
+                entity.Property(e => e.MenuId).ValueGeneratedNever();
+
+                entity.Property(e => e.Store)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.TeamsId)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.HasOne(d => d.Menu)
+                    .WithOne(p => p.MenuOrder)
+                    .HasForeignKey<MenuOrder>(d => d.MenuId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_CustomizedOrder_CustomizedOrderDetail");
             });
 
             modelBuilder.Entity<Order>(entity =>
@@ -134,6 +116,17 @@ namespace BuildSchoolBot.Models
                     .HasForeignKey(d => d.OrderId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_OrderDetail_Order");
+            });
+
+            modelBuilder.Entity<Payment>(entity =>
+            {
+                entity.HasKey(e => e.MemberId);
+
+                entity.Property(e => e.MemberId).HasMaxLength(100);
+
+                entity.Property(e => e.Url)
+                    .IsRequired()
+                    .HasMaxLength(100);
             });
 
             modelBuilder.Entity<Schedule>(entity =>

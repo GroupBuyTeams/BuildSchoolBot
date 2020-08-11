@@ -33,7 +33,7 @@ namespace BuildSchoolBot.Service
             SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
             return await Task.FromResult(taskInfo.ToTaskModuleResponse());
         }
-        private void StoreModule(AdaptiveColumnSet ColumnSetitem, string StoreName, string Url,bool _Boolean)
+        private void StoreModule(AdaptiveColumnSet ColumnSetitem, string StoreName, string Url)
         {
             //ColumnSetitem.Separator = true;
 
@@ -42,23 +42,28 @@ namespace BuildSchoolBot.Service
             //店家連結
             ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextBlock(Url, "Url")));
             //勾選欄位
-            var CheckBox = new AdaptiveToggleInput();
-            CheckBox.Id = "ChoseStore";
-            CheckBox.Wrap = _Boolean;
-            CheckBox.Title = "Confirm";
+            var CheckBox = new AdaptiveToggleInput
+            {
+                Id = "ChoseStore",
+                Title = "Confirm"
+            };
             ColumnSetitem.Columns.Add(AddColumn(CheckBox));
         }
-        public AdaptiveTextBlock GetadaptiveTextBlock(string InputTxt,string _ID)
+        public AdaptiveTextInput GetadaptiveTextBlock(string InputTxt,string _ID)
         {
-            var TextBlock = new AdaptiveTextBlock();
-            TextBlock.Text = InputTxt;
-            TextBlock.Id = _ID;
+            var TextBlock = new AdaptiveTextInput
+            {
+                Value = InputTxt,
+                Id = _ID
+            };
             return TextBlock;
         }
         public AdaptiveColumn AddColumn<T>(T adaptiveElement) where T : AdaptiveElement
         {
-            var result = new AdaptiveColumn();
-            result.Width = AdaptiveColumnWidth.Stretch;
+            var result = new AdaptiveColumn
+            {
+                Width = AdaptiveColumnWidth.Stretch
+            };
             var Container = new AdaptiveContainer();
             Container.Items.Add(adaptiveElement);
             result.Items.Add(Container);
@@ -73,11 +78,13 @@ namespace BuildSchoolBot.Service
         {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
             var actionSet = new AdaptiveActionSet() { Type = AdaptiveActionSet.TypeName, Separator = true };
-            var TextBlockStorName = new AdaptiveTextBlock();
-            TextBlockStorName.Size = AdaptiveTextSize.Large;
-            TextBlockStorName.Weight = AdaptiveTextWeight.Bolder;
-            TextBlockStorName.Text = Address;
-            TextBlockStorName.HorizontalAlignment = AdaptiveHorizontalAlignment.Center;
+            var TextBlockStorName = new AdaptiveTextBlock
+            {
+                Size = AdaptiveTextSize.Large,
+                Weight = AdaptiveTextWeight.Bolder,
+                Text = Address,
+                HorizontalAlignment = AdaptiveHorizontalAlignment.Center
+            };
             card.Body.Add(TextBlockStorName);
 
             actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "Confirm", Data = new AdaptiveCardTaskFetchValue<string>() { Data = StoreData, SetType = "GetStore" } });
@@ -102,8 +109,7 @@ namespace BuildSchoolBot.Service
             foreach (var s in root.Stores)
             {
                 var ColumnSetitem = new AdaptiveColumnSet();
-                s.Store_bool = false;
-                StoreModule(ColumnSetitem, s.Store_Name, s.Store_Url, s.Store_bool);
+                StoreModule(ColumnSetitem, s.Store_Name, s.Store_Url);
                 card.Body.Add(ColumnSetitem);
             }
 
@@ -113,7 +119,7 @@ namespace BuildSchoolBot.Service
             card.Body.Add(InputTime);
 
             card.Actions = new[] { TaskModuleUIConstants.AdaptiveCard }
-                   .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle, Data = new AdaptiveCardTaskFetchValue<string>() {Data = cardType.Id } })
+                   .Select(cardType => new AdaptiveSubmitAction() { Title = "Submit", Data = new AdaptiveCardTaskFetchValue<string>()})
                     .ToList<AdaptiveAction>();
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }

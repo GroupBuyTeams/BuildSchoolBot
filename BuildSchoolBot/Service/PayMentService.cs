@@ -22,7 +22,6 @@ namespace BuildSchoolBot.Service
         {
             context = _context;
         }//middleware
-
         public void Create(string _memberId,string _uri)
         {
             var con = new TeamsBuyContext();

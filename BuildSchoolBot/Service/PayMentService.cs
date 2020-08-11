@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using BuildSchoolBot.ViewModels;
 using AdaptiveCards;
 using Microsoft.Bot.Builder;
+using Newtonsoft.Json.Linq;
 
 namespace BuildSchoolBot.Service
 {
@@ -42,8 +43,10 @@ namespace BuildSchoolBot.Service
         {
             var paths = new[] { ".", "Resources", "PayCard.json" };
             var payCardJson = File.ReadAllText(Path.Combine(paths));
+            JObject payCardJObject = JObject.Parse(payCardJson);
+            //var memberId = turnContext.Activity.From.Id;
 
-            var myCard = JsonConvert.DeserializeObject<AdaptiveCard>(payCardJson);
+            var myCard = JsonConvert.DeserializeObject<AdaptiveCard>((string)payCardJObject);
 
             var adaptiveCardAttachment = new Attachment()
             {
@@ -54,11 +57,6 @@ namespace BuildSchoolBot.Service
             return adaptiveCardAttachment;
         }
 
-        //public async Task<Payment> FindPayByUriAndMemberId(string uri, string memberId)
-        //{
-        //    var result = _repo.GetAll().Where(x => x.MemberId.Equals(memberId) && x.Url.Equals(uri)).FirstOrDefault();
-        //    return await Task.FromResult(result);
-        //}
         //public async Task<Attachment> GetPayCard(ITurnContext turnContext)
         //{
         //    var memberId = turnContext.Activity.From.Id;

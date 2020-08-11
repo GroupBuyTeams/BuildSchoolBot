@@ -1,4 +1,5 @@
 ﻿using AdaptiveCards;
+using BuildSchoolBot.Models;
 using BuildSchoolBot.StoreModels;
 using BuildSchoolBot.ViewModels;
 using Microsoft.Bot.Schema;
@@ -9,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using static BuildSchoolBot.StoreModels.fooditem;
+using static BuildSchoolBot.StoreModels.ModifyMenu;
 using static BuildSchoolBot.StoreModels.ResultTotal;
 using static BuildSchoolBot.StoreModels.SelectMenu;
 
@@ -29,7 +31,7 @@ namespace BuildSchoolBot.Service
             actionSet.Actions.Add(new AdaptiveSubmitAction()
             {
                 Title = "Favorite",
-                Data = new RootMsteams()
+                Data = new Data()
                 {
                     msteams = new Msteams()
                     {
@@ -53,7 +55,7 @@ namespace BuildSchoolBot.Service
             card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock(GuidStr, AdaptiveTextSize.Small, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Right));
             card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock(StoreName + "訂單", AdaptiveTextSize.Large, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Center));
 
-            string[] itemsname = new string[] { "食物名稱", "價錢", "數量", "備註", "單品總金額" };
+            string[] itemsname = new string[] { "Food Name", "Price", "Quantity", "Remarks", "Total" };
             var ColumnSetitemname = new OrderfoodServices().FixedtextColumn(itemsname);
             var root = JsonConvert.DeserializeObject<SelectMenuDatagroup>(Orderfoodjson);
             card.Body.Add(ColumnSetitemname);
@@ -72,7 +74,7 @@ namespace BuildSchoolBot.Service
                 TotalMoney = TotalMoney + TotalSungleMoney;
                 card.Body.Add(ColumnSetitem);
             }
-            string[] TimeAndTotalMoney = new string[] { "DueTime", DueTime, "", "總金額:", TotalMoney.ToString() };
+            string[] TimeAndTotalMoney = new string[] { "DueTime", DueTime, "", "Total Amount:", TotalMoney.ToString() };
             var ColumnSetTimeAndMoney = new OrderfoodServices().FixedtextColumn(TimeAndTotalMoney);
             card.Body.Add(ColumnSetTimeAndMoney);
             card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock(UserName, AdaptiveTextSize.Small, AdaptiveTextColor.Good, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Left));
@@ -90,11 +92,11 @@ namespace BuildSchoolBot.Service
             card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock(StorName, AdaptiveTextSize.Large, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Center));
 
 
-            string[] itemsname = new string[] { "菜名", "價錢", "數量", "備註" };
+            string[] itemsname = new string[] { "Food Name", "Price", "Quantity", "Remarks" };
             var ColumnSetitemname = new OrderfoodServices().FixedtextColumn(itemsname);
             var root = JsonConvert.DeserializeObject<foodgroup>(modulefoodjson);
             card.Actions = new[] { TaskModuleUIConstants.AdaptiveCard }
-                   .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle, Data = new AdaptiveCardTaskFetchValue<string>() { Data = StorName + "FoodGuid2468" + Guidstr } })
+                   .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle,Data = new AdaptiveCardTaskFetchValue<string>() { Data = StorName + "FoodGuid2468" + Guidstr } })
                     .ToList<AdaptiveAction>();
             card.Body.Add(ColumnSetitemname);
             foreach (var p in root.Menuproperties)
@@ -115,7 +117,7 @@ namespace BuildSchoolBot.Service
             card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock(OrderId, AdaptiveTextSize.Small, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Right));
             card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock(StoreName + "訂單", AdaptiveTextSize.Large, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Center));
 
-            string[] itemsname = new string[] { "食物名稱", "價錢", "數量", "備註", "單品總金額" };
+            string[] itemsname = new string[] { "Food Name", "Price", "Quantity", "Remarks", "Total" };
             var ColumnSetitemname = new OrderfoodServices().FixedtextColumn(itemsname);
             var root = JsonConvert.DeserializeObject<AllTotalItemsGroups>(Orderfoodjson);
             card.Body.Add(ColumnSetitemname);
@@ -145,7 +147,7 @@ namespace BuildSchoolBot.Service
                 }
             }
 
-            string[] TimeAndTotalMoney = new string[] { "DueTime", DueTime, "", "總金額:", TotalMoney.ToString() };
+            string[] TimeAndTotalMoney = new string[] { "DueTime", DueTime, "", "Total Amount:", TotalMoney.ToString() };
             var ColumnSetTimeAndMoney = new OrderfoodServices().FixedtextColumnLeftColor(TimeAndTotalMoney);
             card.Body.Add(ColumnSetTimeAndMoney);
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
@@ -154,10 +156,49 @@ namespace BuildSchoolBot.Service
         public Attachment GetError(string UserName)
         {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
-            card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock("錯誤請重新填寫", AdaptiveTextSize.Large, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Center));
+            card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock("Error.Please write again", AdaptiveTextSize.Large, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Center));
             card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock(UserName, AdaptiveTextSize.Small, AdaptiveTextColor.Good, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Left));
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
 
         }
+
+        public Attachment GetCustomizedModification(string Store, List<MenuDetail> menuDetails,string MenuId)
+        {
+            var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
+            string[] ItemsStoreName = new string[] { Store, "" };
+            card.Body.Add(new OrderfoodServices().FixedInputTextAdjustWidthColumn(ItemsStoreName));
+            string[] ItemsName = new string[] { "Food Name", "Price" };
+            var ColumnSetitemname = new OrderfoodServices().FixedtextColumn(ItemsName);
+            card.Body.Add(ColumnSetitemname);
+            for (var i = 0; i < menuDetails.Count; i++)
+            {
+                var ColumnSetitem = new AdaptiveColumnSet();
+                ColumnSetitem.Columns.Add(new OrderfoodServices().AddColumn(new OrderfoodServices().GetadaptiveText(menuDetails[i].ProductName + i.ToString(), menuDetails[i].ProductName)));
+                ColumnSetitem.Columns.Add(new OrderfoodServices().AddColumn(new OrderfoodServices().GetadaptiveText(menuDetails[i].Amount + i.ToString(), menuDetails[i].Amount.ToString())));
+                card.Body.Add(ColumnSetitem);
+            }
+            card.Actions = new[] { TaskModuleUIConstants.AdaptiveCard }
+                   .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle, Data = new AdaptiveCardTaskFetchValue<string>() { Data = MenuId,SetType= "CustomizedModification" } })
+                    .ToList<AdaptiveAction>();
+            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+        }
+
+        public Attachment GetResultCustomizedModification(string Store, List<ModifyMultiple> menuDetails)
+        {
+            var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
+            card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock(Store));
+            string[] ItemsName = new string[] { "Food Name", "Price" };
+            var ColumnSetitemname = new OrderfoodServices().FixedtextColumn(ItemsName);
+            card.Body.Add(ColumnSetitemname);
+            for (var i = 0; i < menuDetails.Count; i++)
+            {
+                var ColumnSetitem = new AdaptiveColumnSet();
+                ColumnSetitem.Columns.Add(new OrderfoodServices().AddColumn(new OrderfoodServices().GetadaptiveTextBlock(menuDetails[i].ProductName)));
+                ColumnSetitem.Columns.Add(new OrderfoodServices().AddColumn(new OrderfoodServices().GetadaptiveTextBlock(menuDetails[i].Amount.ToString())));
+                card.Body.Add(ColumnSetitem);
+            }
+            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+        }
+
     }
 }

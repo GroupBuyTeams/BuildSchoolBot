@@ -1,0 +1,29 @@
+{
+  "type": "AdaptiveCard",
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "version": "1.2",
+  "body": [
+    {
+      "type": "TextBlock",
+      "text": "PayMent Url:",
+      "size": "Large",
+      "color": "Good"
+    },
+    {
+      "type": "Input.Text",
+      "placeholder": "Payment",
+      "style": "Url",
+      "id": "payment"
+    },
+    {
+      "type": "ActionSet",
+      "actions": [
+        {
+          "type": "Action.Submit",
+          "title": "Update",
+          "id": "submit"
+        }
+      ]
+    }
+  ]
+}

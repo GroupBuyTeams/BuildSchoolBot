@@ -44,12 +44,12 @@ namespace BuildSchoolBot.Service
             //勾選欄位
             var CheckBox = new AdaptiveToggleInput
             {
-                Id = StoreName + "^_^" + Url,
+                Id = StoreName+"^_^"+Url,
                 Title = "Confirm"
             };
             ColumnSetitem.Columns.Add(AddColumn(CheckBox));
         }
-        public AdaptiveTextInput GetadaptiveTextBlock(string InputTxt, string _ID)
+        public AdaptiveTextInput GetadaptiveTextBlock(string InputTxt,string _ID)
         {
             var TextBlock = new AdaptiveTextInput
             {
@@ -119,7 +119,7 @@ namespace BuildSchoolBot.Service
             card.Body.Add(InputTime);
 
             card.Actions = new[] { TaskModuleUIConstants.AdaptiveCard }
-                   .Select(cardType => new AdaptiveSubmitAction() { Title = "Submit", Data = new AdaptiveCardTaskFetchValue<string>() { Data = "ResultStoreCard" } })
+                   .Select(cardType => new AdaptiveSubmitAction() { Title = "Submit", Data = new AdaptiveCardTaskFetchValue<string>() { Data="ResultStoreCard"} })
                     .ToList<AdaptiveAction>();
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }

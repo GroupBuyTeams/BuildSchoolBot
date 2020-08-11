@@ -45,11 +45,8 @@ namespace BuildSchoolBot.Bots
         protected readonly OrderDetailService _orderDetailService;
         protected readonly CreateCardService _createCardService;
         protected readonly OrganizeStructureService _organizeStructureService;
-        protected readonly PayMentService _paymentService;
-        protected readonly MenuService _menuService;
-        protected readonly MenuDetailService _menuDetailService;
 
-        public EchoBot(ConversationState conversationState, LibraryService libraryService, OrderService orderService, OrderDetailService orderDetailService, UserState userState, T dialog, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences, CreateCardService createCardService, OrganizeStructureService organizeStructureService, PayMentService paymentService, MenuService menuService, MenuDetailService menuDetailService)
+        public EchoBot(ConversationState conversationState, LibraryService libraryService, OrderService orderService, OrderDetailService orderDetailService, UserState userState, T dialog, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences, CreateCardService createCardService, OrganizeStructureService organizeStructureService)
         {
             ConversationState = conversationState;
             UserState = userState;
@@ -62,35 +59,15 @@ namespace BuildSchoolBot.Bots
             _orderDetailService = orderDetailService;
             _createCardService = createCardService;
             _organizeStructureService = organizeStructureService;
-            _paymentService = paymentService;
-            _menuService = menuService;
-            _menuDetailService = menuDetailService;
         }
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            //var test = turnContext.Activity.Value.ToString().Split('"') ;
+
             if (turnContext.Activity.Text.Contains("Library"))
             {
                 var libraryCard = await GetLibraryCard(turnContext);
 
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(libraryCard), cancellationToken);
-            }
-            else if (turnContext.Activity.Text.Contains("Pay"))
-            {
-                var payCard = _paymentService.CreatePayAdaptiveAttachment();
-                await turnContext.SendActivityAsync(MessageFactory.Attachment(payCard), cancellationToken);
-            }
-            else if (turnContext.Activity.Text.Contains("payment"))
-            {
-                var memberId = turnContext.Activity.From.Id;
-
-                if (turnContext.Activity.Value.ToString().Split('"')[3] == string.Empty)
-                {
-                    var url = turnContext.Activity.Text;
-                    _paymentService.Create(memberId, url);
-                    await turnContext.SendActivityAsync(MessageFactory.Text(url), cancellationToken);
-                }
-                _paymentService.GetPay(memberId);
             }
             //Only for Demo.
             //please don't delete it, please don't delete it, please don't delete it!!!!
@@ -112,15 +89,6 @@ namespace BuildSchoolBot.Bots
                     await turnContext.SendActivityAsync(MessageFactory.Text(str));
                 }
             }
-            else if (turnContext.Activity.Text.Contains("channel"))
-            {
-                var channel = await TeamsInfo.GetTeamChannelsAsync(turnContext);
-                foreach(var data in channel)
-                {
-                    var str = data.Name + "\r\n" + data.Id;
-                    await turnContext.SendActivityAsync(MessageFactory.Text(str));
-                }
-            }
             else
             {
                 var activity = turnContext.Activity;
@@ -137,7 +105,7 @@ namespace BuildSchoolBot.Bots
             var conversationReference = activity.GetConversationReference();
             ConversationReferences.AddOrUpdate(conversationReference.User.Id, conversationReference, (key, newValue) => conversationReference);
         }
-        //∑Ì¶≥∑s¶®≠˚•[§J
+
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
             foreach (var member in membersAdded)
@@ -167,6 +135,7 @@ namespace BuildSchoolBot.Bots
             {
                 activity.Text = JsonConvert.SerializeObject(activity.Value);
             }
+
             await base.OnTurnAsync(turnContext, cancellationToken);
 
             // Save any state changes that might have occurred during the turn.
@@ -181,24 +150,24 @@ namespace BuildSchoolBot.Bots
                 var StoreModule = new GetStoreList();
                 return await StoreModule.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
             }
-            //?≤Èä®
+            //ËÇ≤Èä®
             var asJobject = JObject.FromObject(taskModuleRequest.Data);
             var Value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
             string GetMenuJson = _organizeStructureService.GetFoodUrlStr(Value);
             var TaskInfo = new TaskModuleTaskInfo();
-            TaskInfo.Card = _organizeStructureService.GetTaskModuleFetchCard(Value, GetMenuJson, TaskInfo);
+            TaskInfo.Card = _organizeStructureService.GetTaskModuleFetchCard(Value, GetMenuJson,TaskInfo);
             _orderfoodServices.SetTaskInfo(TaskInfo, TaskModuleUIConstants.AdaptiveCard);
             return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
         }
 
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
-            //Æaƒ_
-            if (taskModuleRequest.Data.ToString().Split('"').FirstOrDefault(x => x.Equals("ResultStoreCard")).Equals("ResultStoreCard"))
+            //ÂÆ∂ÂØ∂
+            if(taskModuleRequest.Data.ToString().Split('"').FirstOrDefault(x => x.Equals("ResultStoreCard")).Equals("ResultStoreCard"))
             {
                 var result = new GetUserChosedStore().GetResultStore(taskModuleRequest.Data.ToString());
             }
-            //§¿§Ù¿≠
+            //ÂàÜÊ∞¥Â∂∫
             var TaskInfo = new TaskModuleTaskInfo();
             JObject Data = JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data));         
             var StoreAndGuid = Data.Property("data").Value.ToString();
@@ -222,7 +191,7 @@ namespace BuildSchoolBot.Bots
             }
             if (DecideQuanRem == true && Number == true)
             {
-                //?ñÂ??¥Ë???
+                //ÂèñÂÆåÊï¥Ë≥áÊñô
                 var OAllOrderDatasStr = _orderfoodServices.ProcessUnifyData(o);
                 var SelectObject = JsonConvert.DeserializeObject<SelectAllDataGroup>(OAllOrderDatasStr);
                 SelectObject.UserID = turnContext.Activity.From.Id;
@@ -245,17 +214,13 @@ namespace BuildSchoolBot.Bots
         protected override async Task<InvokeResponse> OnTeamsCardActionInvokeAsync(ITurnContext<IInvokeActivity> turnContext, CancellationToken cancellationToken)
         {
             var memberId = turnContext.Activity.From.Id;
-            var obj = JObject.FromObject(turnContext.Activity.Value).ToObject<ViewModels.MsteamsValue>();
+            dynamic obj = turnContext.Activity.Value;
 
-            if (obj.Option.Equals("Create"))
+            if (obj.Option.ToString().Contains("Create"))
             {
-                var uri = obj.Url;
-                //var LibraryItem = await _libraryService.FindLibraryByUriAndMemberId(uri, memberId);
-
-                //if (LibraryItem.Count.Equals(0))
-                //    _libraryService.CreateLibraryItem(memberId, obj.Url, obj.Name);
+                _libraryService.CreateLibraryItem(memberId, obj.Url.ToString(), obj.Name.ToString());
             }
-            else if (obj.Option.Equals("Delete"))
+            else if (obj.Option.ToString().Contains("Delete"))
             {
                 var LibraryId = obj.LibraryId;
 
@@ -289,14 +254,6 @@ namespace BuildSchoolBot.Bots
 
             return libraryCard;
         }
-        //private async Task<Attachment> GetPayCard(ITurnContext turnContext)
-        //{
-        //    var memberId = turnContext.Activity.From.Id;
 
-        //    var Name = turnContext.Activity.From.Name;
-        //    var payMemberId = await _payMentService.FindPayByMemberId(memberId);
-        //    var payCard = PayMentService.CreatePayAdaptiveAttachment(payMemberId, Name);
-        //    return payCard;
-        //}
     }
 }

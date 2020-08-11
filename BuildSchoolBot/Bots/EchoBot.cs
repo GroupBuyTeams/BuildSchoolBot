@@ -85,7 +85,7 @@ namespace BuildSchoolBot.Bots
                     _paymentService.Create(memberId, url);
                     await turnContext.SendActivityAsync(MessageFactory.Text(url), cancellationToken);
                 }
-                    _paymentService.GetPay(memberId);
+                _paymentService.GetPay(memberId);
             }
             //Only for Demo.
             //please don't delete it, please don't delete it, please don't delete it!!!!

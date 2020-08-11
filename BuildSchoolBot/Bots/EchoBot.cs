@@ -28,6 +28,7 @@ using System.Net.Http;
 using Newtonsoft.Json.Linq;
 using static BuildSchoolBot.StoreModels.AllSelectData;
 using static BuildSchoolBot.StoreModels.SelectMenu;
+using static BuildSchoolBot.StoreModels.ModifyMenu;
 
 namespace BuildSchoolBot.Bots
 {
@@ -174,18 +175,28 @@ namespace BuildSchoolBot.Bots
         }
         protected async override Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
-            var asJobject = JObject.FromObject(taskModuleRequest.Data);
-            var Value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
-            string GetMenuJson = _organizeStructureService.GetFoodUrlStr(Value);
-            var TaskInfo = new TaskModuleTaskInfo();
-            TaskInfo.Card = _organizeStructureService.GetTaskModuleFetchCard(Value, GetMenuJson, TaskInfo);
-            _orderfoodServices.SetTaskInfo(TaskInfo, TaskModuleUIConstants.AdaptiveCard);
-            return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
-        }
+            if (JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data)).Property("SetType").Value.ToString() == "CustomizedModification")
+            {
+                return await _orderfoodServices.GetModifyModuleData(turnContext, taskModuleRequest, cancellationToken);
+            }
+            else
+            {
+                return await _orderfoodServices.GetModuleMenuData(turnContext, taskModuleRequest, cancellationToken); 
+            }
+    }
 
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
-            return await _orderfoodServices.FinishSelectDishesSubmit(turnContext, taskModuleRequest, cancellationToken);
+            if (JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data)).Property("SetType").Value.ToString() == "CustomizedModification")
+            {
+                var TaskInfo = new TaskModuleTaskInfo();
+                _orderfoodServices.ModifyMenuData(taskModuleRequest, TaskInfo);
+                return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
+            }
+            else
+            {
+                return await _orderfoodServices.FinishSelectDishesSubmit(turnContext, taskModuleRequest, cancellationToken);
+            }
         }
         protected override async Task<InvokeResponse> OnTeamsCardActionInvokeAsync(ITurnContext<IInvokeActivity> turnContext, CancellationToken cancellationToken)
         {

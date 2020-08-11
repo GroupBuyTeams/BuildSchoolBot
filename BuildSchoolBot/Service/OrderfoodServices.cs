@@ -1,4 +1,5 @@
 ﻿using AdaptiveCards;
+using BuildSchoolBot.Models;
 using BuildSchoolBot.StoreModels;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
@@ -324,6 +325,7 @@ namespace BuildSchoolBot.Service
 
         public async Task<TaskModuleResponse> FinishSelectDishesSubmit(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
+            TeamsBuyContext context = new TeamsBuyContext();
             var TaskInfo = new TaskModuleTaskInfo();
             JObject Data = JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data));
             var StoreAndGuid = Data.Property("data").Value.ToString();
@@ -352,7 +354,7 @@ namespace BuildSchoolBot.Service
                 var SelectObject = JsonConvert.DeserializeObject<SelectAllDataGroup>(OAllOrderDatasStr);
                 SelectObject.UserID = turnContext.Activity.From.Id;
                 var ExistGuid = Guid.Parse("cf1ed7b9-ae4a-4832-a9f4-fdee6e492085");
-                //_orderDetailService.CreateOrderDetail(SelectObject, SelectObject.SelectAllOrders, ExistGuid);
+                new OrderDetailService(context).CreateOrderDetail(SelectObject, SelectObject.SelectAllOrders, ExistGuid);
 
                 TaskInfo.Card = new CreateCardService().GetResultClickfood(new OrganizeStructureService().GetOrderID(StoreAndGuid), new OrganizeStructureService().GetStoreName(StoreAndGuid), o.ToString(), "12:00", turnContext.Activity.From.Name);
                 SetTaskInfo(TaskInfo, TaskModuleUIConstants.AdaptiveCard);
@@ -367,16 +369,66 @@ namespace BuildSchoolBot.Service
             }
             return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
         }
-
-        //ting
-        public void GetMenuInput(AdaptiveColumnSet ColumnSetitem, string name, string money, string price)
+        public void ModifyMenuData(TaskModuleRequest taskModuleRequest, TaskModuleTaskInfo TaskInfo)
         {
-            //食物
-            ColumnSetitem.Columns.Add(AddColumn(GetadaptiveText(name)));
-            //$
-            ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextBlock(money,AdaptiveTextSize.Medium,AdaptiveTextWeight.Bolder,AdaptiveHorizontalAlignment.Right)));
-            //價錢
-            ColumnSetitem.Columns.Add(AddColumn(GetadaptiveText(price)));
+            TeamsBuyContext context = new TeamsBuyContext();
+            var asJobject = JObject.FromObject(taskModuleRequest.Data);
+            var Value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
+            JObject Data = JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data));
+            new OrganizeStructureService().ModifyRemoveNeedlessStructure(Data);
+            var inputlist = new List<string>();
+            foreach (var item in Data)
+            {
+                inputlist.Add(item.Value.ToString());
+            }
+            inputlist.Remove(inputlist[0]);
+            var StoreName = inputlist[0];
+            inputlist.Remove(inputlist[0]);
+            var Modify = new ModifyGroup();
+            var w = new List<ModifyMultiple>();
+            for (int i = 0; 2 * i < inputlist.Count(); i++)
+            {
+                w.Add(new ModifyMultiple() { ProductName = inputlist[2 * i], Amount = inputlist[2 * i + 1], MenuId = Value });
+            }
+            Modify.AllModifyMultiple = w;
+            Modify.StoreName = StoreName;
+            for (var i = 0; i < Modify.AllModifyMultiple.Count; i++)
+            {
+                if (Modify.AllModifyMultiple[i].ProductName == "" || Modify.AllModifyMultiple[i].Amount.ToString() == "")
+                {
+                    Modify.AllModifyMultiple.Remove(Modify.AllModifyMultiple[i]);
+                }
+            }
+            new MenuService(context).UpdateMenuOrderStoreName(Value, Modify.StoreName);
+            new MenuDetailService(context).DeleteMenuDetail(Value);
+            new MenuDetailService(context).CreateMenuDetail(Modify);
+
+            TaskInfo.Card = new CreateCardService().GetResultCustomizedModification(Modify.StoreName, Modify.AllModifyMultiple);
+            SetTaskInfo(TaskInfo, TaskModuleUIConstants.UpdateMenu);
+        }
+
+        public async Task<TaskModuleResponse> GetModifyModuleData(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
+        {
+            var TaskInfo = new TaskModuleTaskInfo();
+            TeamsBuyContext context = new TeamsBuyContext();        
+            var asJobject = JObject.FromObject(taskModuleRequest.Data);
+            var Value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
+            var MenuOrderData = new MenuDetailService(context).GetMenuOrder(Value).ToList();
+            var MenuOrderStore = new MenuService(context).GetMenuOrder(Value).Store;
+            TaskInfo.Card = new CreateCardService().GetCustomizedModification(MenuOrderStore, MenuOrderData, Value);
+            SetTaskInfo(TaskInfo, TaskModuleUIConstants.UpdateMenu);
+            return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
+        }
+
+        public async Task<TaskModuleResponse> GetModuleMenuData(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
+        {
+            var TaskInfo = new TaskModuleTaskInfo();
+            var asJobject = JObject.FromObject(taskModuleRequest.Data);
+            var Value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
+            string GetMenuJson = new OrganizeStructureService().GetFoodUrlStr(Value);
+            TaskInfo.Card = new OrganizeStructureService().GetTaskModuleFetchCard(Value, GetMenuJson, TaskInfo);
+            new OrderfoodServices().SetTaskInfo(TaskInfo, TaskModuleUIConstants.AdaptiveCard);
+            return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
         }
     }
 }

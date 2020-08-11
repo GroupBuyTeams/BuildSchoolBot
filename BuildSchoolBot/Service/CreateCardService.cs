@@ -19,9 +19,7 @@ namespace BuildSchoolBot.Service
 {
     public class CreateCardService
     {
-
-        //抓爬蟲的卡片
-        public Attachment GetStore(string texta, string menuurl)
+        public Attachment GetStore(string texta, string menuurl,string MenuId)
         {
             var Guidstr = new OrderfoodServices().GetGUID();
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
@@ -29,7 +27,7 @@ namespace BuildSchoolBot.Service
             card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock(texta, AdaptiveTextSize.Large, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Center));
 
             //actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "click", Data = new AdaptiveCardTaskFetchValue<string>() { Data = texta + "FoodData2468" + menuurl } });
-            actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "Join", Data = new AdaptiveCardTaskFetchValue<string>() { Data = texta + "FoodData2468" + menuurl + "GuidStr13579" + Guidstr } });
+            actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "Join", Data = new AdaptiveCardTaskFetchValue<string>() { Data = texta + "FoodData2468" + menuurl + "GuidStr13579" + Guidstr, SetType = "JoinMenu" } });        
             actionSet.Actions.Add(new AdaptiveSubmitAction()
             {
                 Title = "Favorite",
@@ -50,7 +48,7 @@ namespace BuildSchoolBot.Service
             card.Body.Add(actionSet);
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
-        //案完點餐的taskmodule裡的click 就會跳出一個卡片
+
         public Attachment GetResultClickfood(string GuidStr, string StoreName, string Orderfoodjson, string DueTime, string UserName)
         {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
@@ -86,7 +84,7 @@ namespace BuildSchoolBot.Service
 
 
         }
-        //點菜的菜單taskmodule
+
         public Attachment CreateClickfoodModule(string Guidstr, string StorName, string modulefoodjson)
         {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
@@ -98,7 +96,7 @@ namespace BuildSchoolBot.Service
             var ColumnSetitemname = new OrderfoodServices().FixedtextColumn(itemsname);
             var root = JsonConvert.DeserializeObject<foodgroup>(modulefoodjson);
             card.Actions = new[] { TaskModuleUIConstants.AdaptiveCard }
-                   .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle,Data = new AdaptiveCardTaskFetchValue<string>() { Data = StorName + "FoodGuid2468" + Guidstr } })
+                   .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle,Data = new AdaptiveCardTaskFetchValue<string>() { Data = StorName + "FoodGuid2468" + Guidstr, SetType = "JoinMenu" } })
                     .ToList<AdaptiveAction>();
             card.Body.Add(ColumnSetitemname);
             foreach (var p in root.Menuproperties)
@@ -112,7 +110,7 @@ namespace BuildSchoolBot.Service
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
 
-        //最後結算大家的卡片
+
         public Attachment GetResultTotal(string OrderId, string StoreName, string Orderfoodjson, string DueTime)
         {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
@@ -176,7 +174,7 @@ namespace BuildSchoolBot.Service
             {
                 var ColumnSetitem = new AdaptiveColumnSet();
                 ColumnSetitem.Columns.Add(new OrderfoodServices().AddColumn(new OrderfoodServices().GetadaptiveText(menuDetails[i].ProductName + i.ToString(), menuDetails[i].ProductName)));
-                ColumnSetitem.Columns.Add(new OrderfoodServices().AddColumn(new OrderfoodServices().GetadaptiveText(menuDetails[i].Amount + i.ToString(), menuDetails[i].Amount.ToString())));
+                ColumnSetitem.Columns.Add(new OrderfoodServices().AddColumn(new OrderfoodServices().GetadaptiveText(menuDetails[i].Amount + i.ToString(), decimal.Round(menuDetails[i].Amount).ToString())));
                 card.Body.Add(ColumnSetitem);
             }
             card.Actions = new[] { TaskModuleUIConstants.AdaptiveCard }

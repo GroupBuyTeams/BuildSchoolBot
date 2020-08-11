@@ -31,6 +31,7 @@ namespace BuildSchoolBot.Service
             //ting
             actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "text", Data = new AdaptiveCardTaskFetchValue<string>() { Data = "", SetType = "test" } });
 
+
             //actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "click", Data = new AdaptiveCardTaskFetchValue<string>() { Data = texta + "FoodData2468" + menuurl } });
             actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "Join", Data = new AdaptiveCardTaskFetchValue<string>() { Data = texta + "FoodData2468" + menuurl + "GuidStr13579" + Guidstr, SetType = "JoinMenu" } });        
             actionSet.Actions.Add(new AdaptiveSubmitAction()

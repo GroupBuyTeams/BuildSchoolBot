@@ -43,13 +43,15 @@ namespace BuildSchoolBot.Service
         {
             var paths = new[] { ".", "Resources", "PayCard.json" };
             var payCardJson = File.ReadAllText(Path.Combine(paths));
-            JObject payCardJObject = JObject.Parse(payCardJson);
+           
+           
+            //JObject payCardJObject = JObject.Parse(payCardJson);
             //payCardJObject["payment"] = JArray.Parse(payCardJson);
 
-            var attribut = payCardJObject["JTokenName"].ToObject<JToken>();
+            //var attribut = payCardJObject["JTokenName"].ToObject<JToken>();
             //var memberId = turnContext.Activity.From.Id;
 
-            var myCard = JsonConvert.DeserializeObject<AdaptiveCard>((string)payCardJObject);
+            var myCard = JsonConvert.DeserializeObject<AdaptiveCard>(payCardJson);
 
             var adaptiveCardAttachment = new Attachment()
             {

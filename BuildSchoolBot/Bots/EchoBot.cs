@@ -215,9 +215,6 @@ namespace BuildSchoolBot.Bots
 
                 await turnContext.UpdateActivityAsync(activity, cancellationToken);
             }
-
-
-
             return await Task.FromResult(new InvokeResponse()
             {
                 Status = 200
@@ -234,14 +231,5 @@ namespace BuildSchoolBot.Bots
 
             return libraryCard;
         }
-        //private async Task<Attachment> GetPayCard(ITurnContext turnContext)
-        //{
-        //    var memberId = turnContext.Activity.From.Id;
-
-        //    var Name = turnContext.Activity.From.Name;
-        //    var payMemberId = await _payMentService.FindPayByMemberId(memberId);
-        //    var payCard = PayMentService.CreatePayAdaptiveAttachment(payMemberId, Name);
-        //    return payCard;
-        //}
     }
 }

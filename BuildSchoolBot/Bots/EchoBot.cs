@@ -28,6 +28,7 @@ using System.Net.Http;
 using Newtonsoft.Json.Linq;
 using static BuildSchoolBot.StoreModels.AllSelectData;
 using static BuildSchoolBot.StoreModels.SelectMenu;
+using BuildSchoolBot.Dialogs;
 
 namespace BuildSchoolBot.Bots
 {
@@ -161,7 +162,12 @@ namespace BuildSchoolBot.Bots
 
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
-            var test = taskModuleRequest.Data.ToString();
+            //家寶
+            if(taskModuleRequest.Data.ToString().Split('"').FirstOrDefault(x => x.Equals("ResultStoreCard")).Equals("ResultStoreCard"))
+            {
+                var result = new GetUserChosedStore().GetResultStore(taskModuleRequest.Data.ToString());
+            }
+            //分水嶺
             var TaskInfo = new TaskModuleTaskInfo();
             JObject Data = JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data));         
             var StoreAndGuid = Data.Property("data").Value.ToString();

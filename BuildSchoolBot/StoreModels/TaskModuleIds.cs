@@ -10,6 +10,7 @@ namespace BuildSchoolBot.StoreModels
         public const string AdaptiveCard = "AdaptiveCard";
         public const string Click = "Click";
         public const string Update = "Update";
+        public const string UpdateMenu = "UpdateMenu";
 
     }
 }

@@ -181,7 +181,7 @@ namespace BuildSchoolBot.Bots
                 var StoreModule = new GetStoreList();
                 return await StoreModule.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
             }
-            //¨|»Ï
+            //¤À¤ôÀ­
             var asJobject = JObject.FromObject(taskModuleRequest.Data);
             var Value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
             string GetMenuJson = _organizeStructureService.GetFoodUrlStr(Value);
@@ -193,12 +193,12 @@ namespace BuildSchoolBot.Bots
 
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
-            //®aÄ_
+            //å®¶å¯¶
             if(taskModuleRequest.Data.ToString().Split('"').FirstOrDefault(x => x.Equals("ResultStoreCard")).Equals("ResultStoreCard"))
             {
                 var result = new GetUserChosedStore().GetResultStore(taskModuleRequest.Data.ToString());
             }
-            //¤À¤ôÀ­
+            //?†æ°´å¶?
             var TaskInfo = new TaskModuleTaskInfo();
             JObject Data = JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data));         
             var StoreAndGuid = Data.Property("data").Value.ToString();
@@ -222,7 +222,7 @@ namespace BuildSchoolBot.Bots
             }
             if (DecideQuanRem == true && Number == true)
             {
-                //¨ú§¹¾ã¸ê®Æ
+                //?–å??´è???
                 var OAllOrderDatasStr = _orderfoodServices.ProcessUnifyData(o);
                 var SelectObject = JsonConvert.DeserializeObject<SelectAllDataGroup>(OAllOrderDatasStr);
                 SelectObject.UserID = turnContext.Activity.From.Id;
@@ -241,6 +241,7 @@ namespace BuildSchoolBot.Bots
 
             }
             return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
+            return await _orderfoodServices.FinishSelectDishesSubmit(turnContext, taskModuleRequest, cancellationToken);
         }
         protected override async Task<InvokeResponse> OnTeamsCardActionInvokeAsync(ITurnContext<IInvokeActivity> turnContext, CancellationToken cancellationToken)
         {

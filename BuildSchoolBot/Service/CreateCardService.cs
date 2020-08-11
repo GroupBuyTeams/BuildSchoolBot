@@ -24,6 +24,8 @@ namespace BuildSchoolBot.Service
         public Attachment GetStore(string texta, string menuurl)
         {
 
+
+
             var Guidstr = new OrderfoodServices().GetGUID();
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
             var actionSet = new AdaptiveActionSet() { Type = AdaptiveActionSet.TypeName, Separator = true };

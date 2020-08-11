@@ -56,6 +56,12 @@ namespace BuildSchoolBot.Models
                 entity.Property(e => e.ProductName)
                     .IsRequired()
                     .HasMaxLength(100);
+
+                entity.HasOne(d => d.Menu)
+                    .WithMany(p => p.MenuDetail)
+                    .HasForeignKey(d => d.MenuId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_MenuDetail_MenuOrder");
             });
 
             modelBuilder.Entity<MenuOrder>(entity =>
@@ -72,12 +78,6 @@ namespace BuildSchoolBot.Models
                 entity.Property(e => e.TeamsId)
                     .IsRequired()
                     .HasMaxLength(200);
-
-                entity.HasOne(d => d.Menu)
-                    .WithOne(p => p.MenuOrder)
-                    .HasForeignKey<MenuOrder>(d => d.MenuId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_CustomizedOrder_CustomizedOrderDetail");
             });
 
             modelBuilder.Entity<Order>(entity =>

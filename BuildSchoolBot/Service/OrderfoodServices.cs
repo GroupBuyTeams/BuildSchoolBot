@@ -16,12 +16,24 @@ using System.Threading.Tasks;
 using static BuildSchoolBot.StoreModels.AllSelectData;
 using static BuildSchoolBot.StoreModels.fooditem;
 using static BuildSchoolBot.StoreModels.GetStore;
+using static BuildSchoolBot.StoreModels.ModifyMenu;
 using static BuildSchoolBot.StoreModels.SelectMenu;
 
 namespace BuildSchoolBot.Service
 {
     public class OrderfoodServices
     {
+        //protected readonly OrderfoodServices _orderfoodServices;
+        //protected readonly MenuService _menuService;
+        //protected readonly MenuDetailService _menuDetailService;
+        //protected readonly OrganizeStructureService _organizeStructureService;
+        //public OrderfoodServices(OrderfoodServices orderfoodServices,MenuService menuService, MenuDetailService menuDetailService, OrganizeStructureService organizeStructureService)
+        //{
+        //    _orderfoodServices = orderfoodServices;
+        //    _menuService = menuService;
+        //    _menuDetailService = menuDetailService;
+        //    _organizeStructureService = organizeStructureService;
+        //}
         public string GetGUID()
         {
             System.Guid guid = new Guid();
@@ -201,12 +213,34 @@ namespace BuildSchoolBot.Service
             TextInput.Id = IdInput;
             return TextInput;
         }
+        public AdaptiveTextInput GetadaptiveText(string IdInput,string Value)
+        {
+            var TextInput = GetadaptiveText(IdInput);
+            TextInput.Value = Value;
+            return TextInput;
+        }
         public AdaptiveColumnSet FixedtextColumn(string[]texts)
         {
             var result = new AdaptiveColumnSet() { Separator = true };
             for(int i=0;i< texts.Length; i++)
             {
                 result.Columns.Add(AddColumn(GetadaptiveTextBlock(texts[i])));
+            }
+            return result;
+        }
+        public AdaptiveColumnSet FixedInputTextAdjustWidthColumn(string[] texts)
+        {
+            var result = new AdaptiveColumnSet() { Separator = true };
+            for (int i = 0; i < texts.Length; i++)
+            {
+                if (texts[i] == "")
+                {
+                    result.Columns.Add(AddColumn(GetadaptiveTextBlock(texts[i])));
+                }
+                else
+                {
+                    result.Columns.Add(AddColumn(GetadaptiveText(texts[i]+i.ToString(), texts[i])));
+                }           
             }
             return result;
         }
@@ -265,6 +299,72 @@ namespace BuildSchoolBot.Service
         {
             JArray array = JArray.Parse(json);
             return array;
+        }
+        public string ProcessCustomizedMenu(JObject data)
+        {
+            var inputlist = new List<string>();
+            foreach (var item in data)
+            {
+                inputlist.Add(item.Value.ToString());
+            }
+            List<SelectMenuData> parts = new List<SelectMenuData>();
+
+            for (int i = 0; 4 * i < inputlist.Count(); i++)
+            {
+                parts.Add(new SelectMenuData() { Quantity = inputlist[4 * i + 1], Remarks = inputlist[4 * i + 3], Dish_Name = GetStr(inputlist[4 * i], "Quantity1357", true), Price = GetStr(inputlist[4 * i], "Quantity1357", false) });
+            }
+
+            JsonSerializer serializer = new JsonSerializer();
+            StringWriter s = new StringWriter();
+            serializer.Serialize(new JsonTextWriter(s), parts);
+            string SelectJson = s.GetStringBuilder().ToString();
+            return SelectJson;
+        }
+
+        public async Task<TaskModuleResponse> FinishSelectDishesSubmit(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
+        {
+            var TaskInfo = new TaskModuleTaskInfo();
+            JObject Data = JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data));
+            var StoreAndGuid = Data.Property("data").Value.ToString();
+            new OrganizeStructureService().RemoveNeedlessStructure(Data);
+            string SelectJson = ProcessAllSelect(Data);
+            JObject o = new JObject();
+            o["SelectMenu"] = JArray.Parse(SelectJson);
+            bool DecideQuanRem = true;
+            bool Number = true;
+            var AllSelectDatas = JsonConvert.DeserializeObject<SelectMenuDatagroup>(o.ToString());
+            foreach (var item in AllSelectDatas.SelectMenu)
+            {
+                if (item.Quantity == "0" && item.Remarks != "")
+                {
+                    DecideQuanRem = false;
+                }
+                if (Math.Sign(decimal.Parse(item.Quantity)) < 0 || (decimal.Parse(item.Quantity) - Math.Floor(decimal.Parse(item.Quantity))) != 0)
+                {
+                    Number = false;
+                }
+            }
+            if (DecideQuanRem == true && Number == true)
+            {
+                //取完整資料
+                var OAllOrderDatasStr = ProcessUnifyData(o);
+                var SelectObject = JsonConvert.DeserializeObject<SelectAllDataGroup>(OAllOrderDatasStr);
+                SelectObject.UserID = turnContext.Activity.From.Id;
+                var ExistGuid = Guid.Parse("cf1ed7b9-ae4a-4832-a9f4-fdee6e492085");
+                //_orderDetailService.CreateOrderDetail(SelectObject, SelectObject.SelectAllOrders, ExistGuid);
+
+                TaskInfo.Card = new CreateCardService().GetResultClickfood(new OrganizeStructureService().GetOrderID(StoreAndGuid), new OrganizeStructureService().GetStoreName(StoreAndGuid), o.ToString(), "12:00", turnContext.Activity.From.Name);
+                SetTaskInfo(TaskInfo, TaskModuleUIConstants.AdaptiveCard);
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(new CreateCardService().GetResultClickfood(new OrganizeStructureService().GetOrderID(StoreAndGuid), new OrganizeStructureService().GetStoreName(StoreAndGuid), o.ToString(), "12:00", turnContext.Activity.From.Name)));
+            }
+            else
+            {
+                TaskInfo.Card = new CreateCardService().GetError(turnContext.Activity.From.Name);
+               SetTaskInfo(TaskInfo, TaskModuleUIConstants.AdaptiveCard);
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(new CreateCardService().GetError(turnContext.Activity.From.Name)));
+
+            }
+            return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
         }
     }
 }

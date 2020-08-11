@@ -181,7 +181,7 @@ namespace BuildSchoolBot.Service
             TextBlock.Color = Color;
             return TextBlock;
         }
-        //文字大小
+
         public AdaptiveTextBlock GetadaptiveTextBlock(string InputTxt, AdaptiveTextSize Size, AdaptiveTextWeight Weight, AdaptiveHorizontalAlignment adaptiveHorizontalAlignment)
         {
             var TextBlock = GetadaptiveTextBlock(InputTxt);
@@ -196,7 +196,6 @@ namespace BuildSchoolBot.Service
             TextBlock.Color = Color;
             return TextBlock;
         }
-        //輸入數量
         public AdaptiveNumberInput GetadaptiveNumber(string IdInput,string PlaceholderInput)
         {
             var NumberInput = new AdaptiveNumberInput()
@@ -208,14 +207,13 @@ namespace BuildSchoolBot.Service
             };
             return NumberInput;
         }
-        //輸入備註
+
         public AdaptiveTextInput GetadaptiveText(string IdInput)
         {
             var TextInput = new AdaptiveTextInput();
             TextInput.Id = IdInput;
             return TextInput;
         }
-        //顯示值在input上
         public AdaptiveTextInput GetadaptiveText(string IdInput,string Value)
         {
             var TextInput = GetadaptiveText(IdInput);
@@ -231,7 +229,6 @@ namespace BuildSchoolBot.Service
             }
             return result;
         }
-        //調正input的大小
         public AdaptiveColumnSet FixedInputTextAdjustWidthColumn(string[] texts)
         {
             var result = new AdaptiveColumnSet() { Separator = true };
@@ -290,6 +287,8 @@ namespace BuildSchoolBot.Service
             //菜單品項各總價錢
             ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextBlock(ItemTotalPrice.ToString())));
         }
+
+
         public decimal GetTotalMoney(string Quantity,string money)
         {
             var QuantityInt = int.Parse(Quantity);

@@ -1,5 +1,4 @@
-﻿using AdaptiveCards;
-using BuildSchoolBot.Models;
+﻿using BuildSchoolBot.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,9 +40,5 @@ namespace BuildSchoolBot.Service
             context.Update(MenuOrderData);
             context.SaveChanges();
         }
-
-
-        //ting
-      
     }
 }

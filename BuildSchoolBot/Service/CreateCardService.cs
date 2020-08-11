@@ -19,7 +19,9 @@ namespace BuildSchoolBot.Service
 {
     public class CreateCardService
     {
-        public Attachment GetStore(string texta, string menuurl,string MenuId)
+
+        //抓爬蟲的卡片
+        public Attachment GetStore(string texta, string menuurl)
         {
             var Guidstr = new OrderfoodServices().GetGUID();
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));

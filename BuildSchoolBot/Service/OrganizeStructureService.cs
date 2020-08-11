@@ -55,6 +55,12 @@ namespace BuildSchoolBot.Service
         {
             data.Property("msteams").Remove();
             data.Property("data").Remove();
+            data.Property("SetType").Remove();
+        }
+        public void ModifyRemoveNeedlessStructure(JObject data)
+        {
+            data.Property("msteams").Remove();
+            data.Property("data").Remove();
         }
     }
 }

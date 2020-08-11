@@ -429,5 +429,17 @@ namespace BuildSchoolBot.Service
             new OrderfoodServices().SetTaskInfo(TaskInfo, TaskModuleUIConstants.AdaptiveCard);
             return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
         }
+
+
+
+        public void Menu(AdaptiveColumnSet ColumnSetitem, string name, string money, string price)
+        {
+            //name
+            ColumnSetitem.Columns.Add(AddColumn(GetadaptiveText(name)));
+            //$
+            ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextBlock(money,AdaptiveTextSize.Medium,AdaptiveTextWeight.Bolder,AdaptiveHorizontalAlignment.Right)));
+            //price
+            ColumnSetitem.Columns.Add(AddColumn(GetadaptiveText(price)));
+        }
     }
 }

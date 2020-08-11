@@ -204,5 +204,32 @@ namespace BuildSchoolBot.Service
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
 
+
+        public Attachment GetMenuModule(string store,string name ,string money,string price)
+        {
+            var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
+
+            card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock("Input your Store"));
+            card.Body.Add(new OrderfoodServices().GetadaptiveText(store));
+
+            string[] ItemsName = new string[] { "Name", "Price" };
+            var ColumnSetitemname = new OrderfoodServices().FixedtextColumn(ItemsName);
+            card.Body.Add(ColumnSetitemname);
+
+            for (var i = 0; i <20; i++)
+            {
+                var ColumnSetitem = new AdaptiveColumnSet();
+                ColumnSetitem.Separator = true;
+                new OrderfoodServices().Menu(ColumnSetitem, name , money,price);
+                card.Body.Add(ColumnSetitem);
+
+            }
+            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+
+
+
+
+        }
+
     }
 }

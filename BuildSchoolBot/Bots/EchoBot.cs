@@ -45,8 +45,10 @@ namespace BuildSchoolBot.Bots
         protected readonly CreateCardService _createCardService;
         protected readonly OrganizeStructureService _organizeStructureService;
         protected readonly PayMentService _paymentService;
+        protected readonly MenuService _menuService;
+        protected readonly MenuDetailService _menuDetailService;
 
-        public EchoBot(ConversationState conversationState, LibraryService libraryService, OrderService orderService, OrderDetailService orderDetailService, UserState userState, T dialog, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences, CreateCardService createCardService, OrganizeStructureService organizeStructureService, PayMentService paymentService)
+        public EchoBot(ConversationState conversationState, LibraryService libraryService, OrderService orderService, OrderDetailService orderDetailService, UserState userState, T dialog, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences, CreateCardService createCardService, OrganizeStructureService organizeStructureService, PayMentService paymentService, MenuService menuService, MenuDetailService menuDetailService)
         {
             ConversationState = conversationState;
             UserState = userState;
@@ -60,6 +62,8 @@ namespace BuildSchoolBot.Bots
             _createCardService = createCardService;
             _organizeStructureService = organizeStructureService;
             _paymentService = paymentService;
+            _menuService = menuService;
+            _menuDetailService = menuDetailService;
         }
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {

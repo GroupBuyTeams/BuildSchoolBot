@@ -39,12 +39,14 @@ namespace BuildSchoolBot.Service
             return context.Payment.FirstOrDefault(x => x.MemberId.Equals(memberId));
 
         }  
+
         public Attachment CreatePayAdaptiveAttachment()
         {
             var paths = new[] { ".", "Resources", "PayCard.json" };
             var payCardJson = File.ReadAllText(Path.Combine(paths));
-           
-           
+            var JObj = JsonConvert.DeserializeObject<JObject>(payCardJson);
+            var textInput = JObj["body"][1] as JObject;
+            textInput.Add("value", "");
             //JObject payCardJObject = JObject.Parse(payCardJson);
             //payCardJObject["payment"] = JArray.Parse(payCardJson);
 

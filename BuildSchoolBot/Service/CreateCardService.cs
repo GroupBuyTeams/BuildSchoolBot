@@ -19,6 +19,8 @@ namespace BuildSchoolBot.Service
 {
     public class CreateCardService
     {
+
+        //抓爬蟲的卡片
         public Attachment GetStore(string texta, string menuurl)
         {
             var Guidstr = new OrderfoodServices().GetGUID();
@@ -48,7 +50,7 @@ namespace BuildSchoolBot.Service
             card.Body.Add(actionSet);
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
-
+        //案完點餐的taskmodule裡的click 就會跳出一個卡片
         public Attachment GetResultClickfood(string GuidStr, string StoreName, string Orderfoodjson, string DueTime, string UserName)
         {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
@@ -84,7 +86,7 @@ namespace BuildSchoolBot.Service
 
 
         }
-
+        //點菜的菜單taskmodule
         public Attachment CreateClickfoodModule(string Guidstr, string StorName, string modulefoodjson)
         {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
@@ -110,7 +112,7 @@ namespace BuildSchoolBot.Service
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
 
-
+        //最後結算大家的卡片
         public Attachment GetResultTotal(string OrderId, string StoreName, string Orderfoodjson, string DueTime)
         {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));

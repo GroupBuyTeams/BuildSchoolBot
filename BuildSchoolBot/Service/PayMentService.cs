@@ -16,6 +16,7 @@ namespace BuildSchoolBot.Service
 {
     public class PayMentService
     {
+        private readonly PayMentService _paymentService;
         public TeamsBuyContext context;
         public PayMentService(TeamsBuyContext _context)
         {
@@ -38,12 +39,15 @@ namespace BuildSchoolBot.Service
         {
             return context.Payment.FirstOrDefault(x => x.MemberId.Equals(memberId));
 
-        }
+        }  
         public Attachment CreatePayAdaptiveAttachment()
         {
             var paths = new[] { ".", "Resources", "PayCard.json" };
             var payCardJson = File.ReadAllText(Path.Combine(paths));
             JObject payCardJObject = JObject.Parse(payCardJson);
+            //payCardJObject["payment"] = JArray.Parse(payCardJson);
+
+            var attribut = payCardJObject["JTokenName"].ToObject<JToken>();
             //var memberId = turnContext.Activity.From.Id;
 
             var myCard = JsonConvert.DeserializeObject<AdaptiveCard>((string)payCardJObject);

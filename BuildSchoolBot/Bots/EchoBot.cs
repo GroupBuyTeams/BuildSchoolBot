@@ -44,8 +44,9 @@ namespace BuildSchoolBot.Bots
         protected readonly OrderDetailService _orderDetailService;
         protected readonly CreateCardService _createCardService;
         protected readonly OrganizeStructureService _organizeStructureService;
+        protected readonly MenuOrderService _menuOrderService;
 
-        public EchoBot(ConversationState conversationState, LibraryService libraryService, OrderService orderService, OrderDetailService orderDetailService, UserState userState, T dialog, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences, CreateCardService createCardService, OrganizeStructureService organizeStructureService)
+        public EchoBot(ConversationState conversationState, LibraryService libraryService, OrderService orderService, OrderDetailService orderDetailService, UserState userState, T dialog, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences, CreateCardService createCardService, OrganizeStructureService organizeStructureService, MenuOrderService menuOrderService)
         {
             ConversationState = conversationState;
             UserState = userState;
@@ -58,6 +59,7 @@ namespace BuildSchoolBot.Bots
             _orderDetailService = orderDetailService;
             _createCardService = createCardService;
             _organizeStructureService = organizeStructureService;
+            _menuOrderService = menuOrderService;
         }
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
@@ -143,10 +145,19 @@ namespace BuildSchoolBot.Bots
         }
         protected async override Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
+            var TaskInfo = new TaskModuleTaskInfo();
+            var Data = JObject.FromObject(taskModuleRequest.Data);
+            // Customized Card
+            if (Data.GetValue("data").ToString().Equals("Customized"))
+            {
+                TaskInfo.Card = MenuOrderService.CreateAdaptiveCardAttachment();
+                return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
+
+            }
+            // Join Card
             var asJobject = JObject.FromObject(taskModuleRequest.Data);
             var Value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
             string GetMenuJson = _organizeStructureService.GetFoodUrlStr(Value);
-            var TaskInfo = new TaskModuleTaskInfo();
             TaskInfo.Card = _organizeStructureService.GetTaskModuleFetchCard(Value, GetMenuJson, TaskInfo);
             _orderfoodServices.SetTaskInfo(TaskInfo, TaskModuleUIConstants.AdaptiveCard);
             return await Task.FromResult(TaskInfo.ToTaskModuleResponse());

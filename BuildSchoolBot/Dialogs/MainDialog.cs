@@ -12,7 +12,7 @@ namespace BuildSchoolBot.Dialogs
 {
     public class MainDialog : ComponentDialog
     {
-        public MainDialog(AddressDialogs addressDialog,HistoryDialog historyDialog) : base(nameof(MainDialog))
+        public MainDialog(AddressDialogs addressDialog, HistoryDialog historyDialog) : base(nameof(MainDialog))
         {
 
             AddDialog(new ChoicePrompt(nameof(ChoicePrompt)));
@@ -34,11 +34,18 @@ namespace BuildSchoolBot.Dialogs
             //         Prompt = MessageFactory.Text("How can I serve you, darlin?."),
             //         Choices = ChoiceFactory.ToChoices(new List<string> { "I wanna buy something", "I wanna check my transaction history", "I wanna check my favorate menu" }),
             //     }, cancellationToken);
+            var choices = ChoiceFactory.ToChoices(new List<string> { "Buy", "Customized", "History" });
+            choices[1].Action = new Microsoft.Bot.Schema.CardAction()
+            {
+                Title = "Customized",
+                Type = "invoke",
+                Value = "{\"type\":\"task/fetch\",\"data\":\"Customized\"}"
+            };
             return await stepContext.PromptAsync(nameof(ChoicePrompt),
             new PromptOptions
             {
                 Prompt = MessageFactory.Text("How can I serve you, darlin?"),
-                Choices = ChoiceFactory.ToChoices(new List<string> { "Buy", "History", "Library" }),
+                Choices = choices,
             }, cancellationToken);
         }
         private async Task<DialogTurnResult> MiddleStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)

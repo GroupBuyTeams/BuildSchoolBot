@@ -12,5 +12,8 @@ namespace BuildSchoolBot.StoreModels
 
         public static UISettings Update { get; set; } =
             new UISettings(600, 400, "", TaskModuleIds.Update, "Click");
+
+        public static UISettings UpdateMenu { get; set; }=
+             new UISettings(400, 400, "", TaskModuleIds.UpdateMenu, "Click");
     }
 }

@@ -215,6 +215,7 @@ namespace BuildSchoolBot.Bots
         }
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
+            var GetSetType = JObject.FromObject(taskModuleRequest.Data).GetValue("data").ToString();
             //家寶
             if (JObject.FromObject(taskModuleRequest.Data).GetValue("data").ToString().Equals("ResultStoreCard"))
             {

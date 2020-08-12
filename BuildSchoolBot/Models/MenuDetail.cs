@@ -10,6 +10,6 @@ namespace BuildSchoolBot.Models
         public decimal Amount { get; set; }
         public Guid MenuId { get; set; }
 
-        public virtual MenuOrder MenuOrder { get; set; }
+        public virtual MenuOrder Menu { get; set; }
     }
 }

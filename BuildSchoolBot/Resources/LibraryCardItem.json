@@ -53,7 +53,7 @@
                                 "msteams": {
                                     "type": "invoke",
                                     "text": "DeletedLibrary",
-                                    "value": "{\"bfKey\": \"bfVal\", \"conflictKey\": \"from value\"}"
+                                    "value": ""
                                 }
                             }
                         }

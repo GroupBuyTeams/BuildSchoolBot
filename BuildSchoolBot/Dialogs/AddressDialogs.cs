@@ -18,8 +18,8 @@ namespace BuildSchoolBot.Dialogs
             var waterfallSteps = new WaterfallStep[]
             {
                 AddressStepAsync,
-                ConfirmAddressAsync
-                //GetStoreAsync
+                // ConfirmAddressAsync,
+                GetStoreAsync
             };
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), waterfallSteps));
             InitialDialogId = nameof(WaterfallDialog);
@@ -44,18 +44,6 @@ namespace BuildSchoolBot.Dialogs
         {
             string add = (string)stepContext.Result;
             var LatLng = new LatLngService(add);
-            //await stepContext.Context.SendActivityAsync(MessageFactory.Text(result)); //顯示菜單字串
-            //范育銨
-            // var result = await new WebCrawler().GetStores(LatLng.lat, LatLng.lng);
-            // var w = new CreateCardService();
-            // var o = new OrderfoodServices();
-            // var Storedata = o.GetStoregroup(result);
-            // foreach (JObject item in Storedata)
-            // {
-            //     await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(w.GetStore(item.GetValue("Store_Name").ToString(), item.GetValue("Store_Url").ToString())));
-            // }
-
-            // by 阿三
             var result = await new WebCrawler().GetStores2(LatLng.lat, LatLng.lng);
             var service = new CreateCardService2();
             foreach (var store in result)

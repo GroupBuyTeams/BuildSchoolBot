@@ -235,5 +235,50 @@ namespace BuildSchoolBot.Service
             //回傳卡片
             return new Attachment() {ContentType = AdaptiveCard.ContentType, Content = card};
         }
+        //ting
+        public Attachment GetCreateMenu(string guid, string name, string price)
+        {
+            // var storeInfo = new StoreInfoData() { Name = storeName, Guid = guid };
+
+            var itemsName = new string[] { "Name", "Price" };
+            var card = NewCard()
+                .AddElement(new AdaptiveTextBlock()
+                {
+                    Text = guid,
+                    Size = AdaptiveTextSize.Small,
+                    Weight = AdaptiveTextWeight.Bolder,
+                    HorizontalAlignment = AdaptiveHorizontalAlignment.Right
+                })
+                .AddElement(new AdaptiveTextBlock()
+                {
+                    Text = "Input your Store",
+                    Size = AdaptiveTextSize.Medium,
+                    Weight = AdaptiveTextWeight.Bolder,
+                    HorizontalAlignment = AdaptiveHorizontalAlignment.Left,
+                })
+                .AddRow(new AdaptiveColumnSet()
+                    .AddColumnsWithStrings(itemsName)
+                );
+            for (int i = 0; i < 20; i++)
+            {
+                card
+                    .AddRow(new AdaptiveColumnSet() { Separator = true }
+                        .AddCol(new AdaptiveColumn()
+                        { Width = "65" }
+                            .AddElement(new AdaptiveNumberInput() { Min = 0, Value = 0, Placeholder = "Name", Id = $"{name[1]}" })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
+                        .AddCol(new AdaptiveColumn()
+                        { Width = "2" }
+                            .AddElement(new AdaptiveTextBlock() { Text = "" }))
+                         .AddCol(new AdaptiveColumn()
+                         { Width = "20" }
+                             .AddElement(new AdaptiveNumberInput() { Min = 0, Value = 0, Placeholder = "Price", Id = $"{price[1]}" })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
+                    );
+            }
+            card.Actions = new[] { TaskModuleUIConstants.AdaptiveCard }
+                .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle, Data = new AdaptiveCardTaskFetchValue<string>() { Data = "test" } })
+                .ToList<AdaptiveAction>();
+            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+        }
+
     }
 }

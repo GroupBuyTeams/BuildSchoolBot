@@ -177,7 +177,7 @@ namespace BuildSchoolBot.Bots
             var TaskInfo = new TaskModuleTaskInfo();
             var Data = JObject.FromObject(taskModuleRequest.Data);
             // Customized Card
-            if (Data.GetValue("data").ToString().Equals("Customized"))
+            if (Data.GetValue("SetType").ToString().Equals("Customized"))
             {
 
                 var TenantId = turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id;
@@ -203,8 +203,8 @@ namespace BuildSchoolBot.Bots
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
             var GetSetType = JObject.FromObject(taskModuleRequest.Data).GetValue("SetType")?.ToString();
-            var Getdata = JObject.FromObject(taskModuleRequest.Data).GetValue("data")?.ToString();
-            if (Getdata.Equals("ResultStoreCard"))
+
+            if (GetSetType.Equals("ResultStoreCard"))
             {
                 var result = new GetUserChosedStore().GetResultStore(taskModuleRequest.Data.ToString())[0];
                 var w = new CreateCardService();

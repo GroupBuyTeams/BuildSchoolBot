@@ -19,20 +19,13 @@ namespace BuildSchoolBot.Service
 {
     public class CreateCardService
     {
-
         //抓爬蟲的卡片
         public Attachment GetStore(string texta, string menuurl)
         {
-
-
-
             var Guidstr = new OrderfoodServices().GetGUID();
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
             var actionSet = new AdaptiveActionSet() { Type = AdaptiveActionSet.TypeName, Separator = true };
             card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock(texta, AdaptiveTextSize.Large, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Center));
-            //ting
-            //actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "text", Data = new AdaptiveCardTaskFetchValue<string>() { Data = "", SetType = "test" } });
-
 
             //actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "click", Data = new AdaptiveCardTaskFetchValue<string>() { Data = texta + "FoodData2468" + menuurl } });
             actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "Join", Data = new AdaptiveCardTaskFetchValue<string>() { Data = texta + "FoodData2468" + menuurl + "GuidStr13579" + Guidstr, SetType = "JoinMenu" } });        
@@ -87,18 +80,13 @@ namespace BuildSchoolBot.Service
             card.Body.Add(ColumnSetTimeAndMoney);
             card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock(UserName, AdaptiveTextSize.Small, AdaptiveTextColor.Good, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Left));
 
-
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
-
-
         }
-
         public Attachment CreateClickfoodModule(string Guidstr, string StorName, string modulefoodjson)
         {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
             card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock(Guidstr, AdaptiveTextSize.Small, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Right));
             card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock(StorName, AdaptiveTextSize.Large, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Center));
-
 
             string[] itemsname = new string[] { "Food Name", "Price", "Quantity", "Remarks" };
             var ColumnSetitemname = new OrderfoodServices().FixedtextColumn(itemsname);
@@ -117,7 +105,6 @@ namespace BuildSchoolBot.Service
             card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock("Due Time:  123", AdaptiveTextSize.Medium, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Left));
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
-
 
         public Attachment GetResultTotal(string OrderId, string StoreName, string Orderfoodjson, string DueTime)
         {
@@ -169,7 +156,6 @@ namespace BuildSchoolBot.Service
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
 
         }
-
         public Attachment GetCustomizedModification(string Store, List<MenuDetail> menuDetails,string MenuId)
         {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
@@ -190,7 +176,6 @@ namespace BuildSchoolBot.Service
                     .ToList<AdaptiveAction>();
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
-
         public Attachment GetResultCustomizedModification(string Store, List<ModifyMultiple> menuDetails)
         {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));

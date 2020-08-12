@@ -1,0 +1,28 @@
+{
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "type": "AdaptiveCard",
+    "version": "1.2",
+    "body": [
+        {
+            "type": "TextBlock",
+            "text": "What color do you want? *(isMultiSelect:false, style:compact)*"
+        },
+        {
+            "type": "Input.ChoiceSet",
+            "id": "MenuId",
+            "style": "compact",
+            "isMultiSelect": false,
+            "value": "1",
+            "choices": []
+        }
+    ],
+    "actions": [
+        {
+            "type": "Action.Submit",
+            "title": "OK",
+            "data": {
+                "SetType":"CustomizedModification"
+            }
+        }
+    ]
+}

@@ -71,5 +71,5 @@ namespace BuildSchoolBot.Dialogs
     //        //}
     //        return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { Prompt = MessageFactory.Text("Please choose your menu.") }, cancellationToken);
     //    }
-    //}
+    }
 }

@@ -227,9 +227,16 @@ namespace BuildSchoolBot.Service
         }
 
         //ting
-        public Attachment GetCreateMenu(string guid, string name, string price)
+       public Attachment GetCreateMenu()
         {
             // var storeInfo = new StoreInfoData() { Name = storeName, Guid = guid };
+            var guid = Guid.NewGuid().ToString();
+
+            var cardData = new CardDataModel<StoreInfoData>()//務必按照此格式新增需要傳出去的資料
+            {
+                Type = "GetCustomizedMenu", //於EchoBot判斷用
+                Value = new StoreInfoData() { Guid = guid } //要傳出去的資料和資料結構
+            };
 
             var itemsName = new string[] { "Name", "Price" };
             var card = NewCard()
@@ -240,13 +247,19 @@ namespace BuildSchoolBot.Service
                     Weight = AdaptiveTextWeight.Bolder,
                     HorizontalAlignment = AdaptiveHorizontalAlignment.Right
                 })
+
                 .AddElement(new AdaptiveTextBlock()
                 {
-                    Text = "Input your Store",
+                    Text = "Enter your Store",
                     Size = AdaptiveTextSize.Medium,
                     Weight = AdaptiveTextWeight.Bolder,
                     HorizontalAlignment = AdaptiveHorizontalAlignment.Left,
                 })
+                .AddElement(new AdaptiveTextInput() 
+                { 
+                    Placeholder = "Store", Id = $"store" 
+                }) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
+
                 .AddRow(new AdaptiveColumnSet()
                     .AddColumnsWithStrings(itemsName)
                 );
@@ -256,18 +269,22 @@ namespace BuildSchoolBot.Service
                     .AddRow(new AdaptiveColumnSet() { Separator = true }
                         .AddCol(new AdaptiveColumn()
                         { Width = "65" }
-                            .AddElement(new AdaptiveNumberInput() { Min = 0, Value = 0, Placeholder = "Name", Id = $"{name[1]}" })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
+                            .AddElement(new AdaptiveTextInput() {Placeholder = "Name", Id = $"name&{i}" })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
                         .AddCol(new AdaptiveColumn()
-                        { Width = "2" }
-                            .AddElement(new AdaptiveTextBlock() { Text = "" }))
+                        { Width = "3" }
+                            .AddElement(new AdaptiveTextBlock() { Text = "$" , Size = (AdaptiveTextSize)3 , HorizontalAlignment = (AdaptiveHorizontalAlignment)2 }))
                          .AddCol(new AdaptiveColumn()
                          { Width = "20" }
-                             .AddElement(new AdaptiveNumberInput() { Min = 0, Value = 0, Placeholder = "Price", Id = $"{price[1]}" })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
+                             .AddElement(new AdaptiveNumberInput() { Min = 0, Value = 0, Placeholder = "Price", Id = $"price&{i}" })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
                     );
             }
-            card.Actions = new[] { TaskModuleUIConstants.AdaptiveCard }
-                .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle, Data = new AdaptiveCardTaskFetchValue<string>() { Data = "test" } })
-                .ToList<AdaptiveAction>();
+            card
+             .AddActionsSet(
+                NewActionsSet()
+                    .AddActionToSet(
+                        new AdaptiveSubmitAction() { Title = "Create", Data = JsonConvert.SerializeObject(cardData)  }//勿必要將傳出去的資料進行Serialize
+                    )
+            );
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
     }

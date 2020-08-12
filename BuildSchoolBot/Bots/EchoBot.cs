@@ -185,12 +185,24 @@ namespace BuildSchoolBot.Bots
                 TaskInfo.Card = _menuOrderService.CreateMenuOrderAttachment(TenantId);
                 return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
             }
+            var factory = new AdaptiveCardDataFactory(turnContext, taskModuleRequest);
+            var fetchType = factory.GetCardActionType();
+            var service = new CreateCardService2();
+            var taskInfo = new TaskModuleTaskInfo();
+            //ting
+            //if (JObject.FromObject(taskModuleRequest.Data).GetValue("SetType").ToString().Equals("createmenu"))
+            if (fetchType.Equals("createmenu"))
+            {
+                taskInfo.Card = service.GetCreateMenu(); ;
+                return await Task.FromResult(taskInfo.ToTaskModuleResponse());
+            }
+            //家寶
             if (JObject.FromObject(taskModuleRequest.Data).GetValue("SetType").ToString().Equals("GetStore"))
             {
                 var StoreModule = new GetStoreList();
                 return await StoreModule.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
             }
-            //�|�w
+            //育安
             if (JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data)).Property("SetType").Value.ToString() == "CustomizedModification")
             {
                 return await _orderfoodServices.GetModifyModuleData(turnContext, taskModuleRequest, cancellationToken);
@@ -199,12 +211,12 @@ namespace BuildSchoolBot.Bots
             {
                 return await _orderfoodServices.GetModuleMenuData(turnContext, taskModuleRequest, cancellationToken);
             }
+
         }
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
-            var GetSetType = JObject.FromObject(taskModuleRequest.Data).GetValue("SetType")?.ToString();
-
-            if (GetSetType.Equals("ResultStoreCard"))
+            //家寶
+            if (JObject.FromObject(taskModuleRequest.Data).GetValue("data").ToString().Equals("ResultStoreCard"))
             {
                 var result = new GetUserChosedStore().GetResultStore(taskModuleRequest.Data.ToString())[0];
                 var w = new CreateCardService();

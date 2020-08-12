@@ -327,7 +327,7 @@ namespace BuildSchoolBot.Service
             TeamsBuyContext context = new TeamsBuyContext();
             var TaskInfo = new TaskModuleTaskInfo();
             JObject Data = JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data));
-            var StoreAndGuid = Data.Property("data").Value.ToString();
+            var StoreAndGuidAndDueTime = Data.Property("data").Value.ToString();
             new OrganizeStructureService().RemoveNeedlessStructure(Data);
             string SelectJson = ProcessAllSelect(Data);
             JObject o = new JObject();
@@ -355,9 +355,9 @@ namespace BuildSchoolBot.Service
                 var ExistGuid = Guid.Parse("cf1ed7b9-ae4a-4832-a9f4-fdee6e492085");
                 new OrderDetailService(context).CreateOrderDetail(SelectObject, SelectObject.SelectAllOrders, ExistGuid);
 
-                TaskInfo.Card = new CreateCardService().GetResultClickfood(new OrganizeStructureService().GetOrderID(StoreAndGuid), new OrganizeStructureService().GetStoreName(StoreAndGuid), o.ToString(), "12:00", turnContext.Activity.From.Name);
+                TaskInfo.Card = new CreateCardService().GetResultClickfood(new OrganizeStructureService().GetOrderID(StoreAndGuidAndDueTime), new OrganizeStructureService().GetStoreName(StoreAndGuidAndDueTime), o.ToString(), new OrganizeStructureService().GetDueTime(StoreAndGuidAndDueTime), turnContext.Activity.From.Name);
                 SetTaskInfo(TaskInfo, TaskModuleUIConstants.AdaptiveCard);
-                await turnContext.SendActivityAsync(MessageFactory.Attachment(new CreateCardService().GetResultClickfood(new OrganizeStructureService().GetOrderID(StoreAndGuid), new OrganizeStructureService().GetStoreName(StoreAndGuid), o.ToString(), "12:00", turnContext.Activity.From.Name)));
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(new CreateCardService().GetResultClickfood(new OrganizeStructureService().GetOrderID(StoreAndGuidAndDueTime), new OrganizeStructureService().GetStoreName(StoreAndGuidAndDueTime), o.ToString(), "12:00", turnContext.Activity.From.Name)));
             }
             else
             {

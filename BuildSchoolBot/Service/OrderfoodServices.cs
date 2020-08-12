@@ -432,22 +432,22 @@ namespace BuildSchoolBot.Service
 
         //ting
         //input your store 
-        public AdaptiveTextInput GetadaptiveTextInputStore(string IdInput, string Placeholder)
-        {
-            var TextInput = new AdaptiveTextInput();
-            TextInput.Id = IdInput;
-            TextInput.Placeholder = Placeholder;
-            return TextInput;
-        }
-        //name input
-        public AdaptiveTextInput GetadaptiveTextWidth(string IdInput, int width, string PlaceholderInput)
-        {
-            var TextInput = new AdaptiveTextInput();
-            TextInput.Id = IdInput;
-            TextInput.Placeholder = PlaceholderInput;
-            TextInput.MaxLength = width;
-            return TextInput;
-        }
+        //public AdaptiveTextInput GetadaptiveTextInputStore(string IdInput, string Placeholder)
+        //{
+        //    var TextInput = new AdaptiveTextInput();
+        //    TextInput.Id = IdInput;
+        //    TextInput.Placeholder = Placeholder;
+        //    return TextInput;
+        //}
+        ////name input
+        //public AdaptiveTextInput GetadaptiveTextWidth(string IdInput, int width, string PlaceholderInput)
+        //{
+        //    var TextInput = new AdaptiveTextInput();
+        //    TextInput.Id = IdInput;
+        //    TextInput.Placeholder = PlaceholderInput;
+        //    TextInput.MaxLength = width;
+        //    return TextInput;
+        //}
         //$
         //public AdaptiveColumn GetAdaptiveColumns(string InputTxt, AdaptiveColumnSet set, AdaptiveTextSize size, AdaptiveHorizontalAlignment adaptiveHorizontalAlignment)
         //{
@@ -456,23 +456,23 @@ namespace BuildSchoolBot.Service
 
 
         //}
-        public AdaptiveTextBlock GetadaptiveTextmoney(string InputTxt, AdaptiveTextSize Size,int width,AdaptiveHorizontalAlignment adaptiveHorizontalAlignment)
-        {
-            var TextBlock = GetadaptiveTextBlock(InputTxt);            
-            TextBlock.Size = Size;           
-            TextBlock.MaxWidth = width;
-            TextBlock.HorizontalAlignment = adaptiveHorizontalAlignment;
-            return TextBlock;
-        }
-        //ting TaskModule裡面的input&text
-        public void Menu(AdaptiveColumnSet ColumnSetitem, string name, string money, string price)
-        {
-            //name
-            ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextWidth(name,65,"Name")));
-            //$
-            ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextmoney(money,AdaptiveTextSize.Medium,5,AdaptiveHorizontalAlignment.Right)));
-            //price
-            ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextWidth(price,20,"Price")));
-        }
+        //public AdaptiveTextBlock GetadaptiveTextmoney(string InputTxt, AdaptiveTextSize Size,int width,AdaptiveHorizontalAlignment adaptiveHorizontalAlignment)
+        //{
+        //    var TextBlock = GetadaptiveTextBlock(InputTxt);            
+        //    TextBlock.Size = Size;           
+        //    TextBlock.MaxWidth = width;
+        //    TextBlock.HorizontalAlignment = adaptiveHorizontalAlignment;
+        //    return TextBlock;
+        //}
+        ////ting TaskModule裡面的input&text
+        //public void Menu(AdaptiveColumnSet ColumnSetitem, string name, string money, string price)
+        //{
+        //    //name
+        //    ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextWidth(name,65,"Name")));
+        //    //$
+        //    ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextmoney(money,AdaptiveTextSize.Medium,5,AdaptiveHorizontalAlignment.Right)));
+        //    //price
+        //    ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextWidth(price,20,"Price")));
+        //}
     }
 }

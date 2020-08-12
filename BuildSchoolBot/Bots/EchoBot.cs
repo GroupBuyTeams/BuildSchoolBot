@@ -126,6 +126,19 @@ namespace BuildSchoolBot.Bots
                 var CustomMenucard = _customMenuService.CallCustomeCard();
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(CustomMenucard), cancellationToken);
             }
+            else if(turnContext.Activity.Text.Contains("Command"))
+            {
+                var reply = MessageFactory.Text("Please enter your command!");
+                var paths = new[] { ".", "Resources", "Command.json" };
+                var adaptiveCard = File.ReadAllText(Path.Combine(paths));
+                var attachment = new Attachment
+                {
+                    ContentType = AdaptiveCard.ContentType,
+                    Content = JsonConvert.DeserializeObject(adaptiveCard),
+                };
+                reply.Attachments.Add(attachment);
+                await turnContext.SendActivityAsync(reply, cancellationToken);
+            }
             else
             {
                 var activity = turnContext.Activity;
@@ -222,7 +235,7 @@ namespace BuildSchoolBot.Bots
                 var result = new GetUserChosedStore().GetResultStore(taskModuleRequest.Data.ToString())[0];
                 var w = new CreateCardService();
                 var o = new OrderfoodServices();
-                await turnContext.SendActivityAsync(MessageFactory.Attachment(w.GetStore(result.StoreName, result.Url)));
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(w.GetStore(result.StoreName, result.Url,result.DueTime,result.OrderID)));
                 return null;
             }
             else if (GetSetType.Equals("CustomizedMenu"))

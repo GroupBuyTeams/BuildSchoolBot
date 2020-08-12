@@ -55,12 +55,12 @@ namespace BuildSchoolBot.Service
                 if (!key[1].Equals("mark") && !dish.Value.Equals("0"))
                 {
                     var data = new SelectMenu.SelectMenuData(){ Dish_Name = key[0], Price = key[1], Quantity = (string)dish.Value };
-                    dictionary.Add(key[1], data);
+                    dictionary.Add(key[0], data);
                 }
-                else if(!dish.Value.Equals(string.Empty))
+                else if(key[1].Equals("mark") && !dish.Value.Equals(string.Empty))
                 {
                     var data = new SelectMenu.SelectMenuData();
-                    if(dictionary.TryGetValue(key[1], out data))
+                    if(dictionary.TryGetValue(key[0], out data))
                     {
                         data.Remarks = (string)dish.Value;
                     }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Bot.Schema;
+﻿using BuildSchoolBot.Models;
+using Microsoft.Bot.Schema;
 using Microsoft.Bot.Schema.Teams;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -12,6 +13,13 @@ namespace BuildSchoolBot.Service
 {
     public class OrganizeStructureService
     {
+        //protected readonly OrderfoodServices _orderfoodServices;
+        //protected readonly CreateCardService _createCardService;
+        //public OrganizeStructureService(OrderfoodServices orderfoodServices, CreateCardService createCardService)
+        //{
+        //    _orderfoodServices = orderfoodServices;
+        //    _createCardService = createCardService;
+        //}
         public Attachment GetTaskModuleFetchCard(string Value, string GetMenuJson, TaskModuleTaskInfo TaskInfo)
         {
             var StorName = new OrderfoodServices().GetStr(Value, "FoodData2468", true);
@@ -44,6 +52,12 @@ namespace BuildSchoolBot.Service
             return new OrderfoodServices().GetStr(StoreAndGuid, "FoodGuid2468", false);
         }
         public void RemoveNeedlessStructure(JObject data)
+        {
+            data.Property("msteams").Remove();
+            data.Property("data").Remove();
+            data.Property("SetType").Remove();
+        }
+        public void ModifyRemoveNeedlessStructure(JObject data)
         {
             data.Property("msteams").Remove();
             data.Property("data").Remove();

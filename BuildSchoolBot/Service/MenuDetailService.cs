@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using static BuildSchoolBot.StoreModels.ModifyMenu;
 
 namespace BuildSchoolBot.Service
 {
@@ -27,20 +28,20 @@ namespace BuildSchoolBot.Service
             return context.MenuDetail.Where(x => x.MenuId.ToString().Equals(MenuId));
         }
 
-        //public void CreateMenuDetail(SelectAllDataGroup SelectObject, List<SelectData> SelectAllOrders, Guid orderId)
-        //{
-        //    foreach (var lists in SelectAllOrders)
-        //    {
-        //        var detail = new MenuDetail
-        //        {
-        //            MenuDetailId = Guid.NewGuid(),
-        //            ProductName = lists.Dish_Name,
-        //            Amount = decimal.Parse(lists.Price),
-        //            MenuId=
-        //        };
-        //        context.OrderDetail.Add(detail);
-        //    }
-        //    context.SaveChanges();
-        //}
+        public void CreateMenuDetail(ModifyGroup SelectObject)
+        {
+            foreach (var lists in SelectObject.AllModifyMultiple)
+            {
+                var detail = new MenuDetail
+                {
+                    MenuDetailId = Guid.NewGuid(),
+                    ProductName = lists.ProductName,
+                    Amount = decimal.Parse(lists.Amount),
+                    MenuId =Guid.Parse(lists.MenuId)
+                };
+                context.MenuDetail.Add(detail);
+            }
+            context.SaveChanges();
+        }
     }
 }

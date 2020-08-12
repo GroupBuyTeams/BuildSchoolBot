@@ -176,15 +176,6 @@ namespace BuildSchoolBot.Bots
         {
             var TaskInfo = new TaskModuleTaskInfo();
             var Data = JObject.FromObject(taskModuleRequest.Data);
-            // Customized Card
-            if (Data.GetValue("SetType").ToString().Equals("Customized"))
-            {
-
-                var TenantId = turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id;
-
-                TaskInfo.Card = _menuOrderService.CreateMenuOrderAttachment(TenantId);
-                return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
-            }
             var factory = new AdaptiveCardDataFactory(turnContext, taskModuleRequest);
             var fetchType = factory.GetCardActionType();
             var service = new CreateCardService2();
@@ -195,6 +186,15 @@ namespace BuildSchoolBot.Bots
             {
                 taskInfo.Card = service.GetCreateMenu(); ;
                 return await Task.FromResult(taskInfo.ToTaskModuleResponse());
+            }
+            // Customized Card
+            if (Data.GetValue("SetType").ToString().Equals("Customized"))
+            {
+
+                var TenantId = turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id;
+
+                TaskInfo.Card = _menuOrderService.CreateMenuOrderAttachment(TenantId);
+                return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
             }
             //家寶
             if (JObject.FromObject(taskModuleRequest.Data).GetValue("SetType").ToString().Equals("GetStore"))

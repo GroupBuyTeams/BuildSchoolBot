@@ -63,11 +63,20 @@
     },
     {
       "type": "TextBlock",
+      "text": "      • Create your customized menu"
+    },
+    {
+      "type": "TextBlock",
+      "text": "      • Create your pay link"
+    },
+    {
+      "type": "TextBlock",
       "text": "      • View your padt orders"
     },
     {
       "type": "TextBlock",
       "text": "      • Plan a schedule"
     }
+
   ]
 }

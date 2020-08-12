@@ -190,7 +190,8 @@ namespace BuildSchoolBot.Service
             TextBlock.HorizontalAlignment = adaptiveHorizontalAlignment;
             return TextBlock;
         }
-            public AdaptiveTextBlock GetadaptiveTextBlock(string InputTxt, AdaptiveTextSize Size,AdaptiveTextColor Color, AdaptiveTextWeight Weight, AdaptiveHorizontalAlignment adaptiveHorizontalAlignment)
+
+        public AdaptiveTextBlock GetadaptiveTextBlock(string InputTxt, AdaptiveTextSize Size,AdaptiveTextColor Color, AdaptiveTextWeight Weight, AdaptiveHorizontalAlignment adaptiveHorizontalAlignment)
         {
             var TextBlock = GetadaptiveTextBlock(InputTxt, Size, Weight,adaptiveHorizontalAlignment);
             TextBlock.Color = Color;
@@ -207,7 +208,6 @@ namespace BuildSchoolBot.Service
             };
             return NumberInput;
         }
-
         public AdaptiveTextInput GetadaptiveText(string IdInput)
         {
             var TextInput = new AdaptiveTextInput();
@@ -429,5 +429,50 @@ namespace BuildSchoolBot.Service
             new OrderfoodServices().SetTaskInfo(TaskInfo, TaskModuleUIConstants.AdaptiveCard);
             return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
         }
+
+        //ting
+        //input your store 
+        //public AdaptiveTextInput GetadaptiveTextInputStore(string IdInput, string Placeholder)
+        //{
+        //    var TextInput = new AdaptiveTextInput();
+        //    TextInput.Id = IdInput;
+        //    TextInput.Placeholder = Placeholder;
+        //    return TextInput;
+        //}
+        ////name input
+        //public AdaptiveTextInput GetadaptiveTextWidth(string IdInput, int width, string PlaceholderInput)
+        //{
+        //    var TextInput = new AdaptiveTextInput();
+        //    TextInput.Id = IdInput;
+        //    TextInput.Placeholder = PlaceholderInput;
+        //    TextInput.MaxLength = width;
+        //    return TextInput;
+        //}
+        //$
+        //public AdaptiveColumn GetAdaptiveColumns(string InputTxt, AdaptiveColumnSet set, AdaptiveTextSize size, AdaptiveHorizontalAlignment adaptiveHorizontalAlignment)
+        //{
+        //    var TextInput = GetadaptiveTextBlock(InputTxt);
+
+
+
+        //}
+        //public AdaptiveTextBlock GetadaptiveTextmoney(string InputTxt, AdaptiveTextSize Size,int width,AdaptiveHorizontalAlignment adaptiveHorizontalAlignment)
+        //{
+        //    var TextBlock = GetadaptiveTextBlock(InputTxt);            
+        //    TextBlock.Size = Size;           
+        //    TextBlock.MaxWidth = width;
+        //    TextBlock.HorizontalAlignment = adaptiveHorizontalAlignment;
+        //    return TextBlock;
+        //}
+        ////ting TaskModule裡面的input&text
+        //public void Menu(AdaptiveColumnSet ColumnSetitem, string name, string money, string price)
+        //{
+        //    //name
+        //    ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextWidth(name,65,"Name")));
+        //    //$
+        //    ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextmoney(money,AdaptiveTextSize.Medium,5,AdaptiveHorizontalAlignment.Right)));
+        //    //price
+        //    ColumnSetitem.Columns.Add(AddColumn(GetadaptiveTextWidth(price,20,"Price")));
+        //}
     }
 }

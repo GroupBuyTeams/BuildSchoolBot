@@ -60,7 +60,7 @@ namespace BuildSchoolBot.Dialogs
             var Storedata = o.GetStoregroup(result);
             foreach (JObject item in Storedata)
             {
-                await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(w.GetStore(item.GetValue("Store_Name").ToString(), item.GetValue("Store_Url").ToString(), "899c7892-3c51-4a73-bd01-d12b5cc48ff8")));
+                await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(w.GetStore(item.GetValue("Store_Name").ToString(), item.GetValue("Store_Url").ToString())));
             }
 
             //var cards = new int[20];

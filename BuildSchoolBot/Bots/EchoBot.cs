@@ -77,22 +77,24 @@ namespace BuildSchoolBot.Bots
             }
             else if (turnContext.Activity.Text.Contains("Pay"))
             {
-                var payCard = _paymentService.CreatePayAdaptiveAttachment();
+                var memberId = turnContext.Activity.From.Id;
+                var payCard = _paymentService.CreatePayAdaptiveAttachment(memberId);
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(payCard), cancellationToken);
             }
             else if (turnContext.Activity.Text.Contains("payment"))
             {
                 var memberId = turnContext.Activity.From.Id;
+                var url = JObject.FromObject(turnContext.Activity.Value).GetValue("payment").ToString();
+                _paymentService.UpdatePayment(memberId, url);
+                var payCard = _paymentService.CreatePayAdaptiveAttachment(memberId);
 
-                if (turnContext.Activity.Value.ToString().Split('"')[3] == string.Empty)
-                {
-                    var url = turnContext.Activity.Text;
-                    _paymentService.Create(memberId, url);
-                    await turnContext.SendActivityAsync(MessageFactory.Text(url), cancellationToken);
-                }
-                _paymentService.GetPay(memberId);
+                var activity = MessageFactory.Attachment(payCard);
+                activity.Id = turnContext.Activity.ReplyToId;
+
+                await turnContext.UpdateActivityAsync(activity, cancellationToken);
+                await turnContext.SendActivityAsync(MessageFactory.Text("You update your payment link: " + url), cancellationToken);       
             }
-            //Only for Demo.
+            //Only for Demo. 
             //please don't delete it, please don't delete it, please don't delete it!!!!
 
             else if (turnContext.Activity.Text.Contains("ccc"))
@@ -179,6 +181,18 @@ namespace BuildSchoolBot.Bots
             {
                 return await _orderfoodServices.GetModifyModuleData(turnContext, taskModuleRequest, cancellationToken);
             }
+            //else if (JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data)).Property("SetType").Value.ToString() == "test")
+            //{
+            //    var TaskInfo = new TaskModuleTaskInfo();
+            //    TeamsBuyContext context = new TeamsBuyContext();
+            //    var asJobject = JObject.FromObject(taskModuleRequest.Data);
+            //    var Value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
+            //    //var MenuOrderData = new MenuDetailService(context).GetMenuOrder(Value).ToList();
+            //    //var MenuOrderStore = new MenuService(context).GetMenuOrder(Value).Store;
+            //    TaskInfo.Card = new CreateCardService().GetMenuModule("","","","");
+            //   _orderfoodServices.SetTaskInfo(TaskInfo, TaskModuleUIConstants.AdaptiveCard);
+            //    return await Task.FromResult(TaskInfo.ToTaskModuleResponse());               
+            //}
             else
             {
                 return await _orderfoodServices.GetModuleMenuData(turnContext, taskModuleRequest, cancellationToken); 
@@ -226,9 +240,6 @@ namespace BuildSchoolBot.Bots
 
                 await turnContext.UpdateActivityAsync(activity, cancellationToken);
             }
-
-
-
             return await Task.FromResult(new InvokeResponse()
             {
                 Status = 200
@@ -245,14 +256,5 @@ namespace BuildSchoolBot.Bots
 
             return libraryCard;
         }
-        //private async Task<Attachment> GetPayCard(ITurnContext turnContext)
-        //{
-        //    var memberId = turnContext.Activity.From.Id;
-
-        //    var Name = turnContext.Activity.From.Name;
-        //    var payMemberId = await _payMentService.FindPayByMemberId(memberId);
-        //    var payCard = PayMentService.CreatePayAdaptiveAttachment(payMemberId, Name);
-        //    return payCard;
-        //}
     }
 }

@@ -15,13 +15,13 @@ namespace BuildSchoolBot.Service
             context = _context;
         }
 
-        public void CreateMenu(string _menuId)
+        public void CreateMenu(string _menuId,string store,string teamsId)
         {
             var menu = new MenuOrder
             {
                 MenuId = Guid.Parse(_menuId),
-                //Store = ,
-                //TeamsId = ,
+                Store = store,
+                TeamsId = teamsId,
 
             };
             context.MenuOrder.Add(menu);
@@ -40,5 +40,9 @@ namespace BuildSchoolBot.Service
             context.Update(MenuOrderData);
             context.SaveChanges();
         }
+
+
+
+
     }
 }

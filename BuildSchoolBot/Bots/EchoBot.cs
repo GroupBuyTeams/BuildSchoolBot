@@ -192,7 +192,7 @@ namespace BuildSchoolBot.Bots
                 return await StoreModule.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
             }
             //¨|»Ï
-            if (JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data)).Property("SetType").Value.ToString() == "CustomizedModification")
+            if (JObject.FromObject(taskModuleRequest.Data).GetValue("SetType").ToString().Equals("CustomizedModification"))
             {
                 return await _orderfoodServices.GetModifyModuleData(turnContext, taskModuleRequest, cancellationToken);
             }
@@ -212,7 +212,7 @@ namespace BuildSchoolBot.Bots
                 return null;
             }
             //¨|»Ï
-            if (JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data)).Property("SetType").Value.ToString() == "CustomizedModification")
+            if (JObject.FromObject(taskModuleRequest.Data).GetValue("SetType").ToString().Equals("CustomizedModification"))
             {
                 var TaskInfo = new TaskModuleTaskInfo();
                 _orderfoodServices.ModifyMenuData(taskModuleRequest, TaskInfo);

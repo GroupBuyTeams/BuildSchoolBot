@@ -2,15 +2,13 @@ using Newtonsoft.Json;
 
 namespace BuildSchoolBot.ViewModels
 {
-    public class CardRootData
+    public class CardDataModel<T>
     {
-        public CardDataModel root { get; set; }
-    }
-    
-    public class CardDataModel
-    {
-        public string type { get; set; }
-        public object value { get; set; }
+        [JsonProperty("Type")]
+        public string Type { get; set; }
+        
+        [JsonProperty("Value")]
+        public T Value { get; set; }
     }
 
     public class StoreInfoData

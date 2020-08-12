@@ -258,7 +258,7 @@ namespace BuildSchoolBot.Service
                         { Width = "65" }
                             .AddElement(new AdaptiveNumberInput() { Min = 0, Value = 0, Placeholder = "Name", Id = $"{name[1]}" })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
                         .AddCol(new AdaptiveColumn()
-                        { Width = "2" }
+                        { Width = "5" }
                             .AddElement(new AdaptiveTextBlock() { Text = "" }))
                          .AddCol(new AdaptiveColumn()
                          { Width = "20" }

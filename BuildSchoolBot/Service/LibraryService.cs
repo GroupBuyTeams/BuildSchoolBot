@@ -40,6 +40,7 @@ namespace BuildSchoolBot.Service
             _repo.Delete(entity);
             _repo.context.SaveChanges();
         }
+        //use memberId to find the library
         public async Task<List<Library>> FindLibraryByMemberId(string memberId)
         {
             var result = _repo.GetAll().Where(x => x.MemberId.Equals(memberId)).ToList();
@@ -86,9 +87,6 @@ namespace BuildSchoolBot.Service
                     }
                 };
             });
-
-
-
             var adaptiveCardAttachment = new Attachment()
             {
                 ContentType = "application/vnd.microsoft.card.adaptive",

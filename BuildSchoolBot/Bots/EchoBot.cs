@@ -198,7 +198,11 @@ namespace BuildSchoolBot.Bots
             //®aÄ_
             if (taskModuleRequest.Data.ToString().Split('"').FirstOrDefault(x => x.Equals("ResultStoreCard")).Equals("ResultStoreCard"))
             {
-                var result = new GetUserChosedStore().GetResultStore(taskModuleRequest.Data.ToString());
+                var result = new GetUserChosedStore().GetResultStore(taskModuleRequest.Data.ToString())[0];
+                var w = new CreateCardService();
+                var o = new OrderfoodServices();
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(w.GetStore(result.StoreName,result.Url,result.OrderID)));
+                return null;
             }
             //¨|¦w
             if (JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data)).Property("SetType").Value.ToString() == "CustomizedModification")

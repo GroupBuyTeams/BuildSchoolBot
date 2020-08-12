@@ -5,7 +5,7 @@
     "body": [
         {
             "type": "TextBlock",
-            "text": "What color do you want? *(isMultiSelect:false, style:compact)*"
+            "text": "請選擇店家"
         },
         {
             "type": "Input.ChoiceSet",
@@ -21,7 +21,7 @@
             "type": "Action.Submit",
             "title": "OK",
             "data": {
-                "SetType":"CustomizedModification"
+                "SetType":"CustomizedMenu"
             }
         }
     ]

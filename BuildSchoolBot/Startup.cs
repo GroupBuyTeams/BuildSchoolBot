@@ -74,6 +74,7 @@ namespace BuildSchoolBot
             services.AddTransient<TeamsBuyContext>();
             services.AddTransient<EGRepository<Library>>();
             services.AddTransient<EGRepository<Payment>>();
+            services.AddTransient<EGRepository<MenuOrder>>();
             services.AddTransient<LibraryService>();
             services.AddTransient<OrderfoodServices>();
             services.AddTransient<OrderDetailService>();
@@ -83,6 +84,7 @@ namespace BuildSchoolBot
             services.AddTransient<PayMentService>();
             services.AddTransient<MenuService>();
             services.AddTransient<MenuDetailService>();
+            services.AddTransient<MenuOrderService>();
 
             services.AddTransient<HistoryService>();
             services.AddTransient<CustomMenuService>();

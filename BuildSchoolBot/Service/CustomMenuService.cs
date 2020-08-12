@@ -103,7 +103,7 @@ namespace BuildSchoolBot.Service
             ChildColumnSet.Columns.Add(EditColumn);
 
             var EditActionSet = new AdaptiveActionSet();
-            EditActionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "Edit"});
+            EditActionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "Edit" });
             EditColumn.Items.Add(EditActionSet);
 
             var DeleteColumn = new AdaptiveColumn() { Width = AdaptiveColumnWidth.Auto };

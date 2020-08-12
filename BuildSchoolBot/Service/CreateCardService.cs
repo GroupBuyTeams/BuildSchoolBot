@@ -21,10 +21,13 @@ namespace BuildSchoolBot.Service
     {
         public Attachment GetStore(string texta, string menuurl,string MenuId)
         {
+
+
             var Guidstr = new OrderfoodServices().GetGUID();
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
             var actionSet = new AdaptiveActionSet() { Type = AdaptiveActionSet.TypeName, Separator = true };
             card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock(texta, AdaptiveTextSize.Large, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Center));
+
 
             //actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "click", Data = new AdaptiveCardTaskFetchValue<string>() { Data = texta + "FoodData2468" + menuurl } });
             actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "Join", Data = new AdaptiveCardTaskFetchValue<string>() { Data = texta + "FoodData2468" + menuurl + "GuidStr13579" + Guidstr, SetType = "JoinMenu" } });        

@@ -258,6 +258,8 @@ namespace BuildSchoolBot.Bots
         {
             var factory = new AdaptiveCardDataFactory(turnContext, taskModuleRequest);
             var fetchType = factory.GetCardActionType();
+            var taskInfo = new TaskModuleTaskInfo();
+
             if (fetchType.Equals("FetchSelectedFoods"))
             {
                 
@@ -307,9 +309,11 @@ namespace BuildSchoolBot.Bots
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(_createCardService.GetError(turnContext.Activity.From.Name)));
         
             }
+            return await Task.FromResult(taskInfo.ToTaskModuleResponse());
+
         }
-        
-        
+
+
         protected override async Task<InvokeResponse> OnTeamsCardActionInvokeAsync(ITurnContext<IInvokeActivity> turnContext, CancellationToken cancellationToken)
         {
             var memberId = turnContext.Activity.From.Id;

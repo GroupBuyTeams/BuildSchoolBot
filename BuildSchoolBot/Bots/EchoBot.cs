@@ -150,7 +150,6 @@ namespace BuildSchoolBot.Bots
             var conversationReference = activity.GetConversationReference();
             ConversationReferences.AddOrUpdate(conversationReference.User.Id, conversationReference, (key, newValue) => conversationReference);
         }
-        //�����s�����[�J
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
             foreach (var member in membersAdded)
@@ -193,12 +192,12 @@ namespace BuildSchoolBot.Bots
             if (Data.GetValue("data").ToString().Equals("Customized"))
             {
 
-                var TenantId = turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id; ;
+                var TenantId = turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id;
 
-                TaskInfo.Card = _menuOrderService.CreateAdaptiveCardAttachment(TenantId);
+                TaskInfo.Card = _menuOrderService.CreateMenuOrderAttachment(TenantId);
                 return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
             }
-            if (taskModuleRequest.Data.ToString().Split('"').FirstOrDefault(x => x.Equals("GetStore")) == "GetStore")
+            if (JObject.FromObject(taskModuleRequest.Data).GetValue("SetType").ToString().Equals("GetStore"))
             {
                 var StoreModule = new GetStoreList();
                 return await StoreModule.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
@@ -215,8 +214,9 @@ namespace BuildSchoolBot.Bots
 
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
-            //�a�_
-            if (taskModuleRequest.Data.ToString().Split('"').FirstOrDefault(x => x.Equals("ResultStoreCard")).Equals("ResultStoreCard"))
+            var GetSetType = JObject.FromObject(taskModuleRequest.Data).GetValue("SetType")?.ToString();
+            var Getdata = JObject.FromObject(taskModuleRequest.Data).GetValue("data")?.ToString();
+            if (Getdata.Equals("ResultStoreCard"))
             {
                 var result = new GetUserChosedStore().GetResultStore(taskModuleRequest.Data.ToString())[0];
                 var w = new CreateCardService();
@@ -225,8 +225,13 @@ namespace BuildSchoolBot.Bots
 
                 return null;
             }
-            //�|�w
-            if (JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data)).Property("SetType").Value.ToString() == "CustomizedModification")
+            else if (GetSetType.Equals("CustomizedMenu"))
+            {
+                var TaskInfo = new TaskModuleTaskInfo();
+                TaskInfo.Card = _menuOrderService.CreateMenuDetailAttachment(turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id);
+                return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
+            }
+            else if (GetSetType.Equals("CustomizedModification"))
             {
                 var TaskInfo = new TaskModuleTaskInfo();
                 _orderfoodServices.ModifyMenuData(taskModuleRequest, TaskInfo);

@@ -50,9 +50,9 @@ namespace BuildSchoolBot.Service
             return orders;
         }
 
-        public List<OrderDetail> GetOrder(DateTime date, string Id)
+        public List<HistoryViewModel> GetOrder(DateTime date, string Id)
         {
-            List<OrderDetail> orders;
+            List<HistoryViewModel> orders;
 
             using (conn = new SqlConnection(connString))
             {
@@ -62,28 +62,10 @@ namespace BuildSchoolBot.Service
                                 inner join OrderDetail od on od.orderid = o.orderid
                                 where od.memberid = @MID
                                 and o.Date = @DATE";
-                orders = conn.Query<OrderDetail>(sql, datas).ToList();
+                orders = conn.Query<HistoryViewModel>(sql, datas).ToList();
             }
             return orders;
         }
-
-        //public List<HistoryViewModel> GetTotal(DateTime date, string Id)
-        //{
-        //    List<HistoryViewModel> orders;
-
-        //    using (conn = new SqlConnection(connString))
-        //    {
-        //        var datas = new { DATE = date, MID = Id };
-        //        string sql = @"select o.date, sum(amount)
-        //                        from [Order] o
-        //                        inner join OrderDetail od on od.orderid = o.orderid
-        //                        where od.memberid = @MID
-        //                        and o.Date BETWEEN @START AND @END
-        //                        group by o.date";
-        //        orders = conn.Query<HistoryViewModel>(sql, datas).ToList();
-        //    }
-        //    return orders;
-        //}
 
         public Attachment CreateHistoryCard(DateTime Start, DateTime End, string Name,string Id)
         {
@@ -118,9 +100,9 @@ namespace BuildSchoolBot.Service
             ColumnSet.Columns.Add(Column2);
 
             var getorder = GetOrder(Date, Id);
-            foreach (var order in getorder)
+            foreach (var orderdetail in getorder)
             {
-                SetColumnContent(Column2,order.ProductName,order.Number,order.Amount, AdaptiveTextSize.Medium);
+                SetColumnContent(Column2, orderdetail.StoreName, orderdetail.ProductName, orderdetail.Number, orderdetail.Amount, AdaptiveTextSize.Medium);
             }
             
             //SetColumnContent(Column2, "Total: 100", AdaptiveTextSize.Medium);
@@ -140,10 +122,10 @@ namespace BuildSchoolBot.Service
             col.Items.Add(DateTime);
         }
 
-        private void SetColumnContent(AdaptiveColumn col,string productname,int number,decimal amount, AdaptiveTextSize size)
+        private void SetColumnContent(AdaptiveColumn col,string storename,string productname,int number,decimal amount, AdaptiveTextSize size)
         {
             var Container = new AdaptiveContainer();
-            var Total = new AdaptiveTextBlock() { Text = $"{productname} X {number}  ${decimal.Round(amount)}", Size = size };
+            var Total = new AdaptiveTextBlock() { Text = $"{storename}-{productname} X {number}  ${decimal.Round(amount)}", Size = size };
             Container.Items.Add(Total);
             col.Items.Add(Container);
         }

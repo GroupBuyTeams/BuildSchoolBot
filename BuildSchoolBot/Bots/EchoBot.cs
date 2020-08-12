@@ -161,7 +161,6 @@ namespace BuildSchoolBot.Bots
                 }
             }
         }
-
         public override async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default)
         {
             var activity = turnContext.Activity;
@@ -189,18 +188,6 @@ namespace BuildSchoolBot.Bots
             {
                 return await _orderfoodServices.GetModifyModuleData(turnContext, taskModuleRequest, cancellationToken);
             }
-            //else if (JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data)).Property("SetType").Value.ToString() == "test")
-            //{
-            //    var TaskInfo = new TaskModuleTaskInfo();
-            //    TeamsBuyContext context = new TeamsBuyContext();
-            //    var asJobject = JObject.FromObject(taskModuleRequest.Data);
-            //    var Value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
-            //    //var MenuOrderData = new MenuDetailService(context).GetMenuOrder(Value).ToList();
-            //    //var MenuOrderStore = new MenuService(context).GetMenuOrder(Value).Store;
-            //    TaskInfo.Card = new CreateCardService().GetMenuModule("","","","");
-            //   _orderfoodServices.SetTaskInfo(TaskInfo, TaskModuleUIConstants.AdaptiveCard);
-            //    return await Task.FromResult(TaskInfo.ToTaskModuleResponse());               
-            //}
             else
             {
                 return await _orderfoodServices.GetModuleMenuData(turnContext, taskModuleRequest, cancellationToken); 
@@ -215,7 +202,8 @@ namespace BuildSchoolBot.Bots
                 var result = new GetUserChosedStore().GetResultStore(taskModuleRequest.Data.ToString())[0];
                 var w = new CreateCardService();
                 var o = new OrderfoodServices();
-                await turnContext.SendActivityAsync(MessageFactory.Attachment(w.GetStore(result.StoreName,result.Url,result.OrderID)));
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(w.GetStore(result.StoreName,result.Url)));
+
                 return null;
             }
             //¨|¦w

@@ -72,7 +72,7 @@ namespace BuildSchoolBot.Bots
             //var test = turnContext.Activity.Value.ToString().Split('"') ;
             if (turnContext.Activity.Text.Contains("Library"))
             {
-                var libraryCard = await GetLibraryCard(turnContext);
+                var libraryCard = await _libraryService.GetLibraryCard(turnContext);
 
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(libraryCard), cancellationToken);
             }
@@ -181,7 +181,10 @@ namespace BuildSchoolBot.Bots
             // Customized Card
             if (Data.GetValue("data").ToString().Equals("Customized"))
             {
-                TaskInfo.Card = MenuOrderService.CreateAdaptiveCardAttachment();
+
+                var TenantId = turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id; ;
+
+                TaskInfo.Card = _menuOrderService.CreateAdaptiveCardAttachment(TenantId);
                 return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
 
             }
@@ -196,37 +199,22 @@ namespace BuildSchoolBot.Bots
 
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
+
+            // 店家 TaskModel OK剩下 判斷 進來的流程
+            var obj = JObject.FromObject(taskModuleRequest.Data);
+            if (obj.GetValue("Option")?.Equals("MenuOrder") != null)
+            {
+
+                return TaskModuleResponseFactory.CreateResponse("Thanks!");
+            }
+
+
+
             return await _orderfoodServices.FinishSelectDishesSubmit(turnContext, taskModuleRequest, cancellationToken);
         }
         protected override async Task<InvokeResponse> OnTeamsCardActionInvokeAsync(ITurnContext<IInvokeActivity> turnContext, CancellationToken cancellationToken)
         {
-            var memberId = turnContext.Activity.From.Id;
-            var obj = JObject.FromObject(turnContext.Activity.Value).ToObject<ViewModels.MsteamsValue>();
-
-            if (obj.Option.Equals("Create"))
-            {
-                var uri = obj.Url;
-                var LibraryItem = await _libraryService.FindLibraryByUriAndMemberId(uri, memberId);
-
-                if (LibraryItem.Count.Equals(0))
-                    _libraryService.CreateLibraryItem(memberId, obj.Url, obj.Name);
-            }
-            else if (obj.Option.Equals("Delete"))
-            {
-                var LibraryId = obj.LibraryId;
-
-                Guid guid;
-                Guid.TryParse(LibraryId.ToString(), out guid);
-                _libraryService.DeleteLibraryItem(guid);
-
-                var libraryCard = await GetLibraryCard(turnContext);
-
-                var activity = MessageFactory.Attachment(libraryCard);
-                activity.Id = turnContext.Activity.ReplyToId;
-
-                await turnContext.UpdateActivityAsync(activity, cancellationToken);
-            }
-
+            _libraryService.LibraryCreateOrDelete(turnContext, cancellationToken);
 
 
             return await Task.FromResult(new InvokeResponse()
@@ -235,16 +223,7 @@ namespace BuildSchoolBot.Bots
             });
         }
 
-        private async Task<Attachment> GetLibraryCard(ITurnContext turnContext)
-        {
-            var memberId = turnContext.Activity.From.Id;
 
-            var Name = turnContext.Activity.From.Name;
-            var libraries = await _libraryService.FindLibraryByMemberId(memberId);
-            var libraryCard = Service.LibraryService.CreateAdaptiveCardAttachment(libraries, Name);
-
-            return libraryCard;
-        }
         //private async Task<Attachment> GetPayCard(ITurnContext turnContext)
         //{
         //    var memberId = turnContext.Activity.From.Id;

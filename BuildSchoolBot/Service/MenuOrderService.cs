@@ -2,6 +2,7 @@ using AdaptiveCards;
 using BuildSchoolBot.Models;
 using BuildSchoolBot.Repository;
 using BuildSchoolBot.ViewModels;
+using Microsoft.Bot.Builder.Teams;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
 using System;
@@ -14,13 +15,16 @@ namespace BuildSchoolBot.Service
 {
     public class MenuOrderService
     {
-
-        private EGRepository<MenuOrder> _repo;
+        private readonly EGRepository<MenuOrder> _repo;
         public MenuOrderService(EGRepository<MenuOrder> repo)
         {
             _repo = repo;
         }
-        public static Attachment CreateAdaptiveCardAttachment()
+        public IQueryable<MenuOrder> FindMenuOrderByTeamsId(string teamsId)
+        {
+            return _repo.GetAll().Where(x => x.TeamsId.Equals(teamsId));
+        }
+        public Attachment CreateAdaptiveCardAttachment(string teamsId)
         {
             // combine path for cross platform support
             var paths = new[] { ".", "Resources", "MenuOrderCard.json" };
@@ -28,6 +32,16 @@ namespace BuildSchoolBot.Service
             var libraryCardJson = File.ReadAllText(Path.Combine(paths));
 
             var myCard = JsonConvert.DeserializeObject<AdaptiveCard>(libraryCardJson);
+            var menuOrder = FindMenuOrderByTeamsId(teamsId).ToList();
+
+            menuOrder.ForEach(item =>
+            {
+                ((AdaptiveChoiceSetInput)myCard.Body[1]).Choices.Add(new AdaptiveChoice()
+                {
+                    Title = item.Store,
+                    Value = item.Store
+                });
+            });
 
             var adaptiveCardAttachment = new Attachment()
             {

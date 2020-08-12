@@ -70,7 +70,8 @@ namespace BuildSchoolBot.Dialogs
             var card = _historyService.CreateHistoryCard(start, end, username, userid);
             if (end < start)
             {
-                await stepContext.BeginDialogAsync(nameof(HistoryDialog));
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text("Please select again."));
+                await stepContext.EndDialogAsync();
             }
             else
             {

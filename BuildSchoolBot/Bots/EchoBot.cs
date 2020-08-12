@@ -49,8 +49,9 @@ namespace BuildSchoolBot.Bots
         protected readonly PayMentService _paymentService;
         protected readonly MenuService _menuService;
         protected readonly MenuDetailService _menuDetailService;
+        protected readonly CustomMenuService _customMenuService;
 
-        public EchoBot(ConversationState conversationState, LibraryService libraryService, OrderService orderService, OrderDetailService orderDetailService, UserState userState, T dialog, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences, CreateCardService createCardService, OrganizeStructureService organizeStructureService, PayMentService paymentService, MenuService menuService, MenuDetailService menuDetailService)
+        public EchoBot(ConversationState conversationState, LibraryService libraryService, OrderService orderService, OrderDetailService orderDetailService, UserState userState, T dialog, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences, CreateCardService createCardService, OrganizeStructureService organizeStructureService, PayMentService paymentService, MenuService menuService, MenuDetailService menuDetailService,CustomMenuService customMenuService)
         {
             ConversationState = conversationState;
             UserState = userState;
@@ -66,6 +67,8 @@ namespace BuildSchoolBot.Bots
             _paymentService = paymentService;
             _menuService = menuService;
             _menuDetailService = menuDetailService;
+            _customMenuService = customMenuService;
+            
         }
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
@@ -123,6 +126,11 @@ namespace BuildSchoolBot.Bots
                     var str = data.Name + "\r\n" + data.Id;
                     await turnContext.SendActivityAsync(MessageFactory.Text(str));
                 }
+            }
+            else if (turnContext.Activity.Text.Contains("Custom Menu"))
+            {
+                var CustomMenucard = _customMenuService.CallCustomeCard();
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(CustomMenucard), cancellationToken);
             }
             else
             {
@@ -255,7 +263,7 @@ namespace BuildSchoolBot.Bots
         private async Task<Attachment> GetLibraryCard(ITurnContext turnContext)
         {
             var memberId = turnContext.Activity.From.Id;
-
+            
             var Name = turnContext.Activity.From.Name;
             var libraries = await _libraryService.FindLibraryByMemberId(memberId);
             var libraryCard = Service.LibraryService.CreateAdaptiveCardAttachment(libraries, Name);

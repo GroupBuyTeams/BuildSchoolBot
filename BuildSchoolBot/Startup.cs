@@ -85,6 +85,7 @@ namespace BuildSchoolBot
             services.AddTransient<MenuDetailService>();
 
             services.AddTransient<HistoryService>();
+            services.AddTransient<CustomMenuService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

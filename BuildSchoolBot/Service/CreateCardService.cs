@@ -208,13 +208,13 @@ namespace BuildSchoolBot.Service
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
 
-
+        //ting createMneuTaskModule
         public Attachment GetMenuModule(string store,string name ,string money,string price)
         {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
 
             card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock("Input your Store"));
-            card.Body.Add(new OrderfoodServices().GetadaptiveText(store));
+            card.Body.Add(new OrderfoodServices().GetadaptiveTextInputStore(store,"Store"));
 
             string[] ItemsName = new string[] { "Name", "Price" };
             var ColumnSetitemname = new OrderfoodServices().FixedtextColumn(ItemsName);
@@ -229,10 +229,6 @@ namespace BuildSchoolBot.Service
 
             }
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
-
-
-
-
         }
 
     }

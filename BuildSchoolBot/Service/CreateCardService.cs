@@ -29,9 +29,6 @@ namespace BuildSchoolBot.Service
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
             var actionSet = new AdaptiveActionSet() { Type = AdaptiveActionSet.TypeName, Separator = true };
             card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock(texta, AdaptiveTextSize.Large, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Center));
-            //ting
-            //actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "text", Data = new AdaptiveCardTaskFetchValue<string>() { Data = "", SetType = "test" } });
-
 
             //actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "click", Data = new AdaptiveCardTaskFetchValue<string>() { Data = texta + "FoodData2468" + menuurl } });
             actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "Join", Data = new AdaptiveCardTaskFetchValue<string>() { Data = texta + "FoodData2468" + menuurl + "GuidStr13579" + OrderId + "DueTime13579"+ DueTime, SetType = "JoinMenu" } });        

@@ -18,30 +18,6 @@ namespace BuildSchoolBot.Service
     public class CreateCardService2
     {
         /// <summary>
-        /// 建立新的、且可附加於AdaptiveSubmitAction的Library Data
-        /// </summary>
-        /// <param name="name">餐廳名稱</param>
-        /// <param name="url">餐廳網址</param>
-        /// <returns>餐廳資訊</returns>
-        public RootMsteams GetMSTeamsData(string name, string url)
-        {
-
-            return new RootMsteams()
-            {
-                msteams = new Msteams()
-                {
-                    type = "invoke",
-                    value = new MsteamsValue()
-                    {
-                        Name = name,
-                        Url = url,
-                        Option = "Create"
-                    }
-                }
-            };
-        }
-
-        /// <summary>
         /// 製作收藏庫的餐廳卡片
         /// </summary>
         /// <param name="name">餐廳名稱</param>
@@ -55,8 +31,22 @@ namespace BuildSchoolBot.Service
                 Type = "OpenMenuTaskModule",
                 Value = new StoreInfoData() {Guid = Guid.NewGuid().ToString(), Name = text, Url = menuUrl}
             };
-            var objData = GetMSTeamsData(text, menuUrl);
+            // var MSTeamsData = new Data(text, menuUrl);
 
+            var objData = new Data()
+            {
+                msteams = new Msteams()
+                {
+                    type = "invoke",
+                    value = new MsteamsValue()
+                    {
+                        Name = text,
+                        Url = menuUrl,
+                        Option = "Create"
+                    }
+                }
+            };
+                
             var card = NewCard()
                 .AddElement(new AdaptiveTextBlock()
                 {

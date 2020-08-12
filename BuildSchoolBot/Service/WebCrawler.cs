@@ -46,7 +46,7 @@ namespace BuildSchoolBot.Service
 
             return JSON_STORES;
         }
-        
+
         //by 阿三
         public async Task<List<Store>> GetStores2(string lat, string lng)
         {
@@ -113,7 +113,7 @@ namespace BuildSchoolBot.Service
             var json_order = JsonConvert.SerializeObject(result_order);
             return json_order;
         }
-        
+
         //by 阿三
         public async Task<List<Dish>> GetOrderInfo2(string Url)
         {

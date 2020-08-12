@@ -29,6 +29,7 @@ using Newtonsoft.Json.Linq;
 using static BuildSchoolBot.StoreModels.AllSelectData;
 using static BuildSchoolBot.StoreModels.SelectMenu;
 using static BuildSchoolBot.StoreModels.ModifyMenu;
+using BuildSchoolBot.Dialogs;
 
 namespace BuildSchoolBot.Bots
 {
@@ -79,22 +80,24 @@ namespace BuildSchoolBot.Bots
             }
             else if (turnContext.Activity.Text.Contains("Pay"))
             {
-                var payCard = _paymentService.CreatePayAdaptiveAttachment();
+                var memberId = turnContext.Activity.From.Id;
+                var payCard = _paymentService.CreatePayAdaptiveAttachment(memberId);
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(payCard), cancellationToken);
             }
             else if (turnContext.Activity.Text.Contains("payment"))
             {
                 var memberId = turnContext.Activity.From.Id;
+                var url = JObject.FromObject(turnContext.Activity.Value).GetValue("payment").ToString();
+                _paymentService.UpdatePayment(memberId, url);
+                var payCard = _paymentService.CreatePayAdaptiveAttachment(memberId);
 
-                if (turnContext.Activity.Value.ToString().Split('"')[3] == string.Empty)
-                {
-                    var url = turnContext.Activity.Text;
-                    _paymentService.Create(memberId, url);
-                    await turnContext.SendActivityAsync(MessageFactory.Text(url), cancellationToken);
-                }
-                _paymentService.GetPay(memberId);
+                var activity = MessageFactory.Attachment(payCard);
+                activity.Id = turnContext.Activity.ReplyToId;
+
+                await turnContext.UpdateActivityAsync(activity, cancellationToken);
+                await turnContext.SendActivityAsync(MessageFactory.Text("You update your payment link: " + url), cancellationToken);
             }
-            //Only for Demo.
+            //Only for Demo. 
             //please don't delete it, please don't delete it, please don't delete it!!!!
 
             else if (turnContext.Activity.Text.Contains("ccc"))
@@ -187,20 +190,35 @@ namespace BuildSchoolBot.Bots
 
                 TaskInfo.Card = _menuOrderService.CreateAdaptiveCardAttachment(TenantId);
                 return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
-
             }
-            // Join Card
-            var asJobject = JObject.FromObject(taskModuleRequest.Data);
-            var Value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
-            string GetMenuJson = _organizeStructureService.GetFoodUrlStr(Value);
-            TaskInfo.Card = _organizeStructureService.GetTaskModuleFetchCard(Value, GetMenuJson, TaskInfo);
-            _orderfoodServices.SetTaskInfo(TaskInfo, TaskModuleUIConstants.AdaptiveCard);
-            return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
+            if (taskModuleRequest.Data.ToString().Split('"').FirstOrDefault(x => x.Equals("GetStore")) == "GetStore")
+            {
+                var StoreModule = new GetStoreList();
+                return await StoreModule.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
+            }
+            if (JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data)).Property("SetType").Value.ToString() == "CustomizedModification")
+            {
+                return await _orderfoodServices.GetModifyModuleData(turnContext, taskModuleRequest, cancellationToken);
+            }
+            else
+            {
+                return await _orderfoodServices.GetModuleMenuData(turnContext, taskModuleRequest, cancellationToken);
+            }
         }
 
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
-            if (JObject.FromObject(taskModuleRequest.Data).GetValue("SetType").ToString() == "CustomizedModification")
+            //�a�_
+            if (taskModuleRequest.Data.ToString().Split('"').FirstOrDefault(x => x.Equals("ResultStoreCard")).Equals("ResultStoreCard"))
+            {
+                var result = new GetUserChosedStore().GetResultStore(taskModuleRequest.Data.ToString())[0];
+                var w = new CreateCardService();
+                var o = new OrderfoodServices();
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(w.GetStore(result.StoreName, result.Url)));
+                return null;
+            }
+            //�|�w
+            if (JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data)).Property("SetType").Value.ToString() == "CustomizedModification")
             {
                 var TaskInfo = new TaskModuleTaskInfo();
                 _orderfoodServices.ModifyMenuData(taskModuleRequest, TaskInfo);

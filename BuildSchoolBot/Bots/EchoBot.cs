@@ -174,6 +174,17 @@ namespace BuildSchoolBot.Bots
         }
         protected async override Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
+            var factory = new AdaptiveCardDataFactory(turnContext, taskModuleRequest);
+            var fetchType = factory.GetCardActionType();
+            var service = new CreateCardService2();
+            var taskInfo = new TaskModuleTaskInfo();
+            //ting
+            //if (JObject.FromObject(taskModuleRequest.Data).GetValue("SetType").ToString().Equals("createmenu"))
+            if (fetchType.Equals("createmenu"))
+            {
+                taskInfo.Card = service.GetCreateMenu(); ;
+                return await Task.FromResult(taskInfo.ToTaskModuleResponse());
+            }
             //®aÄ_
             if (JObject.FromObject(taskModuleRequest.Data).GetValue("SetType").ToString().Equals("GetStore"))
             {
@@ -189,6 +200,7 @@ namespace BuildSchoolBot.Bots
             {
                 return await _orderfoodServices.GetModuleMenuData(turnContext, taskModuleRequest, cancellationToken);
             }
+
         }
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {

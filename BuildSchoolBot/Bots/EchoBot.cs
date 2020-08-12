@@ -186,6 +186,23 @@ namespace BuildSchoolBot.Bots
             await ConversationState.SaveChangesAsync(turnContext, false, cancellationToken);
             await UserState.SaveChangesAsync(turnContext, false, cancellationToken);
         }
+<<<<<<< HEAD
+        
+        //by Afan
+        // protected async override Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
+        // {
+        //     var asJobject = JObject.FromObject(taskModuleRequest.Data);
+        //     var Value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
+        //     string GetMenuJson = _organizeStructureService.GetFoodUrlStr(Value);
+        //     var TaskInfo = new TaskModuleTaskInfo();
+        //     TaskInfo.Card = _organizeStructureService.GetTaskModuleFetchCard(Value, GetMenuJson,TaskInfo);
+        //     _orderfoodServices.SetTaskInfo(TaskInfo, TaskModuleUIConstants.AdaptiveCard);
+        //     return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
+        // }
+
+        //by ªü¤T
+=======
+>>>>>>> dev
         protected async override Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
             var factory = new AdaptiveCardDataFactory(turnContext, taskModuleRequest);
@@ -200,12 +217,66 @@ namespace BuildSchoolBot.Bots
             _orderfoodServices.SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
             return await Task.FromResult(taskInfo.ToTaskModuleResponse());
         }
+<<<<<<< HEAD
+        //©|¥¼§¹¦¨¡A­n½Õ¾ã
+        // protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
+        // {
+        //     var asJObject = JObject.FromObject(taskModuleRequest.Data);
+        //     var value = asJObject.ToObject<CardTaskFetchValue<string>>()?.Data;
+        //     var TaskInfo = new TaskModuleTaskInfo();
+        //     JObject Data = JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data));         
+        //     var StoreAndGuid = Data.Property("data").Value.ToString();
+        //     _organizeStructureService.RemoveNeedlessStructure(Data);
+        //     string SelectJson = _orderfoodServices.ProcessAllSelect(Data);
+        //     JObject o = new JObject();
+        //     o["SelectMenu"] = JArray.Parse(SelectJson);
+        //     bool DecideQuanRem = true;
+        //     bool Number = true;
+        //     var AllSelectDatas = JsonConvert.DeserializeObject<SelectMenuDatagroup>(o.ToString());
+        //     foreach (var item in AllSelectDatas.SelectMenu)
+        //     {
+        //         if (item.Quantity == "0" && item.Remarks != "")
+        //         {
+        //             DecideQuanRem = false;
+        //         }
+        //         if (Math.Sign(decimal.Parse(item.Quantity)) < 0 || (decimal.Parse(item.Quantity) - Math.Floor(decimal.Parse(item.Quantity))) != 0)
+        //         {
+        //             Number = false;
+        //         }
+        //     }
+        //     if (DecideQuanRem == true && Number == true)
+        //     {
+        //         //¨ú§¹¾ã¸ê®Æ
+        //         var OAllOrderDatasStr = _orderfoodServices.ProcessUnifyData(o);
+        //         var SelectObject = JsonConvert.DeserializeObject<SelectAllDataGroup>(OAllOrderDatasStr);
+        //         SelectObject.UserID = turnContext.Activity.From.Id;
+        //         var ExistGuid = Guid.Parse("cf1ed7b9-ae4a-4832-a9f4-fdee6e492085");
+        //         //_orderDetailService.CreateOrderDetail(SelectObject, SelectObject.SelectAllOrders, ExistGuid);
+        //
+        //         TaskInfo.Card = _createCardService.GetResultClickfood(_organizeStructureService.GetOrderID(StoreAndGuid),_organizeStructureService.GetStoreName(StoreAndGuid), o.ToString(), "12:00", turnContext.Activity.From.Name);
+        //         _orderfoodServices.SetTaskInfo(TaskInfo, TaskModuleUIConstants.AdaptiveCard);
+        //         await turnContext.SendActivityAsync(MessageFactory.Attachment(_createCardService.GetResultClickfood(_organizeStructureService.GetOrderID(StoreAndGuid), _organizeStructureService.GetStoreName(StoreAndGuid), o.ToString(), "12:00", turnContext.Activity.From.Name)));
+        //     }
+        //     else
+        //     {
+        //         TaskInfo.Card = _createCardService.GetError(turnContext.Activity.From.Name);
+        //         _orderfoodServices.SetTaskInfo(TaskInfo, TaskModuleUIConstants.AdaptiveCard);
+        //         await turnContext.SendActivityAsync(MessageFactory.Attachment(_createCardService.GetError(turnContext.Activity.From.Name)));
+        //
+        //     }
+        //     return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
+        // }
+        //
+=======
         
+>>>>>>> dev
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
-            // é‚„åœ¨ä¿®æ­£ä¸­
+            // ?„åœ¨ä¿®æ­£ä¸?
             var factory = new AdaptiveCardDataFactory(turnContext, taskModuleRequest);
             var fetchType = factory.GetCardActionType();
+            var taskInfo = new TaskModuleTaskInfo();
+
             if (fetchType.Equals("FetchSelectedFoods"))
             {
                 
@@ -214,16 +285,46 @@ namespace BuildSchoolBot.Bots
             //
             if (taskModuleRequest.Data.ToString().Split('"').FirstOrDefault(x => x.Equals("ResultStoreCard")).Equals("ResultStoreCard"))
             {
+<<<<<<< HEAD
+                if (item.Quantity == "0" && item.Remarks != "")
+                {
+                    DecideQuanRem = false;
+                }
+                if (Math.Sign(decimal.Parse(item.Quantity)) < 0 || (decimal.Parse(item.Quantity) - Math.Floor(decimal.Parse(item.Quantity))) != 0)
+                {
+                    Number = false;
+                }
+=======
                 var result = new GetUserChosedStore().GetResultStore(taskModuleRequest.Data.ToString())[0];
                 var w = new CreateCardService();
                 var o = new OrderfoodServices();
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(w.GetStore(result.StoreName, result.Url)));
         
                 return null;
+>>>>>>> dev
             }
             //ï¿½|ï¿½w
             if (JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data)).Property("SetType").Value.ToString() == "CustomizedModification")
             {
+<<<<<<< HEAD
+                //¨ú§¹¾ã¸ê®Æ
+                var OAllOrderDatasStr = _orderfoodServices.ProcessUnifyData(o);
+                var SelectObject = JsonConvert.DeserializeObject<SelectAllDataGroup>(OAllOrderDatasStr);
+                SelectObject.UserID = turnContext.Activity.From.Id;
+                var ExistGuid = Guid.Parse("cf1ed7b9-ae4a-4832-a9f4-fdee6e492085");
+                //_orderDetailService.CreateOrderDetail(SelectObject, SelectObject.SelectAllOrders, ExistGuid);
+        
+                TaskInfo.Card = _createCardService.GetResultClickfood(_organizeStructureService.GetOrderID(StoreAndGuid),_organizeStructureService.GetStoreName(StoreAndGuid), o.ToString(), "12:00", turnContext.Activity.From.Name);
+                _orderfoodServices.SetTaskInfo(TaskInfo, TaskModuleUIConstants.AdaptiveCard);
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(_createCardService.GetResultClickfood(_organizeStructureService.GetOrderID(StoreAndGuid), _organizeStructureService.GetStoreName(StoreAndGuid), o.ToString(), "12:00", turnContext.Activity.From.Name)));
+            }
+            else
+            {
+                TaskInfo.Card = _createCardService.GetError(turnContext.Activity.From.Name);
+                _orderfoodServices.SetTaskInfo(TaskInfo, TaskModuleUIConstants.AdaptiveCard);
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(_createCardService.GetError(turnContext.Activity.From.Name)));
+        
+=======
                 var TaskInfo = new TaskModuleTaskInfo();
                 _orderfoodServices.ModifyMenuData(taskModuleRequest, TaskInfo);
                 return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
@@ -231,8 +332,12 @@ namespace BuildSchoolBot.Bots
             else
             {
                 return await _orderfoodServices.FinishSelectDishesSubmit(turnContext, taskModuleRequest, cancellationToken);
+>>>>>>> dev
             }
+            return await Task.FromResult(taskInfo.ToTaskModuleResponse());
+
         }
+
         protected override async Task<InvokeResponse> OnTeamsCardActionInvokeAsync(ITurnContext<IInvokeActivity> turnContext, CancellationToken cancellationToken)
         {
             _libraryService.LibraryCreateOrDelete(turnContext, cancellationToken);

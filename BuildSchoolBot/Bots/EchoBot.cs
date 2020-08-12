@@ -50,8 +50,9 @@ namespace BuildSchoolBot.Bots
         protected readonly PayMentService _paymentService;
         protected readonly MenuService _menuService;
         protected readonly MenuDetailService _menuDetailService;
+        protected readonly CustomMenuService _customMenuService;
 
-        public EchoBot(ConversationState conversationState, LibraryService libraryService, OrderService orderService, OrderDetailService orderDetailService, UserState userState, T dialog, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences, CreateCardService createCardService, OrganizeStructureService organizeStructureService, PayMentService paymentService, MenuService menuService, MenuDetailService menuDetailService, MenuOrderService menuOrderService)
+        public EchoBot(ConversationState conversationState, LibraryService libraryService, OrderService orderService, OrderDetailService orderDetailService, UserState userState, T dialog, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences, CreateCardService createCardService, OrganizeStructureService organizeStructureService, PayMentService paymentService, MenuService menuService, MenuDetailService menuDetailService, MenuOrderService menuOrderService, CustomMenuService customMenuService)
         {
             ConversationState = conversationState;
             UserState = userState;
@@ -68,6 +69,8 @@ namespace BuildSchoolBot.Bots
             _paymentService = paymentService;
             _menuService = menuService;
             _menuDetailService = menuDetailService;
+            _customMenuService = customMenuService;
+
         }
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
@@ -126,6 +129,11 @@ namespace BuildSchoolBot.Bots
                     await turnContext.SendActivityAsync(MessageFactory.Text(str));
                 }
             }
+            else if (turnContext.Activity.Text.Contains("Custom Menu"))
+            {
+                var CustomMenucard = _customMenuService.CallCustomeCard();
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(CustomMenucard), cancellationToken);
+            }
             else
             {
                 var activity = turnContext.Activity;
@@ -163,7 +171,6 @@ namespace BuildSchoolBot.Bots
                 }
             }
         }
-
         public override async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default)
         {
             var activity = turnContext.Activity;
@@ -215,6 +222,7 @@ namespace BuildSchoolBot.Bots
                 var w = new CreateCardService();
                 var o = new OrderfoodServices();
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(w.GetStore(result.StoreName, result.Url)));
+
                 return null;
             }
             //�|�w

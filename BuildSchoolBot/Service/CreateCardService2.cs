@@ -23,10 +23,10 @@ namespace BuildSchoolBot.Service
         /// <param name="name">餐廳名稱</param>
         /// <param name="url">餐廳網址</param>
         /// <returns>餐廳資訊</returns>
-        public RootMsteams GetMSTeamsData(string name, string url)
+        public Data GetMSTeamsData(string name, string url)
         {
 
-            return new RootMsteams()
+            return new Data()
             {
                 msteams = new Msteams()
                 {

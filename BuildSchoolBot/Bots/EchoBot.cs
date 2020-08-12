@@ -186,7 +186,7 @@ namespace BuildSchoolBot.Bots
         protected async override Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
             //®aÄ_
-            if (taskModuleRequest.Data.ToString().Split('"').FirstOrDefault(x => x.Equals("GetStore")) != null)
+            if (JObject.FromObject(taskModuleRequest.Data).GetValue("SetType").ToString().Equals("GetStore"))
             {
                 var StoreModule = new GetStoreList();
                 return await StoreModule.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
@@ -205,7 +205,7 @@ namespace BuildSchoolBot.Bots
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
             //®aÄ_
-            if (taskModuleRequest.Data.ToString().Split('"').FirstOrDefault(x => x.Equals("ResultStoreCard"))!=null)
+            if (JObject.FromObject(taskModuleRequest.Data).GetValue("data").ToString().Equals("ResultStoreCard"))
             {
                 var result = new GetUserChosedStore().GetResultStore(taskModuleRequest.Data.ToString())[0];
                 var w = new CreateCardService();

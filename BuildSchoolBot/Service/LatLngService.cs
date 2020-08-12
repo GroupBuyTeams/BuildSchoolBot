@@ -33,7 +33,7 @@ namespace BuildSchoolBot.Service
                 XElement locationElement = result.Element("geometry").Element("location");
 
                 lat = locationElement.Element("lat").Value;
-                lng = locationElement.Element("lng").Value;
+                lng = locationElement.Element("lng").Value; 
             }
             else
             {

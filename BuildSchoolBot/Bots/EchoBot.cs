@@ -184,7 +184,7 @@ namespace BuildSchoolBot.Bots
                 var StoreModule = new GetStoreList();
                 return await StoreModule.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
             }
-            //育安
+            //育銨
             if (JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data)).Property("SetType").Value.ToString() == "CustomizedModification")
             {
                 return await _orderfoodServices.GetModifyModuleData(turnContext, taskModuleRequest, cancellationToken);
@@ -213,12 +213,10 @@ namespace BuildSchoolBot.Bots
             if (taskModuleRequest.Data.ToString().Split('"').FirstOrDefault(x => x.Equals("ResultStoreCard")).Equals("ResultStoreCard"))
             {
                 var result = new GetUserChosedStore().GetResultStore(taskModuleRequest.Data.ToString())[0];
-                var w = new CreateCardService();
-                var o = new OrderfoodServices();
-                await turnContext.SendActivityAsync(MessageFactory.Attachment(w.GetStore(result.StoreName,result.Url,result.OrderID)));
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(_createCardService.GetStore(result.StoreName,result.Url,result.OrderID,result.DueTime)));
                 return null;
             }
-            //育安
+            //育銨
             if (JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data)).Property("SetType").Value.ToString() == "CustomizedModification")
             {
                 var TaskInfo = new TaskModuleTaskInfo();

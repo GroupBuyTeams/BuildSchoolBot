@@ -2,16 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using AdaptiveCards;
 using BuildSchoolBot.Models;
 using BuildSchoolBot.Repository;
 using BuildSchoolBot.ViewModels;
-using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace BuildSchoolBot.Service
 {
@@ -53,45 +50,6 @@ namespace BuildSchoolBot.Service
         {
             var result = _repo.GetAll().Where(x => x.MemberId.Equals(memberId) && x.Uri.Equals(uri)).ToList();
             return await Task.FromResult(result);
-        }
-        public async void LibraryCreateOrDelete(ITurnContext<IInvokeActivity> turnContext, CancellationToken cancellationToken)
-        {
-            var memberId = turnContext.Activity.From.Id;
-            var obj = JObject.FromObject(turnContext.Activity.Value).ToObject<ViewModels.MsteamsValue>();
-
-            if (obj.Option.Equals("Create"))
-            {
-                var uri = obj.Url;
-                var LibraryItem = await FindLibraryByUriAndMemberId(uri, memberId);
-
-                if (LibraryItem.Count.Equals(0))
-                    CreateLibraryItem(memberId, obj.Url, obj.Name);
-            }
-            else if (obj.Option.Equals("Delete"))
-            {
-                var LibraryId = obj.LibraryId;
-
-                Guid guid;
-                Guid.TryParse(LibraryId.ToString(), out guid);
-                DeleteLibraryItem(guid);
-
-                var libraryCard = await GetLibraryCard(turnContext);
-
-                var activity = MessageFactory.Attachment(libraryCard);
-                activity.Id = turnContext.Activity.ReplyToId;
-
-                await turnContext.UpdateActivityAsync(activity, cancellationToken);
-            }
-        }
-        public async Task<Attachment> GetLibraryCard(ITurnContext turnContext)
-        {
-            var memberId = turnContext.Activity.From.Id;
-
-            var Name = turnContext.Activity.From.Name;
-            var libraries = await FindLibraryByMemberId(memberId);
-            var libraryCard = Service.LibraryService.CreateAdaptiveCardAttachment(libraries, Name);
-
-            return libraryCard;
         }
         public static Attachment CreateAdaptiveCardAttachment(List<Library> library, string Name)
         {

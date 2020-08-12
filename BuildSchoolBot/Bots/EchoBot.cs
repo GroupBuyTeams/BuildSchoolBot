@@ -176,12 +176,12 @@ namespace BuildSchoolBot.Bots
         {
             var TaskInfo = new TaskModuleTaskInfo();
             var Data = JObject.FromObject(taskModuleRequest.Data);
+
             var factory = new AdaptiveCardDataFactory(turnContext, taskModuleRequest);
             var fetchType = factory.GetCardActionType();
             var service = new CreateCardService2();
             var taskInfo = new TaskModuleTaskInfo();
             //ting
-            //if (JObject.FromObject(taskModuleRequest.Data).GetValue("SetType").ToString().Equals("createmenu"))
             if (fetchType.Equals("createmenu"))
             {
                 taskInfo.Card = service.GetCreateMenu(); ;
@@ -215,9 +215,9 @@ namespace BuildSchoolBot.Bots
         }
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
-            var GetSetType = JObject.FromObject(taskModuleRequest.Data).GetValue("data").ToString();
-            //家寶
-            if (JObject.FromObject(taskModuleRequest.Data).GetValue("data").ToString().Equals("ResultStoreCard"))
+            var GetSetType = JObject.FromObject(taskModuleRequest.Data).GetValue("SetType")?.ToString();
+
+            if (GetSetType.Equals("ResultStoreCard"))
             {
                 var result = new GetUserChosedStore().GetResultStore(taskModuleRequest.Data.ToString())[0];
                 var w = new CreateCardService();

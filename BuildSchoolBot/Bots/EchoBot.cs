@@ -200,7 +200,7 @@ namespace BuildSchoolBot.Bots
 
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
-            if (JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data)).Property("SetType").Value.ToString() == "CustomizedModification")
+            if (JObject.FromObject(taskModuleRequest.Data).GetValue("SetType").ToString() == "CustomizedModification")
             {
                 var TaskInfo = new TaskModuleTaskInfo();
                 _orderfoodServices.ModifyMenuData(taskModuleRequest, TaskInfo);

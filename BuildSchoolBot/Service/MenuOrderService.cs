@@ -1,6 +1,7 @@
 using AdaptiveCards;
 using BuildSchoolBot.Models;
 using BuildSchoolBot.Repository;
+using BuildSchoolBot.StoreModels;
 using BuildSchoolBot.ViewModels;
 using Microsoft.Bot.Builder.Teams;
 using Microsoft.Bot.Schema;
@@ -39,7 +40,7 @@ namespace BuildSchoolBot.Service
                 ((AdaptiveChoiceSetInput)myCard.Body[1]).Choices.Add(new AdaptiveChoice()
                 {
                     Title = item.Store,
-                    Value = item.Store
+                    Value = item.MenuId.ToString()
                 });
             });
 

@@ -181,7 +181,7 @@ namespace BuildSchoolBot.Bots
                 var StoreModule = new GetStoreList();
                 return await StoreModule.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
             }
-            //分水嶺
+            //育安
             var asJobject = JObject.FromObject(taskModuleRequest.Data);
             var Value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
             string GetMenuJson = _organizeStructureService.GetFoodUrlStr(Value);
@@ -198,7 +198,7 @@ namespace BuildSchoolBot.Bots
             {
                 var result = new GetUserChosedStore().GetResultStore(taskModuleRequest.Data.ToString());
             }
-            //分水嶺
+            //育安
             var TaskInfo = new TaskModuleTaskInfo();
             JObject Data = JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data));         
             var StoreAndGuid = Data.Property("data").Value.ToString();

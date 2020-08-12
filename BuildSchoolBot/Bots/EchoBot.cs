@@ -28,6 +28,7 @@ using System.Net.Http;
 using Newtonsoft.Json.Linq;
 using static BuildSchoolBot.StoreModels.AllSelectData;
 using static BuildSchoolBot.StoreModels.SelectMenu;
+using static BuildSchoolBot.StoreModels.ModifyMenu;
 
 namespace BuildSchoolBot.Bots
 {
@@ -199,18 +200,16 @@ namespace BuildSchoolBot.Bots
 
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
-
-            // 店家 TaskModel OK剩下 判斷 進來的流程
-            var obj = JObject.FromObject(taskModuleRequest.Data);
-            if (obj.GetValue("Option")?.Equals("MenuOrder") != null)
+            if (JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data)).Property("SetType").Value.ToString() == "CustomizedModification")
             {
-
-                return TaskModuleResponseFactory.CreateResponse("Thanks!");
+                var TaskInfo = new TaskModuleTaskInfo();
+                _orderfoodServices.ModifyMenuData(taskModuleRequest, TaskInfo);
+                return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
             }
-
-
-
-            return await _orderfoodServices.FinishSelectDishesSubmit(turnContext, taskModuleRequest, cancellationToken);
+            else
+            {
+                return await _orderfoodServices.FinishSelectDishesSubmit(turnContext, taskModuleRequest, cancellationToken);
+            }
         }
         protected override async Task<InvokeResponse> OnTeamsCardActionInvokeAsync(ITurnContext<IInvokeActivity> turnContext, CancellationToken cancellationToken)
         {
@@ -223,15 +222,5 @@ namespace BuildSchoolBot.Bots
             });
         }
 
-
-        //private async Task<Attachment> GetPayCard(ITurnContext turnContext)
-        //{
-        //    var memberId = turnContext.Activity.From.Id;
-
-        //    var Name = turnContext.Activity.From.Name;
-        //    var payMemberId = await _payMentService.FindPayByMemberId(memberId);
-        //    var payCard = PayMentService.CreatePayAdaptiveAttachment(payMemberId, Name);
-        //    return payCard;
-        //}
     }
 }

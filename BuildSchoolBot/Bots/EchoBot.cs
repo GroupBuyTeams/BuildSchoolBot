@@ -203,9 +203,7 @@ namespace BuildSchoolBot.Bots
             // Customized Card
             if (Data.GetValue("SetType")?.ToString().Equals("Customized") == true)
             {
-
                 var TenantId = turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id;
-
                 TaskInfo.Card = _menuOrderService.CreateMenuOrderAttachment(TenantId);
                 return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
             }

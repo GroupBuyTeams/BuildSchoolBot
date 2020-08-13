@@ -23,21 +23,21 @@ namespace BuildSchoolBot.Service
     public class GetStoreList
     {
         //此方法已被CreateStoresModule取代
-        private async Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(TaskModuleRequest taskModuleRequest)
-        {
-            var asJobject = JObject.FromObject(taskModuleRequest.Data);
-            var value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
-            var taskInfo = new TaskModuleTaskInfo();
-            var LatLng = GetLatLng(value);
-            string GetStoreJson = await new WebCrawler().GetStores(LatLng.lat, LatLng.lng);
-            JArray array = JArray.Parse(GetStoreJson);
-            JObject JStore = new JObject();
-            JStore["Stores"] = array;
-            string namejson = JStore.ToString();
-            taskInfo.Card = CreateClickStoreModule(namejson);
-            SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
-            return await Task.FromResult(taskInfo.ToTaskModuleResponse());
-        }
+        // private async Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(TaskModuleRequest taskModuleRequest)
+        // {
+        //     var asJobject = JObject.FromObject(taskModuleRequest.Data);
+        //     var value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
+        //     var taskInfo = new TaskModuleTaskInfo();
+        //     var LatLng = GetLatLng(value);
+        //     string GetStoreJson = await new WebCrawler().GetStores(LatLng.lat, LatLng.lng);
+        //     JArray array = JArray.Parse(GetStoreJson);
+        //     JObject JStore = new JObject();
+        //     JStore["Stores"] = array;
+        //     string namejson = JStore.ToString();
+        //     taskInfo.Card = CreateClickStoreModule(namejson);
+        //     SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
+        //     return await Task.FromResult(taskInfo.ToTaskModuleResponse());
+        // }
         
         //此方法已被CreateStoresModule取代
         private void StoreModule(AdaptiveColumnSet ColumnSetitem, string StoreName, string Url)
@@ -86,23 +86,23 @@ namespace BuildSchoolBot.Service
             return LatLng;
         }
         // 此方法已被GetChooseMenuCard取代
-        private Attachment GetStore(string Address, string StoreData)
-        {
-            var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
-            var actionSet = new AdaptiveActionSet() { Type = AdaptiveActionSet.TypeName, Separator = true };
-            var TextBlockStorName = new AdaptiveTextBlock
-            {
-                Size = AdaptiveTextSize.Large,
-                Weight = AdaptiveTextWeight.Bolder,
-                Text = Address,
-                HorizontalAlignment = AdaptiveHorizontalAlignment.Center
-            };
-            card.Body.Add(TextBlockStorName);
-
-            actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "Confirm", Data = new AdaptiveCardTaskFetchValue<string>() { Data = StoreData, SetType = "GetStore" } });
-            card.Body.Add(actionSet);
-            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
-        }
+        // private Attachment GetStore(string Address, string StoreData)
+        // {
+        //     var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
+        //     var actionSet = new AdaptiveActionSet() { Type = AdaptiveActionSet.TypeName, Separator = true };
+        //     var TextBlockStorName = new AdaptiveTextBlock
+        //     {
+        //         Size = AdaptiveTextSize.Large,
+        //         Weight = AdaptiveTextWeight.Bolder,
+        //         Text = Address,
+        //         HorizontalAlignment = AdaptiveHorizontalAlignment.Center
+        //     };
+        //     card.Body.Add(TextBlockStorName);
+        //
+        //     actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "Confirm", Data = new AdaptiveCardTaskFetchValue<string>() { Data = StoreData, SetType = "GetStore" } });
+        //     card.Body.Add(actionSet);
+        //     return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+        // }
 
         public Attachment GetChooseMenuCard(string address)
         {
@@ -126,38 +126,38 @@ namespace BuildSchoolBot.Service
         }
 
         //此方法已被CreateStoresModule取代
-        private Attachment CreateClickStoreModule(string Jdata)
-        {
-            var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
-
-            var TextBlockStorName = new AdaptiveTextBlock
-            {
-                Size = AdaptiveTextSize.Large,
-                Weight = AdaptiveTextWeight.Bolder,
-                Text = "Chose Your Order",
-                HorizontalAlignment = AdaptiveHorizontalAlignment.Center
-            };
-            card.Body.Add(TextBlockStorName);
-
-            var root = JsonConvert.DeserializeObject<Store_List>(Jdata);
-
-            foreach (var s in root.Stores)
-            {
-                var ColumnSetitem = new AdaptiveColumnSet();
-                StoreModule(ColumnSetitem, s.Store_Name, s.Store_Url);
-                card.Body.Add(ColumnSetitem);
-            }
-
-            //選擇時間
-            var InputTime = new AdaptiveTimeInput();
-            InputTime.Id = "DueTime";
-            card.Body.Add(InputTime);
-
-            card.Actions = new[] { TaskModuleUIConstants.AdaptiveCard }
-                   .Select(cardType => new AdaptiveSubmitAction() { Title = "Submit", Data = new AdaptiveCardTaskFetchValue<string>() { SetType = "ResultStoreCard" } })
-                    .ToList<AdaptiveAction>();
-            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
-        }
+        // private Attachment CreateClickStoreModule(string Jdata)
+        // {
+        //     var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
+        //
+        //     var TextBlockStorName = new AdaptiveTextBlock
+        //     {
+        //         Size = AdaptiveTextSize.Large,
+        //         Weight = AdaptiveTextWeight.Bolder,
+        //         Text = "Chose Your Order",
+        //         HorizontalAlignment = AdaptiveHorizontalAlignment.Center
+        //     };
+        //     card.Body.Add(TextBlockStorName);
+        //
+        //     var root = JsonConvert.DeserializeObject<Store_List>(Jdata);
+        //
+        //     foreach (var s in root.Stores)
+        //     {
+        //         var ColumnSetitem = new AdaptiveColumnSet();
+        //         StoreModule(ColumnSetitem, s.Store_Name, s.Store_Url);
+        //         card.Body.Add(ColumnSetitem);
+        //     }
+        //
+        //     //選擇時間
+        //     var InputTime = new AdaptiveTimeInput();
+        //     InputTime.Id = "DueTime";
+        //     card.Body.Add(InputTime);
+        //
+        //     card.Actions = new[] { TaskModuleUIConstants.AdaptiveCard }
+        //            .Select(cardType => new AdaptiveSubmitAction() { Title = "Submit", Data = new AdaptiveCardTaskFetchValue<string>() { SetType = "ResultStoreCard" } })
+        //             .ToList<AdaptiveAction>();
+        //     return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+        // }
         
         public async Task<Attachment> CreateStoresModule(AdaptiveCardDataFactory factory)
         {

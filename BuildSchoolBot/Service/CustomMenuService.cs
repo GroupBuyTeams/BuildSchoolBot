@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Dapper;
 using BuildSchoolBot.ViewModels;
+using BuildSchoolBot.StoreModels;
+using Newtonsoft.Json;
 
 namespace BuildSchoolBot.Service
 {
@@ -50,6 +52,12 @@ namespace BuildSchoolBot.Service
         {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
 
+            var cardData = new CardDataModel<string>()
+            {
+                Type = "createmenu",
+                Value = null
+            };
+
             var ColumnSet = new AdaptiveColumnSet();
             card.Body.Add(ColumnSet);
 
@@ -60,7 +68,7 @@ namespace BuildSchoolBot.Service
             ColumnSet.Columns.Add(Column2);
             
             var ActionSet1 = new AdaptiveActionSet();
-            ActionSet1.Actions.Add(new AdaptiveSubmitAction() { Title = "Create Store" });
+            ActionSet1.Actions.Add(new AdaptiveSubmitAction() { Title = "Create Store", Data = new AdaptiveCardTaskFetchValue<string>() { Data = JsonConvert.SerializeObject(cardData) } });
             Column1.Items.Add(ActionSet1);
 
 

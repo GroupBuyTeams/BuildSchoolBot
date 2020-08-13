@@ -21,7 +21,7 @@ namespace BuildSchoolBot.Service
         public ITurnContext TurnContext { get; private set; }
         public AdaptiveCardDataFactory()
         {
-            
+
         }
 
         public AdaptiveCardDataFactory(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest request)
@@ -32,8 +32,9 @@ namespace BuildSchoolBot.Service
 
         public CardDataModel<T> GetCardInfo<T>()
         {
-            var str = (Request.Data as JObject)["data"].ToString();
-            return JsonConvert.DeserializeObject<CardDataModel<T>>(str);
+            var str = (Request.Data as JObject)["data"]?.ToString();
+
+            return (str == null) ? null : JsonConvert.DeserializeObject<CardDataModel<T>>(str);
         }
         public T GetCardData<T>() where T : class
         {
@@ -42,7 +43,7 @@ namespace BuildSchoolBot.Service
 
         public string GetCardActionType()
         {
-            return GetCardInfo<object>().Type;
+            return GetCardInfo<object>()?.Type;
         }
 
         public List<SelectMenu.SelectMenuData> GetOrderedFoods()
@@ -57,13 +58,13 @@ namespace BuildSchoolBot.Service
                 var key = dish.Key.Split('&');
                 if (!key[1].Equals("mark") && !dish.Value.Equals("0"))
                 {
-                    var data = new SelectMenu.SelectMenuData(){ Dish_Name = key[0], Price = key[1], Quantity = (string)dish.Value };
+                    var data = new SelectMenu.SelectMenuData() { Dish_Name = key[0], Price = key[1], Quantity = (string)dish.Value };
                     dictionary.Add(key[0], data);
                 }
-                else if(key[1].Equals("mark") && !dish.Value.Equals(string.Empty))
+                else if (key[1].Equals("mark") && !dish.Value.Equals(string.Empty))
                 {
                     var data = new SelectMenu.SelectMenuData();
-                    if(dictionary.TryGetValue(key[0], out data))
+                    if (dictionary.TryGetValue(key[0], out data))
                     {
                         data.Remarks = (string)dish.Value;
                     }

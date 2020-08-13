@@ -83,7 +83,6 @@ namespace BuildSchoolBot.Service
         }
         // Sincerely,
         // 阿三
-
         public async Task<Attachment> CreateMenu(AdaptiveCardDataFactory dataFactory)
         {
             var storeData = dataFactory.GetCardData<StoreInfoData>();
@@ -277,11 +276,20 @@ namespace BuildSchoolBot.Service
                 {
                     Placeholder = "Store",
                     Id = $"store"
-                }) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
+                }); //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
 
-                .AddRow(new AdaptiveColumnSet()
-                    .AddColumnsWithStrings(itemsName)
-                );
+                //.AddRow(new AdaptiveColumnSet()
+                //    .AddColumnsWithStrings(itemsName)
+                //)
+            card
+                  .AddRow(new AdaptiveColumnSet() { Separator = true }
+                        .AddCol(new AdaptiveColumn()
+                        { Width = "80" }
+                            .AddElement(new AdaptiveTextBlock() { Size = (AdaptiveTextSize)2, Weight = (AdaptiveTextWeight)2, Text = "Name", Color = (AdaptiveTextColor)5 })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
+                        .AddCol(new AdaptiveColumn()
+                        { Width = "20" }
+                        .AddElement(new AdaptiveTextBlock() { Text = "Price", Size = (AdaptiveTextSize)2, Weight = (AdaptiveTextWeight)2, Color = (AdaptiveTextColor)5 }))
+                    );
             for (int i = 0; i < 20; i++)
             {
                 card
@@ -291,11 +299,17 @@ namespace BuildSchoolBot.Service
                             .AddElement(new AdaptiveTextInput() { Placeholder = "Name", Id = $"name&{i}" })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
                         .AddCol(new AdaptiveColumn()
                         { Width = "3" }
-                            .AddElement(new AdaptiveTextBlock() { Text = "$", Size = (AdaptiveTextSize)3, HorizontalAlignment = (AdaptiveHorizontalAlignment)2 }))
-                         .AddCol(new AdaptiveColumn()
+                        .AddElement(new AdaptiveTextBlock() { Text = "$", Size = (AdaptiveTextSize)3, HorizontalAlignment = (AdaptiveHorizontalAlignment)2 }))
+                         
+                        //.AddCol(new AdaptiveColumn()
+                        // { Width = "10" } 
+                        // .AddElement(new AdaptiveChoiceSetInput() { Id = $"choices&{i}", Choices = (AdaptiveChoiceInputStyle)0  })) 
+                         
+                        .AddCol(new AdaptiveColumn()
                          { Width = "20" }
                              .AddElement(new AdaptiveNumberInput() { Min = 0, Value = 0, Placeholder = "Price", Id = $"price&{i}" })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
-                    );
+                         );
+
             }
             card
              .AddActionsSet(
@@ -495,5 +509,59 @@ namespace BuildSchoolBot.Service
            
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
+        //阿寶
+        //public async Task<Attachment> ChooseStore(string Jdata)
+        //{
+        //    var guid = Guid.NewGuid().ToString();
+        //    var cardData = new CardDataModel<StoreInfoData>()//務必按照此格式新增需要傳出去的資料
+        //    {
+        //        Type = "", //於EchoBot判斷用
+        //        Value = new StoreInfoData() { Guid = guid } //要傳出去的資料和資料結構
+        //    };
+        //    var itemsName = new string[] { "Store", "Url", "Click" };
+
+        //    var card = NewCard()
+        //        .AddElement(new AdaptiveTextBlock()
+        //        {
+        //            Text = "Chose Your Order",
+        //            Size = AdaptiveTextSize.Medium,
+        //            Weight = AdaptiveTextWeight.Bolder,
+        //            HorizontalAlignment = AdaptiveHorizontalAlignment.Center
+
+        //        });
+
+        //    var root = JsonConvert.DeserializeObject<Store_List>(Jdata);
+
+        //    foreach (var s in root.Stores)
+        //    {
+        //        card
+        //            .AddRow(new AdaptiveColumnSet() { Separator = true }
+        //                .AddCol(new AdaptiveColumn()
+        //                { Width = "40" }
+        //                    .AddElement(new AdaptiveTextBlock() { Text = s.Store_Name }))
+        //                .AddCol(new AdaptiveColumn()
+        //                { Width = "50" }
+        //                    .AddElement(new AdaptiveTextBlock() { Text = s.Store_Url }))
+        //                .AddCol(new AdaptiveColumn()
+        //                { Width = "10" }
+        //                    .AddElement(new AdaptiveChoiceSetInput() { Id = $"choices&{s}", Value = false, AdaptiveChoiceInputStyle.Compact = 0, })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到                              
+        //                   );
+        //    }
+        //    //DueTime
+        //    card.AddElement(new AdaptiveTimeInput()
+        //    {
+        //        Value = 0,
+        //        Min = 0,
+        //        Placeholder = "Time",
+        //    })
+        //    //Click
+        //    .AddActionsSet(
+        //        NewActionsSet()
+        //            .AddActionToSet(
+        //              new AdaptiveSubmitAction() { Title = "Choose", Data = JsonConvert.SerializeObject(cardData) }//勿必要將傳出去的資料進行Serialize
+        //            )
+        //    );
+        //    return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+        //}
     }
 }

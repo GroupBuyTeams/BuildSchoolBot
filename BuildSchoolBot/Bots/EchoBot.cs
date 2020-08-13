@@ -126,6 +126,19 @@ namespace BuildSchoolBot.Bots
                 var CustomMenucard = _customMenuService.CallCustomeCard();
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(CustomMenucard), cancellationToken);
             }
+            else if(turnContext.Activity.Text.Contains("Command"))
+            {
+                var reply = MessageFactory.Text("Please enter your command!");
+                var paths = new[] { ".", "Resources", "Command.json" };
+                var adaptiveCard = File.ReadAllText(Path.Combine(paths));
+                var attachment = new Attachment
+                {
+                    ContentType = AdaptiveCard.ContentType,
+                    Content = JsonConvert.DeserializeObject(adaptiveCard),
+                };
+                reply.Attachments.Add(attachment);
+                await turnContext.SendActivityAsync(reply, cancellationToken);
+            }
             else
             {
                 var activity = turnContext.Activity;
@@ -182,13 +195,13 @@ namespace BuildSchoolBot.Bots
             var service = new CreateCardService2();
             var taskInfo = new TaskModuleTaskInfo();
             //ting
-            if (fetchType.Equals("createmenu"))
+            if (fetchType?.Equals("createmenu") == true)
             {
                 taskInfo.Card = service.GetCreateMenu(); ;
                 return await Task.FromResult(taskInfo.ToTaskModuleResponse());
             }
             // Customized Card
-            if (Data.GetValue("SetType").ToString().Equals("Customized"))
+            if (Data.GetValue("SetType").ToString().Equals("Customized") == true)
             {
 
                 var TenantId = turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id;

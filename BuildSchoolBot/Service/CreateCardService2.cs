@@ -26,17 +26,15 @@ namespace BuildSchoolBot.Service
         /// </summary>
         /// <param name="name">餐廳名稱</param>
         /// <param name="menuUrl">餐廳網址</param>
-        /// <returns>收藏的餐廳卡片</returns>
-        public Attachment GetStore(string text, string menuUrl, string OrderId, string DueTime)
+        /// <returns>可收藏的團購卡片</returns>
+        public Attachment GetStore(StoreOrderDuetime OrderInfo)
         {
 
-            var cardData = new CardDataModel<StoreInfoData>()
+            var cardData = new CardDataModel<StoreOrderDuetime>()
             {
                 Type = "OpenMenuTaskModule",
-                Value = new StoreInfoData() { Name = text, Url = menuUrl, Guid = OrderId, DueTime = DueTime }
+                Value = OrderInfo
             };
-            // var MSTeamsData = new Data(text, menuUrl);
-
             var objData = new Data()
             {
                 msteams = new Msteams()
@@ -44,8 +42,8 @@ namespace BuildSchoolBot.Service
                     type = "invoke",
                     value = new MsteamsValue()
                     {
-                        Name = text,
-                        Url = menuUrl,
+                        Name = OrderInfo.StoreName,
+                        Url = OrderInfo.Url,
                         Option = "Create"
                     }
                 }
@@ -54,9 +52,7 @@ namespace BuildSchoolBot.Service
             var card = NewCard()
                 .AddElement(new AdaptiveTextBlock()
                 {
-                    Text = text,
-                    Size = AdaptiveTextSize.Large,
-                    Weight = AdaptiveTextWeight.Bolder,
+                    Text = OrderInfo.StoreName, Size = AdaptiveTextSize.Large, Weight = AdaptiveTextWeight.Bolder,
                     HorizontalAlignment = AdaptiveHorizontalAlignment.Center
                 })
                 .AddActionsSet(
@@ -85,28 +81,24 @@ namespace BuildSchoolBot.Service
         // 阿三
         public async Task<Attachment> CreateMenu(AdaptiveCardDataFactory dataFactory)
         {
-            var storeData = dataFactory.GetCardData<StoreInfoData>();
+            var storeData = dataFactory.GetCardData<StoreOrderDuetime>();
 
-            var cardData = new CardDataModel<StoreInfoData>()//務必按照此格式新增需要傳出去的資料
+            var cardData = new CardDataModel<StoreOrderDuetime>()//務必按照此格式新增需要傳出去的資料
             {
                 Type = "FetchSelectedFoods", //於EchoBot判斷用
-                Value = new StoreInfoData() { Guid = storeData.Guid, Name = storeData.Name, DueTime = storeData.DueTime } //要傳出去的資料和資料結構
+                Value = storeData //要傳出去的資料和資料結構
             };
             var itemsName = new string[] { "菜名", "價錢", "數量", "備註" };
 
             var card = NewCard()
                 .AddElement(new AdaptiveTextBlock()
                 {
-                    Text = storeData.Guid,
-                    Size = AdaptiveTextSize.Small,
-                    Weight = AdaptiveTextWeight.Bolder,
+                    Text = storeData.OrderID, Size = AdaptiveTextSize.Small, Weight = AdaptiveTextWeight.Bolder,
                     HorizontalAlignment = AdaptiveHorizontalAlignment.Right
                 })
                 .AddElement(new AdaptiveTextBlock()
                 {
-                    Text = storeData.Name,
-                    Size = AdaptiveTextSize.Large,
-                    Weight = AdaptiveTextWeight.Bolder,
+                    Text = storeData.StoreName, Size = AdaptiveTextSize.Large, Weight = AdaptiveTextWeight.Bolder,
                     HorizontalAlignment = AdaptiveHorizontalAlignment.Center
                 })
                 .AddRow(new AdaptiveColumnSet()
@@ -124,17 +116,15 @@ namespace BuildSchoolBot.Service
                         .AddCol(new AdaptiveColumn()
                             .AddElement(new AdaptiveTextBlock() { Text = foods[i].Price.ToString() }))
                         .AddCol(new AdaptiveColumn()
-                            .AddElement(new AdaptiveNumberInput() { Min = 0, Value = 0, Id = $"{foods[i].Dish_Name}&{foods[i].Price}" })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
+                            .AddElement(new AdaptiveNumberInput() { Min = 0, Value = 0, Id = $"{foods[i].Dish_Name}&&{foods[i].Price}" })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
                         .AddCol(new AdaptiveColumn()
-                            .AddElement(new AdaptiveTextInput() { Placeholder = "備註", Id = $"{foods[i].Dish_Name}&mark" }))
+                            .AddElement(new AdaptiveTextInput() { Placeholder = "備註", Id = $"{foods[i].Dish_Name}&&mark" }))
                     );
             }
 
             card.AddElement(new AdaptiveTextBlock()
             {
-                Text = "Due Time:" + storeData.DueTime,
-                Size = AdaptiveTextSize.Medium,
-                Weight = AdaptiveTextWeight.Bolder,
+                Text = $"Due Time: {storeData.DueTime}", Size = AdaptiveTextSize.Medium, Weight = AdaptiveTextWeight.Bolder,
                 HorizontalAlignment = AdaptiveHorizontalAlignment.Left
             })
             .AddActionsSet(
@@ -165,22 +155,18 @@ namespace BuildSchoolBot.Service
         {
             //顯示於TaskModule上方的欄位名稱
             var itemsName = new string[] { "食物名稱", "價錢", "數量", "備註", "單品總金額" };
-            var cardData = dataFactory.GetCardData<StoreInfoData>();
+            var cardData = dataFactory.GetCardData<StoreOrderDuetime>();
 
             //新增一基本卡片，並且附加此訂單的Guid、餐廳名稱、欄位名稱等文字訊息
             var card = NewCard()
                 .AddElement(new AdaptiveTextBlock() //加入訂單Guid
                 {
-                    Text = cardData.Guid,
-                    Size = AdaptiveTextSize.Small,
-                    Weight = AdaptiveTextWeight.Bolder,
+                    Text = cardData.OrderID, Size = AdaptiveTextSize.Small, Weight = AdaptiveTextWeight.Bolder,
                     HorizontalAlignment = AdaptiveHorizontalAlignment.Right
                 })
                 .AddElement(new AdaptiveTextBlock() //加入餐廳名稱
                 {
-                    Text = cardData.Name + "訂單",
-                    Size = AdaptiveTextSize.Small,
-                    Weight = AdaptiveTextWeight.Bolder,
+                    Text = cardData.StoreName + "訂單", Size = AdaptiveTextSize.Small, Weight = AdaptiveTextWeight.Bolder,
                     HorizontalAlignment = AdaptiveHorizontalAlignment.Right
                 })
                 .AddRow(new AdaptiveColumnSet() //加入一列到卡片裡
@@ -234,15 +220,13 @@ namespace BuildSchoolBot.Service
                 )
                 .AddElement(new AdaptiveTextBlock() //加入訂購者名稱至卡片
                 {
-                    Text = dataFactory.TurnContext.Activity.From.Name,
-                    Size = AdaptiveTextSize.Large,
-                    Weight = AdaptiveTextWeight.Bolder,
+                    Text = dataFactory.TurnContext.Activity.From.Name, Size = AdaptiveTextSize.Large, Weight = AdaptiveTextWeight.Bolder,
                     HorizontalAlignment = AdaptiveHorizontalAlignment.Center
                 });
             //回傳卡片
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
-
+        
         //ting
         public Attachment GetCreateMenu()
         {
@@ -255,7 +239,7 @@ namespace BuildSchoolBot.Service
                 Value = new StoreInfoData() { Guid = guid } //要傳出去的資料和資料結構
             };
 
-            var itemsName = new string[] { "Name", "Price" };
+            var itemsName = new string[] { "Name", "Price" }; 
             var card = NewCard()
                 .AddElement(new AdaptiveTextBlock()
                 {
@@ -282,14 +266,14 @@ namespace BuildSchoolBot.Service
                 //    .AddColumnsWithStrings(itemsName)
                 //)
             card
-                  .AddRow(new AdaptiveColumnSet() { Separator = true }
-                        .AddCol(new AdaptiveColumn()
-                        { Width = "80" }
-                            .AddElement(new AdaptiveTextBlock() { Size = (AdaptiveTextSize)2, Weight = (AdaptiveTextWeight)2, Text = "Name", Color = (AdaptiveTextColor)5 })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
-                        .AddCol(new AdaptiveColumn()
-                        { Width = "20" }
-                        .AddElement(new AdaptiveTextBlock() { Text = "Price", Size = (AdaptiveTextSize)2, Weight = (AdaptiveTextWeight)2, Color = (AdaptiveTextColor)5 }))
-                    );
+              .AddRow(new AdaptiveColumnSet() { Separator = true }
+                    .AddCol(new AdaptiveColumn()
+                    { Width = "80" }
+                        .AddElement(new AdaptiveTextBlock() { Size = (AdaptiveTextSize)2, Weight = (AdaptiveTextWeight)2, Text = "Name", Color = (AdaptiveTextColor)5 })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
+                    .AddCol(new AdaptiveColumn()
+                    { Width = "20" }
+                    .AddElement(new AdaptiveTextBlock() { Text = "Price", Size = (AdaptiveTextSize)2, Weight = (AdaptiveTextWeight)2, Color = (AdaptiveTextColor)5 }))
+                );
             for (int i = 0; i < 20; i++)
             {
                 card
@@ -300,11 +284,7 @@ namespace BuildSchoolBot.Service
                         .AddCol(new AdaptiveColumn()
                         { Width = "3" }
                         .AddElement(new AdaptiveTextBlock() { Text = "$", Size = (AdaptiveTextSize)3, HorizontalAlignment = (AdaptiveHorizontalAlignment)2 }))
-                         
-                        //.AddCol(new AdaptiveColumn()
-                        // { Width = "10" } 
-                        // .AddElement(new AdaptiveChoiceSetInput() { Id = $"choices&{i}", Choices = (AdaptiveChoiceInputStyle)0  })) 
-                         
+
                         .AddCol(new AdaptiveColumn()
                          { Width = "20" }
                              .AddElement(new AdaptiveNumberInput() { Min = 0, Value = 0, Placeholder = "Price", Id = $"price&{i}" })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
@@ -315,7 +295,7 @@ namespace BuildSchoolBot.Service
              .AddActionsSet(
                 NewActionsSet()
                     .AddActionToSet(
-                        new AdaptiveSubmitAction() { Title = "Create", Data = JsonConvert.SerializeObject(cardData) }//勿必要將傳出去的資料進行Serialize
+                        new AdaptiveSubmitAction().SetSubmitTaskModule("Create",JsonConvert.SerializeObject(cardData))//勿必要將傳出去的資料進行Serialize
                     )
             );
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
@@ -510,7 +490,7 @@ namespace BuildSchoolBot.Service
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
         //阿寶
-        //public async Task<Attachment> ChooseStore(string Jdata)
+        //public Attachment ChooseStore(string Jdata)
         //{
         //    var guid = Guid.NewGuid().ToString();
         //    var cardData = new CardDataModel<StoreInfoData>()//務必按照此格式新增需要傳出去的資料
@@ -544,7 +524,7 @@ namespace BuildSchoolBot.Service
         //                    .AddElement(new AdaptiveTextBlock() { Text = s.Store_Url }))
         //                .AddCol(new AdaptiveColumn()
         //                { Width = "10" }
-        //                    .AddElement(new AdaptiveChoiceSetInput() { Id = $"choices&{s}", Value = false, AdaptiveChoiceInputStyle.Compact = 0, })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到                              
+        //                 .AddElement(new AdaptiveChoiceSetInput() { Id = $"choices&{i}" , Value = "1", IsMultiSelect = false ,Style = (AdaptiveChoiceInputStyle)1 }))                       
         //                   );
         //    }
         //    //DueTime
@@ -563,5 +543,41 @@ namespace BuildSchoolBot.Service
         //    );
         //    return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         //}
+
+        //ting
+        public Attachment ReplyPayment(PayMentService payment , string memberId)
+        {
+            var name = payment.GetPay(memberId).MemberId;
+            var url = payment.GetPay(memberId).Url;
+            var cardData = new CardDataModel<StoreInfoData>()//務必按照此格式新增需要傳出去的資料
+            {
+                Type = "ReplyPayment", //於EchoBot判斷用
+                Value = new StoreInfoData() {  } //要傳出去的資料和資料結構
+            };
+            var card = NewCard()
+               .AddElement(new AdaptiveTextBlock()
+               {
+                   Text = "Playment",
+                   Size = AdaptiveTextSize.Large,
+                   Color = AdaptiveTextColor.Good,
+                   Weight = AdaptiveTextWeight.Bolder,
+                   HorizontalAlignment = AdaptiveHorizontalAlignment.Left
+               })
+               .AddElement(new AdaptiveTextBlock()
+               {
+                   Text = url,
+                   Size = AdaptiveTextSize.Medium,
+               })
+               .AddElement(new AdaptiveTextBlock()
+               {
+                   Text = name,
+                   Size = AdaptiveTextSize.Small,
+                   Color = AdaptiveTextColor.Warning,
+                   HorizontalAlignment = AdaptiveHorizontalAlignment.Left
+               });
+            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+
+        }
+
     }
 }

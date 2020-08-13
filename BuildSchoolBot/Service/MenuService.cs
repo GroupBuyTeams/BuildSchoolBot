@@ -15,11 +15,11 @@ namespace BuildSchoolBot.Service
             context = _context;
         }
 
-        public void CreateMenu(string _menuId,string store,string teamsId)
+        public void CreateMenu(string menuId,string store,string teamsId)
         {
             var menu = new MenuOrder
             {
-                MenuId = Guid.Parse(_menuId),
+                MenuId = Guid.Parse(menuId),
                 Store = store,
                 TeamsId = teamsId,
 

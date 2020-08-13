@@ -33,8 +33,14 @@ namespace BuildSchoolBot.Service
         public CardDataModel<T> GetCardInfo<T>()
         {
             var str = (Request.Data as JObject)["data"]?.ToString();
-
-            return (str == null) ? null : JsonConvert.DeserializeObject<CardDataModel<T>>(str);
+            try
+            {
+                return JsonConvert.DeserializeObject<CardDataModel<T>>(str);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
         public T GetCardData<T>() where T : class
         {
@@ -55,12 +61,14 @@ namespace BuildSchoolBot.Service
             var dictionary = new Dictionary<string, SelectMenu.SelectMenuData>();
             foreach (var dish in jData)
             {
-                var key = dish.Key.Split('&');
+                var key = dish.Key.Split("&&");
                 if (!key[1].Equals("mark") && !dish.Value.Equals("0"))
                 {
                     var data = new SelectMenu.SelectMenuData() { Dish_Name = key[0], Price = key[1], Quantity = (string)dish.Value };
                     dictionary.Add(key[0], data);
                 }
+                
+                
                 else if (key[1].Equals("mark") && !dish.Value.Equals(string.Empty))
                 {
                     var data = new SelectMenu.SelectMenuData();
@@ -71,6 +79,30 @@ namespace BuildSchoolBot.Service
                 }
             }
             return dictionary.Select(x => x.Value).ToList();
+        }
+
+        public StoreOrderDuetime GetGroupBuyCard()
+        {
+            var storesInfo = JObject.FromObject(Request.Data);
+            RemoveProperty(storesInfo);
+            var time = (string)storesInfo.GetValue("DueTime");
+            
+            foreach (var store in storesInfo)
+            {
+                var val = (string)store.Value;
+                if (val.Equals("True"))
+                {
+                    var storeData = store.Key.Split("&&"); 
+                    return new StoreOrderDuetime()
+                    {
+                        OrderID = Guid.NewGuid().ToString(),
+                        DueTime = time,
+                        StoreName = storeData[0],
+                        Url = storeData[1]
+                    };
+                }
+            }
+            return null;
         }
 
         public void RemoveProperty(JObject jData)

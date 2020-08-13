@@ -20,37 +20,34 @@ namespace BuildSchoolBot.Service
     public class CreateCardService
     {
         //抓爬蟲的卡片
-        public Attachment GetStore(string texta, string menuurl,string OrderId,string DueTime)
-        {
-
-
-
-            var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
-            var actionSet = new AdaptiveActionSet() { Type = AdaptiveActionSet.TypeName, Separator = true };
-            card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock(texta, AdaptiveTextSize.Large, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Center));
-
-            //actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "click", Data = new AdaptiveCardTaskFetchValue<string>() { Data = texta + "FoodData2468" + menuurl } });
-            actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "Join", Data = new AdaptiveCardTaskFetchValue<string>() { Data = texta + "FoodData2468" + menuurl + "GuidStr13579" + OrderId + "DueTime13579"+ DueTime, SetType = "JoinMenu" } });        
-            actionSet.Actions.Add(new AdaptiveSubmitAction()
-            {
-                Title = "Favorite",
-                Data = new Data()
-                {
-                    msteams = new Msteams()
-                    {
-                        type = "invoke",
-                        value = new MsteamsValue()
-                        {
-                            Name = texta,
-                            Url = menuurl,
-                            Option = "Create"
-                        }
-                    }
-                }
-            });
-            card.Body.Add(actionSet);
-            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
-        }
+        // public Attachment GetStore(string texta, string menuurl,string OrderId,string DueTime)
+        // {
+        //     var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
+        //     var actionSet = new AdaptiveActionSet() { Type = AdaptiveActionSet.TypeName, Separator = true };
+        //     card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock(texta, AdaptiveTextSize.Large, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Center));
+        //
+        //     //actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "click", Data = new AdaptiveCardTaskFetchValue<string>() { Data = texta + "FoodData2468" + menuurl } });
+        //     actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "Join", Data = new AdaptiveCardTaskFetchValue<string>() { Data = texta + "FoodData2468" + menuurl + "GuidStr13579" + OrderId + "DueTime13579"+ DueTime, SetType = "JoinMenu" } });        
+        //     actionSet.Actions.Add(new AdaptiveSubmitAction()
+        //     {
+        //         Title = "Favorite",
+        //         Data = new Data()
+        //         {
+        //             msteams = new Msteams()
+        //             {
+        //                 type = "invoke",
+        //                 value = new MsteamsValue()
+        //                 {
+        //                     Name = texta,
+        //                     Url = menuurl,
+        //                     Option = "Create"
+        //                 }
+        //             }
+        //         }
+        //     });
+        //     card.Body.Add(actionSet);
+        //     return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+        // }
 
         public Attachment GetResultClickfood(string GuidStr, string StoreName, string Orderfoodjson, string DueTime, string UserName)
         {
@@ -95,7 +92,7 @@ namespace BuildSchoolBot.Service
             var ColumnSetitemname = new OrderfoodServices().FixedtextColumn(itemsname);
             var root = JsonConvert.DeserializeObject<foodgroup>(modulefoodjson);
             card.Actions = new[] { TaskModuleUIConstants.AdaptiveCard }
-                   .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle,Data = new AdaptiveCardTaskFetchValue<string>() { Data = StorName + "FoodGuid2468" + Guidstr+"DueTime"+ DueTime, SetType = "JoinMenu" } })
+                   .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle,Data = new AdaptiveCardTaskFetchValue<string>() { Data = StorName + "FoodGuid2468" + Guidstr+"DueTime"+ DueTime } })
                     .ToList<AdaptiveAction>();
             card.Body.Add(ColumnSetitemname);
             foreach (var p in root.Menuproperties)
@@ -174,8 +171,9 @@ namespace BuildSchoolBot.Service
                 ColumnSetitem.Columns.Add(new OrderfoodServices().AddColumn(new OrderfoodServices().GetadaptiveText(menuDetails[i].Amount + i.ToString(), decimal.Round(menuDetails[i].Amount).ToString())));
                 card.Body.Add(ColumnSetitem);
             }
+            var cardData = new CardDataModel<string>(){ Type = "CustomizedModification", Value = MenuId};
             card.Actions = new[] { TaskModuleUIConstants.AdaptiveCard }
-                   .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle, Data = new AdaptiveCardTaskFetchValue<string>() { Data = MenuId,SetType= "CustomizedModification" } })
+                   .Select(cardType => new AdaptiveSubmitAction() { Title = cardType.ButtonTitle, Data = new AdaptiveCardTaskFetchValue<string>() { Data = JsonConvert.SerializeObject(cardData) } })
                     .ToList<AdaptiveAction>();
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }

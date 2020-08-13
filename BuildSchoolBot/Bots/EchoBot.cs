@@ -200,6 +200,12 @@ namespace BuildSchoolBot.Bots
                 taskInfo.Card = service.GetCreateMenu(); ;
                 return await Task.FromResult(taskInfo.ToTaskModuleResponse());
             }
+            //Group Buy Open Menu
+            if (fetchType?.Equals("OpenMenuTaskModule") == true)
+            {
+                taskInfo.Card = await service.CreateMenu(factory);
+                return await Task.FromResult(taskInfo.ToTaskModuleResponse());
+            }
             // Customized Card
             if (Data.GetValue("SetType")?.ToString().Equals("Customized") == true)
             {
@@ -231,6 +237,7 @@ namespace BuildSchoolBot.Bots
             var factory = new AdaptiveCardDataFactory(turnContext, taskModuleRequest);
             var fetchType = factory.GetCardActionType();
             
+            
             if (fetchType.Equals("ResultStoreCard"))
             {
                 var data = factory.GetGroupBuyCard();
@@ -238,6 +245,14 @@ namespace BuildSchoolBot.Bots
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(cardService.GetStore(data)));
                 return null;
             }
+            if (fetchType.Equals("FetchSelectedFoods"))
+            {
+                var TaskInfo = new TaskModuleTaskInfo();
+                var card = new CreateCardService2().GetChosenFoodFromMenu(factory);
+                turnContext.SendActivityAsync(MessageFactory.Attachment(card));
+                return null;
+            }
+            //FetchSelectedFoods
             else if (GetSetType?.Equals("CustomizedMenu") == true)
             {
                 var TaskInfo = new TaskModuleTaskInfo();

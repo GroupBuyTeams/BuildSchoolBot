@@ -237,7 +237,7 @@ namespace BuildSchoolBot.Service
                 Value = new StoreInfoData() { Guid = guid } //要傳出去的資料和資料結構
             };
 
-            var itemsName = new string[] { "Name", "Price" };
+            var itemsName = new string[] { "Name", "Price" }; 
             var card = NewCard()
                 .AddElement(new AdaptiveTextBlock()
                 {

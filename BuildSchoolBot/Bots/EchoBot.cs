@@ -49,6 +49,7 @@ namespace BuildSchoolBot.Bots
         protected readonly MenuDetailService _menuDetailService;
         protected readonly CustomMenuService _customMenuService;
         protected readonly MenuOrderService _menuOrderService;
+
         public EchoBot(ConversationState conversationState, LibraryService libraryService, OrderService orderService, OrderDetailService orderDetailService, UserState userState, T dialog, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences, CreateCardService createCardService, OrganizeStructureService organizeStructureService, PayMentService paymentService, MenuService menuService, MenuDetailService menuDetailService, CustomMenuService customMenuService, MenuOrderService menuOrderService)
         {
             ConversationState = conversationState;
@@ -263,6 +264,16 @@ namespace BuildSchoolBot.Bots
             {
                 var TaskInfo = new TaskModuleTaskInfo();
                 _orderfoodServices.ModifyMenuData(taskModuleRequest, TaskInfo);
+                return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
+            }
+            //ting
+            else if(GetSetType.Equals("Create"))
+            {
+                var TaskInfo = new TaskModuleTaskInfo();
+                var menuId = Guid.NewGuid().ToString();
+                var menu = new MenuOrder();
+                var teamsId = turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id;
+                _menuService.CreateMenu(menuId, menu.Store, teamsId);
                 return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
             }
             else

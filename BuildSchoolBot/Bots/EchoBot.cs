@@ -182,13 +182,13 @@ namespace BuildSchoolBot.Bots
             var service = new CreateCardService2();
             var taskInfo = new TaskModuleTaskInfo();
             //ting
-            if (fetchType.Equals("createmenu"))
+            if (fetchType?.Equals("createmenu") == true)
             {
                 taskInfo.Card = service.GetCreateMenu(); ;
                 return await Task.FromResult(taskInfo.ToTaskModuleResponse());
             }
             // Customized Card
-            if (Data.GetValue("SetType").ToString().Equals("Customized"))
+            if (Data.GetValue("SetType").ToString().Equals("Customized") == true)
             {
 
                 var TenantId = turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id;

@@ -226,7 +226,7 @@ namespace BuildSchoolBot.Service
             //回傳卡片
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
-
+        
         //ting
         public Attachment GetCreateMenu()
         {
@@ -239,7 +239,7 @@ namespace BuildSchoolBot.Service
                 Value = new StoreInfoData() { Guid = guid } //要傳出去的資料和資料結構
             };
 
-            var itemsName = new string[] { "Name", "Price" };
+            var itemsName = new string[] { "Name", "Price" }; 
             var card = NewCard()
                 .AddElement(new AdaptiveTextBlock()
                 {
@@ -284,11 +284,7 @@ namespace BuildSchoolBot.Service
                         .AddCol(new AdaptiveColumn()
                         { Width = "3" }
                         .AddElement(new AdaptiveTextBlock() { Text = "$", Size = (AdaptiveTextSize)3, HorizontalAlignment = (AdaptiveHorizontalAlignment)2 }))
-                         
-                        //.AddCol(new AdaptiveColumn()
-                        // { Width = "10" } 
-                        // .AddElement(new AdaptiveChoiceSetInput() { Id = $"choices&{i}", Choices = (AdaptiveChoiceInputStyle)0  })) 
-                         
+
                         .AddCol(new AdaptiveColumn()
                          { Width = "20" }
                              .AddElement(new AdaptiveNumberInput() { Min = 0, Value = 0, Placeholder = "Price", Id = $"price&{i}" })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
@@ -299,7 +295,7 @@ namespace BuildSchoolBot.Service
              .AddActionsSet(
                 NewActionsSet()
                     .AddActionToSet(
-                        new AdaptiveSubmitAction() { Title = "Create", Data = JsonConvert.SerializeObject(cardData) }//勿必要將傳出去的資料進行Serialize
+                        new AdaptiveSubmitAction().SetSubmitTaskModule("Create",JsonConvert.SerializeObject(cardData))//勿必要將傳出去的資料進行Serialize
                     )
             );
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
@@ -494,7 +490,7 @@ namespace BuildSchoolBot.Service
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
         //阿寶
-        //public async Task<Attachment> ChooseStore(string Jdata)
+        //public Attachment ChooseStore(string Jdata)
         //{
         //    var guid = Guid.NewGuid().ToString();
         //    var cardData = new CardDataModel<StoreInfoData>()//務必按照此格式新增需要傳出去的資料
@@ -528,7 +524,7 @@ namespace BuildSchoolBot.Service
         //                    .AddElement(new AdaptiveTextBlock() { Text = s.Store_Url }))
         //                .AddCol(new AdaptiveColumn()
         //                { Width = "10" }
-        //                    .AddElement(new AdaptiveChoiceSetInput() { Id = $"choices&{s}", Value = false, AdaptiveChoiceInputStyle.Compact = 0, })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到                              
+        //                 .AddElement(new AdaptiveChoiceSetInput() { Id = $"choices&{i}" , Value = "1", IsMultiSelect = false ,Style = (AdaptiveChoiceInputStyle)1 }))                       
         //                   );
         //    }
         //    //DueTime
@@ -547,5 +543,41 @@ namespace BuildSchoolBot.Service
         //    );
         //    return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         //}
+
+        //ting
+        public Attachment ReplyPayment(PayMentService payment , string memberId)
+        {
+            var name = payment.GetPay(memberId).MemberId;
+            var url = payment.GetPay(memberId).Url;
+            var cardData = new CardDataModel<StoreInfoData>()//務必按照此格式新增需要傳出去的資料
+            {
+                Type = "ReplyPayment", //於EchoBot判斷用
+                Value = new StoreInfoData() {  } //要傳出去的資料和資料結構
+            };
+            var card = NewCard()
+               .AddElement(new AdaptiveTextBlock()
+               {
+                   Text = "Playment",
+                   Size = AdaptiveTextSize.Large,
+                   Color = AdaptiveTextColor.Good,
+                   Weight = AdaptiveTextWeight.Bolder,
+                   HorizontalAlignment = AdaptiveHorizontalAlignment.Left
+               })
+               .AddElement(new AdaptiveTextBlock()
+               {
+                   Text = url,
+                   Size = AdaptiveTextSize.Medium,
+               })
+               .AddElement(new AdaptiveTextBlock()
+               {
+                   Text = name,
+                   Size = AdaptiveTextSize.Small,
+                   Color = AdaptiveTextColor.Warning,
+                   HorizontalAlignment = AdaptiveHorizontalAlignment.Left
+               });
+            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+
+        }
+
     }
 }

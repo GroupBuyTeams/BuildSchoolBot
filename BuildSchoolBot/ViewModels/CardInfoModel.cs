@@ -21,6 +21,9 @@ namespace BuildSchoolBot.ViewModels
 
         [JsonProperty("Guid")]
         public string Guid { get; set; }
+        [JsonProperty("DueTime")]
+        public string DueTime { get; set; }
+
     }
-    
+
 }

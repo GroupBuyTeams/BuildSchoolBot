@@ -282,11 +282,11 @@ namespace BuildSchoolBot.Service
                         .AddCol(new AdaptiveColumn()
                         { Width = "3" }
                         .AddElement(new AdaptiveTextBlock() { Text = "$", Size = (AdaptiveTextSize)3, HorizontalAlignment = (AdaptiveHorizontalAlignment)2 }))
-                         
+
                         //.AddCol(new AdaptiveColumn()
-                        // { Width = "10" } 
-                        // .AddElement(new AdaptiveChoiceSetInput() { Id = $"choices&{i}", Choices = (AdaptiveChoiceInputStyle)0  })) 
-                         
+                        //{ Width = "10" }
+                        // .AddElement(new AdaptiveChoiceSetInput() { Id = $"choices&{i}" , Value = "1", IsMultiSelect = false ,Style = (AdaptiveChoiceInputStyle)1 }))
+
                         .AddCol(new AdaptiveColumn()
                          { Width = "20" }
                              .AddElement(new AdaptiveNumberInput() { Min = 0, Value = 0, Placeholder = "Price", Id = $"price&{i}" })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
@@ -337,7 +337,7 @@ namespace BuildSchoolBot.Service
         //                    .AddElement(new AdaptiveTextBlock() { Text = s.Store_Url }))
         //                .AddCol(new AdaptiveColumn()
         //                { Width = "10" }
-        //                    .AddElement(new AdaptiveChoiceSetInput() { Id = $"choices&{s}", Value = false, AdaptiveChoiceInputStyle.Compact = 0, })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到                              
+        //                 .AddElement(new AdaptiveChoiceSetInput() { Id = $"choices&{i}" , Value = "1", IsMultiSelect = false ,Style = (AdaptiveChoiceInputStyle)1 }))                       
         //                   );
         //    }
         //    //DueTime

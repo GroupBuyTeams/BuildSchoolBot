@@ -78,12 +78,12 @@ namespace BuildSchoolBot.Service
             var getstore = GetMenuOrders();
             foreach (var storeitem in getstore)
             {
-                card.Body.Add(StoreItems(storeitem.Store));
+                card.Body.Add(StoreItems(storeitem.Store,storeitem.MenuId));
             }
             return card;
         }
 
-        private AdaptiveColumnSet StoreItems(string Storename)
+        private AdaptiveColumnSet StoreItems(string Storename, Guid Meunid)
         {
             var MainColumnSet = new AdaptiveColumnSet();
 

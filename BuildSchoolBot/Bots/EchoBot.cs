@@ -203,11 +203,15 @@ namespace BuildSchoolBot.Bots
             // Customized Card
             if (Data.GetValue("SetType")?.ToString().Equals("Customized") == true)
             {
-
                 var TenantId = turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id;
 
                 TaskInfo.Card = _menuOrderService.CreateMenuOrderAttachment(TenantId);
                 return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
+            }
+            else if (Data.GetValue("SetType")?.ToString().Equals("GetCustomizedStore") == true)
+            {
+                taskInfo.Card = service.GetCreateMenu(); ;
+                return await Task.FromResult(taskInfo.ToTaskModuleResponse());
             }
             //家寶
             if (Data.GetValue("SetType")?.ToString().Equals("GetStore") == true)
@@ -240,9 +244,10 @@ namespace BuildSchoolBot.Bots
             }
             else if (GetSetType?.Equals("CustomizedMenu") == true)
             {
-                var TaskInfo = new TaskModuleTaskInfo();
-                TaskInfo.Card = _menuOrderService.CreateMenuDetailAttachment(turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id);
-                return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
+                var Data = JObject.FromObject(taskModuleRequest.Data);
+                var result = _menuOrderService.GetStore(Data.GetValue("Name").ToString(), Data.GetValue("MenuId").ToString());
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(result));
+                return null;
             }
             else if (GetSetType?.Equals("CustomizedModification") == true)
             {

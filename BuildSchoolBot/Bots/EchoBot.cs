@@ -49,6 +49,7 @@ namespace BuildSchoolBot.Bots
         protected readonly MenuDetailService _menuDetailService;
         protected readonly CustomMenuService _customMenuService;
         protected readonly MenuOrderService _menuOrderService;
+
         public EchoBot(ConversationState conversationState, LibraryService libraryService, OrderService orderService, OrderDetailService orderDetailService, UserState userState, T dialog, OrderfoodServices orderfoodServices, ISchedulerFactory schedulerFactory, ConcurrentDictionary<string, ConversationReference> conversationReferences, CreateCardService createCardService, OrganizeStructureService organizeStructureService, PayMentService paymentService, MenuService menuService, MenuDetailService menuDetailService, CustomMenuService customMenuService, MenuOrderService menuOrderService)
         {
             ConversationState = conversationState;
@@ -200,6 +201,12 @@ namespace BuildSchoolBot.Bots
                 taskInfo.Card = service.GetCreateMenu(); ;
                 return await Task.FromResult(taskInfo.ToTaskModuleResponse());
             }
+            //Group Buy Open Menu
+            if (fetchType?.Equals("OpenMenuTaskModule") == true)
+            {
+                taskInfo.Card = await service.CreateMenu(factory);
+                return await Task.FromResult(taskInfo.ToTaskModuleResponse());
+            }
             // Customized Card
             if (Data.GetValue("SetType")?.ToString().Equals("Customized") == true)
             {
@@ -236,6 +243,7 @@ namespace BuildSchoolBot.Bots
             var factory = new AdaptiveCardDataFactory(turnContext, taskModuleRequest);
             var fetchType = factory.GetCardActionType();
             
+            
             if (fetchType.Equals("ResultStoreCard"))
             {
                 var data = factory.GetGroupBuyCard();
@@ -243,6 +251,14 @@ namespace BuildSchoolBot.Bots
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(cardService.GetStore(data)));
                 return null;
             }
+            if (fetchType.Equals("FetchSelectedFoods"))
+            {
+                var TaskInfo = new TaskModuleTaskInfo();
+                var card = new CreateCardService2().GetChosenFoodFromMenu(factory);
+                turnContext.SendActivityAsync(MessageFactory.Attachment(card));
+                return null;
+            }
+            //FetchSelectedFoods
             else if (GetSetType?.Equals("CustomizedMenu") == true)
             {
                 var Data = JObject.FromObject(taskModuleRequest.Data);
@@ -254,6 +270,16 @@ namespace BuildSchoolBot.Bots
             {
                 var TaskInfo = new TaskModuleTaskInfo();
                 _orderfoodServices.ModifyMenuData(taskModuleRequest, TaskInfo);
+                return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
+            }
+            //ting
+            else if(GetSetType.Equals("Create"))
+            {
+                var TaskInfo = new TaskModuleTaskInfo();
+                var menuId = Guid.NewGuid().ToString();
+                var menu = new MenuOrder();
+                var teamsId = turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id;
+                _menuService.CreateMenu(menuId, menu.Store, teamsId);
                 return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
             }
             else

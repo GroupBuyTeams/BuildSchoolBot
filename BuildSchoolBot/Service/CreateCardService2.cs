@@ -297,7 +297,7 @@ namespace BuildSchoolBot.Service
              .AddActionsSet(
                 NewActionsSet()
                     .AddActionToSet(
-                        new AdaptiveSubmitAction() { Title = "Create", Data = JsonConvert.SerializeObject(cardData) }//勿必要將傳出去的資料進行Serialize
+                        new AdaptiveSubmitAction().SetSubmitTaskModule("Create",JsonConvert.SerializeObject(cardData))//勿必要將傳出去的資料進行Serialize
                     )
             );
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };

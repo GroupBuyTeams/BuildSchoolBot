@@ -72,6 +72,30 @@ namespace BuildSchoolBot.Service
             return dictionary.Select(x => x.Value).ToList();
         }
 
+        public StoreOrderDuetime GetGroupBuyCard()
+        {
+            var storesInfo = JObject.FromObject(Request.Data);
+            RemoveProperty(storesInfo);
+            var time = (string)storesInfo.GetValue("DueTime");
+            
+            foreach (var store in storesInfo)
+            {
+                var val = (string)store.Value;
+                if (val.Equals("True"))
+                {
+                    var storeData = store.Key.Split("&&"); 
+                    return new StoreOrderDuetime()
+                    {
+                        OrderID = Guid.NewGuid().ToString(),
+                        DueTime = time,
+                        StoreName = storeData[0],
+                        Url = storeData[1]
+                    };
+                }
+            }
+            return null;
+        }
+
         public void RemoveProperty(JObject jData)
         {
             jData.Property("msteams").Remove();

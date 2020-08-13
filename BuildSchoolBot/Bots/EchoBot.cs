@@ -201,19 +201,17 @@ namespace BuildSchoolBot.Bots
                 return await Task.FromResult(taskInfo.ToTaskModuleResponse());
             }
             // Customized Card
-            if (Data.GetValue("SetType").ToString().Equals("Customized") == true)
-            {
-
-                var TenantId = turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id;
-
-                TaskInfo.Card = _menuOrderService.CreateMenuOrderAttachment(TenantId);
-                return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
-            }
+            // if (Data.GetValue("SetType").ToString().Equals("Customized") == true)
+            // {
+            //     var TenantId = turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id;
+            //     TaskInfo.Card = _menuOrderService.CreateMenuOrderAttachment(TenantId);
+            //     return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
+            // }
             //家寶
-            if (JObject.FromObject(taskModuleRequest.Data).GetValue("SetType").ToString().Equals("GetStore"))
+            if (fetchType.Equals("GetStore"))
             {
-                var StoreModule = new GetStoreList();
-                return await StoreModule.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
+                taskInfo.Card = await new GetStoreList().CreateStoresModule(factory);
+                return await Task.FromResult(taskInfo.ToTaskModuleResponse());
             }
             //育安
             if (JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data)).Property("SetType").Value.ToString() == "CustomizedModification")
@@ -230,12 +228,14 @@ namespace BuildSchoolBot.Bots
         {
             var GetSetType = JObject.FromObject(taskModuleRequest.Data).GetValue("SetType")?.ToString();
 
-            if (GetSetType.Equals("ResultStoreCard"))
+            var factory = new AdaptiveCardDataFactory(turnContext, taskModuleRequest);
+            var fetchType = factory.GetCardActionType();
+            
+            if (fetchType.Equals("ResultStoreCard"))
             {
-                var result = new GetUserChosedStore().GetResultStore(taskModuleRequest.Data.ToString())[0];
-                var w = new CreateCardService();
-                var o = new OrderfoodServices();
-                await turnContext.SendActivityAsync(MessageFactory.Attachment(w.GetStore(result.StoreName, result.Url, result.OrderID, result.DueTime)));
+                var data = factory.GetGroupBuyCard();
+                var cardService = new CreateCardService2();
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(cardService.GetStore(data)));
                 return null;
             }
             else if (GetSetType.Equals("CustomizedMenu"))

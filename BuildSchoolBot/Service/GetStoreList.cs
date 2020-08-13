@@ -14,11 +14,16 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BuildSchoolBot.ViewModels;
+using static BuildSchoolBot.Service.CardAssemblyFactory;
+using static BuildSchoolBot.Service.CardActionFactory;
+
 namespace BuildSchoolBot.Service
 {
     public class GetStoreList
     {
-        public async Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(TaskModuleRequest taskModuleRequest)
+        //此方法已被CreateStoresModule取代
+        private async Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(TaskModuleRequest taskModuleRequest)
         {
             var asJobject = JObject.FromObject(taskModuleRequest.Data);
             var value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
@@ -33,6 +38,8 @@ namespace BuildSchoolBot.Service
             SetTaskInfo(taskInfo, TaskModuleUIConstants.AdaptiveCard);
             return await Task.FromResult(taskInfo.ToTaskModuleResponse());
         }
+        
+        //此方法已被CreateStoresModule取代
         private void StoreModule(AdaptiveColumnSet ColumnSetitem, string StoreName, string Url)
         {
             //ColumnSetitem.Separator = true;
@@ -49,7 +56,9 @@ namespace BuildSchoolBot.Service
             };
             ColumnSetitem.Columns.Add(AddColumn(CheckBox));
         }
-        public AdaptiveTextInput GetadaptiveTextBlock(string InputTxt, string _ID)
+        
+        //此方法已被CreateStoresModule取代
+        private AdaptiveTextInput GetadaptiveTextBlock(string InputTxt, string _ID)
         {
             var TextBlock = new AdaptiveTextInput
             {
@@ -58,7 +67,9 @@ namespace BuildSchoolBot.Service
             };
             return TextBlock;
         }
-        public AdaptiveColumn AddColumn<T>(T adaptiveElement) where T : AdaptiveElement
+        
+        //此方法已被CreateStoresModule取代
+        private AdaptiveColumn AddColumn<T>(T adaptiveElement) where T : AdaptiveElement
         {
             var result = new AdaptiveColumn
             {
@@ -69,12 +80,13 @@ namespace BuildSchoolBot.Service
             result.Items.Add(Container);
             return result;
         }
-        public LatLngService GetLatLng(string address)
+        private LatLngService GetLatLng(string address)
         {
             var LatLng = new LatLngService(address);
             return LatLng;
         }
-        public Attachment GetStore(string Address, string StoreData)
+        // 此方法已被GetChooseMenuCard取代
+        private Attachment GetStore(string Address, string StoreData)
         {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
             var actionSet = new AdaptiveActionSet() { Type = AdaptiveActionSet.TypeName, Separator = true };
@@ -91,6 +103,29 @@ namespace BuildSchoolBot.Service
             card.Body.Add(actionSet);
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
+
+        public Attachment GetChooseMenuCard(string address)
+        {
+            var cardData = new CardDataModel<string>()
+            {
+                Type = "GetStore",
+                Value = address
+            };
+            var card = NewCard()
+                .AddElement(new AdaptiveTextBlock
+                {
+                    Size = AdaptiveTextSize.Large, Weight = AdaptiveTextWeight.Bolder, Text = address,
+                    HorizontalAlignment = AdaptiveHorizontalAlignment.Center
+                })
+                .AddActionsSet(
+                    NewActionsSet()
+                        .AddActionToSet(new AdaptiveSubmitAction().SetOpenTaskModule("Choose Menu",
+                            JsonConvert.SerializeObject(cardData)))
+                );
+            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+        }
+
+        //此方法已被CreateStoresModule取代
         private Attachment CreateClickStoreModule(string Jdata)
         {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
@@ -121,6 +156,45 @@ namespace BuildSchoolBot.Service
             card.Actions = new[] { TaskModuleUIConstants.AdaptiveCard }
                    .Select(cardType => new AdaptiveSubmitAction() { Title = "Submit", Data = new AdaptiveCardTaskFetchValue<string>() { SetType = "ResultStoreCard" } })
                     .ToList<AdaptiveAction>();
+            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+        }
+        
+        public async Task<Attachment> CreateStoresModule(AdaptiveCardDataFactory factory)
+        {
+            var address = factory.GetCardData<string>();
+            var LatLng = GetLatLng(address);
+            var storesInfo = await new WebCrawler().GetStores2(LatLng.lat, LatLng.lng);
+            var cardData = new CardDataModel<List<Store>>()
+            {
+                Type = "ResultStoreCard",
+            };
+
+            var card =
+                NewCard()
+                    .AddElement(new AdaptiveTextBlock
+                    {
+                        Size = AdaptiveTextSize.Large, Weight = AdaptiveTextWeight.Bolder, Text = "Chose Your Order",
+                        HorizontalAlignment = AdaptiveHorizontalAlignment.Center
+                    });
+
+            foreach (var store in storesInfo)
+            {
+                card
+                    .AddRow(new AdaptiveColumnSet()
+                        .AddCol(new AdaptiveColumn()
+                            .AddElement(new AdaptiveTextBlock() {Text = store.Store_Name, Id = "StoreName"}))
+                        .AddCol(new AdaptiveColumn()
+                            .AddElement(new AdaptiveTextBlock() {Text = store.Store_Url, Id = "Url"}))
+                        .AddCol(new AdaptiveColumn()
+                            .AddElement(new AdaptiveToggleInput() {Id = store.Store_Name + "&&" + store.Store_Url, Title = "Confirm"})));
+            }
+
+            card
+                .AddElement(new AdaptiveTimeInput() {Id = "DueTime"})
+                .AddActionsSet(
+                    NewActionsSet()
+                        .AddActionToSet(new AdaptiveSubmitAction().SetOpenTaskModule("Submit", JsonConvert.SerializeObject(cardData))));
+            
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
         private static void SetTaskInfo(TaskModuleTaskInfo taskInfo, UISettings uIConstants)

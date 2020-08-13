@@ -22,9 +22,6 @@ namespace BuildSchoolBot.Service
         //抓爬蟲的卡片
         public Attachment GetStore(string texta, string menuurl,string OrderId,string DueTime)
         {
-
-
-
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
             var actionSet = new AdaptiveActionSet() { Type = AdaptiveActionSet.TypeName, Separator = true };
             card.Body.Add(new OrderfoodServices().GetadaptiveTextBlock(texta, AdaptiveTextSize.Large, AdaptiveTextWeight.Bolder, AdaptiveHorizontalAlignment.Center));

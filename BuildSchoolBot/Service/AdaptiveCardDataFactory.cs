@@ -30,8 +30,14 @@ namespace BuildSchoolBot.Service
         public CardDataModel<T> GetCardInfo<T>()
         {
             var str = (Request.Data as JObject)["data"]?.ToString();
-
-            return (str == null) ? null : JsonConvert.DeserializeObject<CardDataModel<T>>(str);
+            try
+            {
+                return JsonConvert.DeserializeObject<CardDataModel<T>>(str);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
         public T GetCardData<T>() where T : class
         {

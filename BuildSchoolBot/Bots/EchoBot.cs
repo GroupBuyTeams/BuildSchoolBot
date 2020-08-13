@@ -126,7 +126,7 @@ namespace BuildSchoolBot.Bots
                 var CustomMenucard = _customMenuService.CallCustomeCard();
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(CustomMenucard), cancellationToken);
             }
-            else if(turnContext.Activity.Text.Contains("Command"))
+            else if (turnContext.Activity.Text.Contains("Command"))
             {
                 var reply = MessageFactory.Text("Please enter your command!");
                 var paths = new[] { ".", "Resources", "Command.json" };
@@ -201,7 +201,7 @@ namespace BuildSchoolBot.Bots
                 return await Task.FromResult(taskInfo.ToTaskModuleResponse());
             }
             // Customized Card
-            if (Data.GetValue("SetType").ToString().Equals("Customized") == true)
+            if (Data.GetValue("SetType")?.ToString().Equals("Customized") == true)
             {
 
                 var TenantId = turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id;
@@ -210,13 +210,13 @@ namespace BuildSchoolBot.Bots
                 return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
             }
             //家寶
-            if (JObject.FromObject(taskModuleRequest.Data).GetValue("SetType").ToString().Equals("GetStore"))
+            if (Data.GetValue("SetType")?.ToString().Equals("GetStore") == true)
             {
                 var StoreModule = new GetStoreList();
                 return await StoreModule.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
             }
             //育安
-            if (JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data)).Property("SetType").Value.ToString() == "CustomizedModification")
+            if (Data.GetValue("SetType")?.ToString().Equals("CustomizedModification") == true)
             {
                 return await _orderfoodServices.GetModifyModuleData(turnContext, taskModuleRequest, cancellationToken);
             }
@@ -230,7 +230,7 @@ namespace BuildSchoolBot.Bots
         {
             var GetSetType = JObject.FromObject(taskModuleRequest.Data).GetValue("SetType")?.ToString();
 
-            if (GetSetType.Equals("ResultStoreCard"))
+            if (GetSetType?.Equals("ResultStoreCard") == true)
             {
                 var result = new GetUserChosedStore().GetResultStore(taskModuleRequest.Data.ToString())[0];
                 var w = new CreateCardService();
@@ -238,13 +238,13 @@ namespace BuildSchoolBot.Bots
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(w.GetStore(result.StoreName, result.Url, result.OrderID, result.DueTime)));
                 return null;
             }
-            else if (GetSetType.Equals("CustomizedMenu"))
+            else if (GetSetType?.Equals("CustomizedMenu") == true)
             {
                 var TaskInfo = new TaskModuleTaskInfo();
                 TaskInfo.Card = _menuOrderService.CreateMenuDetailAttachment(turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id);
                 return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
             }
-            else if (GetSetType.Equals("CustomizedModification"))
+            else if (GetSetType?.Equals("CustomizedModification") == true)
             {
                 var TaskInfo = new TaskModuleTaskInfo();
                 _orderfoodServices.ModifyMenuData(taskModuleRequest, TaskInfo);
@@ -259,14 +259,14 @@ namespace BuildSchoolBot.Bots
         {
             var memberId = turnContext.Activity.From.Id;
             var obj = JObject.FromObject(turnContext.Activity.Value).ToObject<ViewModels.MsteamsValue>();
-            if (obj.Option.Equals("Create"))
+            if (obj?.Option?.Equals("Create") == true)
             {
                 var uri = obj.Url;
                 var LibraryItem = await _libraryService.FindLibraryByUriAndMemberId(uri, memberId);
                 if (LibraryItem.Count.Equals(0))
                     _libraryService.CreateLibraryItem(memberId, obj.Url, obj.Name);
             }
-            else if (obj.Option.Equals("Delete"))
+            else if (obj?.Option?.Equals("Delete") == true)
             {
                 var LibraryId = obj.LibraryId;
                 Guid guid;

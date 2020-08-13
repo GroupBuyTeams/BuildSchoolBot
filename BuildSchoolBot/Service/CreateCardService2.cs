@@ -12,6 +12,10 @@ using Newtonsoft.Json;
 using static BuildSchoolBot.Service.CardAssemblyFactory;
 using static BuildSchoolBot.Service.CardActionFactory;
 using BuildSchoolBot.Repository;
+using Microsoft.Bot.Schema.Teams;
+using static BuildSchoolBot.StoreModels.AllSelectData;
+using static BuildSchoolBot.StoreModels.ModifyMenu;
+using static BuildSchoolBot.StoreModels.ResultTotal;
 
 namespace BuildSchoolBot.Service
 {
@@ -55,9 +59,10 @@ namespace BuildSchoolBot.Service
                     NewActionsSet()
                         .AddActionToSet(new AdaptiveSubmitAction().SetOpenTaskModule("Join", JsonConvert.SerializeObject(cardData)))
                         .AddActionToSet(new AdaptiveSubmitAction() { Title = "Favorite", Data = objData })
+                        //ting
                         .AddActionToSet(new AdaptiveSubmitAction() { Title = "Delete" })
                 );
-            
+
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
 
@@ -297,6 +302,195 @@ namespace BuildSchoolBot.Service
                         new AdaptiveSubmitAction() { Title = "Create", Data = JsonConvert.SerializeObject(cardData) }//勿必要將傳出去的資料進行Serialize
                     )
             );
+            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+        }
+
+
+        public void SetTaskInfo(TaskModuleTaskInfo taskInfo, UISettings uIConstants)
+        {
+            taskInfo.Height = uIConstants.Height;
+            taskInfo.Width = uIConstants.Width;
+            taskInfo.Title = uIConstants.Title.ToString();
+        }
+
+        public void GetChosenFoodFromMenuCreateOrderDetail(AdaptiveCardDataFactory dataFactory,string UserId)
+        {
+            TeamsBuyContext context = new TeamsBuyContext();
+            var CardData = dataFactory.GetCardData<StoreInfoData>();
+            var OrderData = dataFactory.GetOrderedFoods();
+            var SelectObject = new SelectAllDataGroup();
+            SelectObject.UserID = UserId;
+            var ChosenFoodFromMenu = new List<SelectData>();
+            foreach (var p in OrderData)
+            {
+                if (p.Quantity != "0")
+                {
+                    ChosenFoodFromMenu.Add(new SelectData() { Quantity = p.Quantity, Remarks = p.Remarks, Dish_Name = p.Dish_Name, Price = p.Price });
+                }
+            }
+            new OrderDetailService(context).CreateOrderDetail(SelectObject,ChosenFoodFromMenu, Guid.Parse(CardData.Guid));
+        }
+
+        public Attachment GetResultTotal(string OrderId, string StoreName, string Orderfoodjson, string DueTime)
+        {         
+            string[] ItemsName = new string[] { "Food Name", "Price", "Quantity", "Remarks", "Total" };
+
+            //新增一基本卡片，並且附加此訂單的Guid、餐廳名稱、欄位名稱等文字訊息
+            var card = NewCard()
+                .AddElement(new AdaptiveTextBlock() //加入訂單Guid
+                {
+                    Text = OrderId,
+                    Size = AdaptiveTextSize.Small,
+                    Weight = AdaptiveTextWeight.Bolder,
+                    HorizontalAlignment = AdaptiveHorizontalAlignment.Right
+                })
+                .AddElement(new AdaptiveTextBlock() //加入餐廳名稱
+                {
+                    Text = StoreName + "訂單",
+                    Size = AdaptiveTextSize.Small,
+                    Weight = AdaptiveTextWeight.Bolder,
+                    HorizontalAlignment = AdaptiveHorizontalAlignment.Right
+                })
+                .AddRow(new AdaptiveColumnSet() //加入一列到卡片裡
+                        .AddColumnsWithStrings(ItemsName) //加入欄位名稱到一列
+                );
+
+            var root = JsonConvert.DeserializeObject<AllTotalItemsGroups>(Orderfoodjson);
+
+            //此訂單的總花費
+            decimal TotalMoney = 0;
+
+
+            for (int i = 0; i < root.AllTotalItems.Count; i++)
+            {
+                for (int j = 0; j < 1; j++)
+                {
+                    int TotalQuantity = 0;
+                    string TotalOrderName = "";
+                    decimal TotalMoneyItem = 0;
+
+                    for (int z = 0; z < root.AllTotalItems[i].TotalItemsGroup.Count; z++)
+                    {
+                        var TotalSungleMoney = GetTotalMoney(root.AllTotalItems[i].TotalItemsGroup[z].Quantity.ToString(), root.AllTotalItems[i].Price.ToString());
+                        TotalMoneyItem = TotalMoneyItem + TotalSungleMoney;
+                        var QuantityInt = root.AllTotalItems[i].TotalItemsGroup[z].Quantity;
+                        TotalQuantity = TotalQuantity + QuantityInt;
+                        var OrderName = root.AllTotalItems[i].TotalItemsGroup[z].UserName;
+                        TotalOrderName = TotalOrderName + "," + OrderName;
+                    }
+                    TotalMoney = TotalMoney + TotalMoneyItem;
+                    var TotalItemMoney = root.AllTotalItems[i].Price * TotalQuantity;
+                    card.AddRow(new AdaptiveColumnSet() //加入一列到卡片裡
+                        .AddCol(new AdaptiveColumn() //加入一欄位到一列
+                                .AddElement(new AdaptiveTextBlock() { Text = root.AllTotalItems[i].Dish_Name }) //在欄位內加入餐點名稱的文字
+                        )
+                        .AddCol(new AdaptiveColumn() //加入一欄位到一列
+                                .AddElement(new AdaptiveTextBlock() { Text = root.AllTotalItems[i].Price.ToString() }) //加入餐點價格
+                        )
+                        .AddCol(new AdaptiveColumn() //加入一欄位到一列
+                                .AddElement(new AdaptiveTextBlock() { Text = TotalQuantity.ToString() }) //加入餐點數量
+                        )
+                        .AddCol(new AdaptiveColumn() //加入一欄位到一列
+                                .AddElement(new AdaptiveTextBlock() { Text = TotalOrderName.TrimStart(',') }) //加入備註
+                        )
+                        .AddCol(new AdaptiveColumn() //加入一欄位到一列
+                                .AddElement(new AdaptiveTextBlock() { Text = TotalItemMoney.ToString() }) //加入此餐點的總價
+                        )
+                    );                  
+                }
+            }     
+            string[] TimeAndTotalMoney = new string[] { "DueTime", DueTime, "", "Total Amount:", TotalMoney.ToString() };
+            card.AddRow(new AdaptiveColumnSet() //加入一列到卡片裡
+                     .FixedtextColumnLeftColor(TimeAndTotalMoney) //加入欄位名稱到一列
+             );          
+            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };    
+        }
+        public Attachment GetError(string UserName)
+        {
+            var card = NewCard()
+                  .AddElement(new AdaptiveTextBlock()
+                  {
+                      Text = "Error.Please write again",
+                      Size = AdaptiveTextSize.Large,
+                      Weight = AdaptiveTextWeight.Bolder,
+                      HorizontalAlignment = AdaptiveHorizontalAlignment.Center
+                  })
+                   .AddElement(new AdaptiveTextBlock()
+                   {
+                       Text = UserName,
+                       Size = AdaptiveTextSize.Small,
+                       Color=AdaptiveTextColor.Good,
+                       Weight = AdaptiveTextWeight.Bolder,
+                       HorizontalAlignment = AdaptiveHorizontalAlignment.Left
+                   });            
+            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+        }
+
+
+        public Attachment GetCustomizedModification(string Store, List<MenuDetail> menuDetails, string MenuId)
+        {
+
+            var cardData = new CardDataModel<StoreInfoData>()//務必按照此格式新增需要傳出去的資料
+            {
+                Type = "CustomizedModification", //於EchoBot判斷用
+                Value = new StoreInfoData() { Guid = MenuId} //要傳出去的資料和資料結構
+            };
+            string[] ItemsStoreName = new string[] { Store, "" };
+            string[] ItemsName = new string[] { "Food Name", "Price" };
+            var card = NewCard()
+                 .AddRow(new AdaptiveColumnSet().
+                        FixedInputTextAdjustWidthColumn(ItemsStoreName)
+                )
+                  .AddRow(new AdaptiveColumnSet().
+                        AddColumnsWithStrings(ItemsName)
+                );
+
+            for (var i = 0; i < menuDetails.Count; i++)
+            {
+                card.AddRow(new AdaptiveColumnSet() //加入一列到卡片裡
+                        .AddCol(new AdaptiveColumn() //加入一欄位到一列
+                                .AddElement(new AdaptiveTextInput() { Id= menuDetails[i].ProductName + i.ToString(),Value= menuDetails[i].ProductName }) //在欄位內加入餐點名稱的文字
+                        )
+                        .AddCol(new AdaptiveColumn() //加入一欄位到一列
+                                .AddElement(new AdaptiveTextInput() { Id = menuDetails[i].Amount + i.ToString(), Value = decimal.Round(menuDetails[i].Amount).ToString() }) //加入餐點價格
+                        )
+                    );
+            }
+            card
+            .AddActionsSet(
+               NewActionsSet()
+                   .AddActionToSet(
+                       new AdaptiveSubmitAction() { Title = "Modify", Data = JsonConvert.SerializeObject(cardData) }//勿必要將傳出去的資料進行Serialize
+                   )
+           );
+            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+        }
+
+
+        public Attachment GetResultCustomizedModification(string Store, List<ModifyMultiple> menuDetails)
+        {
+            string[] ItemsName = new string[] { "Food Name", "Price" };
+            var card = NewCard()
+                .AddElement(new AdaptiveTextBlock()
+                {
+                    Text = Store
+                })
+                  .AddRow(new AdaptiveColumnSet().
+                        AddColumnsWithStrings(ItemsName)
+                );
+
+            for (var i = 0; i < menuDetails.Count; i++)
+            {
+                card.AddRow(new AdaptiveColumnSet() //加入一列到卡片裡
+                        .AddCol(new AdaptiveColumn() //加入一欄位到一列
+                                .AddElement(new AdaptiveTextBlock() { Text = menuDetails[i].ProductName }) //在欄位內加入餐點名稱的文字
+                        )
+                        .AddCol(new AdaptiveColumn() //加入一欄位到一列
+                                .AddElement(new AdaptiveTextBlock() { Text = menuDetails[i].Amount.ToString() }) //加入餐點價格
+                        )
+                    );
+            }    
+           
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
         //阿寶

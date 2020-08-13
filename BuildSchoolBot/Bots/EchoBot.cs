@@ -215,13 +215,8 @@ namespace BuildSchoolBot.Bots
                 var StoreModule = new GetStoreList();
                 return await StoreModule.OnTeamsTaskModuleFetchAsync(taskModuleRequest);
             }
-<<<<<<< HEAD
             //育安
             if (Data.GetValue("SetType")?.ToString().Equals("CustomizedModification") == true)
-=======
-            //育銨
-            if (JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data)).Property("SetType").Value.ToString() == "CustomizedModification")
->>>>>>> 03b9eff421215f9e0afacf22379c1cd3a9c12a16
             {
                 return await _orderfoodServices.GetModifyModuleData(turnContext, taskModuleRequest, cancellationToken);
             }

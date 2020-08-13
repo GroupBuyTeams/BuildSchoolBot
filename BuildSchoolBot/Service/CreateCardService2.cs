@@ -114,9 +114,9 @@ namespace BuildSchoolBot.Service
                         .AddCol(new AdaptiveColumn()
                             .AddElement(new AdaptiveTextBlock() { Text = foods[i].Price.ToString() }))
                         .AddCol(new AdaptiveColumn()
-                            .AddElement(new AdaptiveNumberInput() { Min = 0, Value = 0, Id = $"{foods[i].Dish_Name}&{foods[i].Price}" })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
+                            .AddElement(new AdaptiveNumberInput() { Min = 0, Value = 0, Id = $"{foods[i].Dish_Name}&&{foods[i].Price}" })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
                         .AddCol(new AdaptiveColumn()
-                            .AddElement(new AdaptiveTextInput() { Placeholder = "備註", Id = $"{foods[i].Dish_Name}&mark" }))
+                            .AddElement(new AdaptiveTextInput() { Placeholder = "備註", Id = $"{foods[i].Dish_Name}&&mark" }))
                     );
             }
 

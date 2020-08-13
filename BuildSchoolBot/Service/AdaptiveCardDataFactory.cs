@@ -52,12 +52,14 @@ namespace BuildSchoolBot.Service
             var dictionary = new Dictionary<string, SelectMenu.SelectMenuData>();
             foreach (var dish in jData)
             {
-                var key = dish.Key.Split('&');
+                var key = dish.Key.Split("&&");
                 if (!key[1].Equals("mark") && !dish.Value.Equals("0"))
                 {
                     var data = new SelectMenu.SelectMenuData() { Dish_Name = key[0], Price = key[1], Quantity = (string)dish.Value };
                     dictionary.Add(key[0], data);
                 }
+                
+                
                 else if (key[1].Equals("mark") && !dish.Value.Equals(string.Empty))
                 {
                     var data = new SelectMenu.SelectMenuData();

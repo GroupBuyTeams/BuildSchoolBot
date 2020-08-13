@@ -235,7 +235,7 @@ namespace BuildSchoolBot.Bots
                 var result = new GetUserChosedStore().GetResultStore(taskModuleRequest.Data.ToString())[0];
                 var w = new CreateCardService();
                 var o = new OrderfoodServices();
-                await turnContext.SendActivityAsync(MessageFactory.Attachment(w.GetStore(result.StoreName, result.Url,result.DueTime,result.OrderID)));
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(w.GetStore(result.StoreName, result.Url, result.OrderID, result.DueTime)));
                 return null;
             }
             else if (GetSetType.Equals("CustomizedMenu"))

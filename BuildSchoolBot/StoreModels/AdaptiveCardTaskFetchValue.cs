@@ -13,6 +13,6 @@ namespace BuildSchoolBot.StoreModels
 
         [JsonProperty("data")]
         public T Data { get; set; }
-        public string SetType { get; set; }
+        // public string SetType { get; set; }
     }
 }

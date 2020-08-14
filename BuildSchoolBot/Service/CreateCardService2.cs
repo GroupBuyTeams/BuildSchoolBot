@@ -16,6 +16,7 @@ using Microsoft.Bot.Schema.Teams;
 using static BuildSchoolBot.StoreModels.AllSelectData;
 using static BuildSchoolBot.StoreModels.ModifyMenu;
 using static BuildSchoolBot.StoreModels.ResultTotal;
+using Microsoft.Bot.Builder;
 
 namespace BuildSchoolBot.Service
 {
@@ -60,6 +61,19 @@ namespace BuildSchoolBot.Service
                 }
             };
 
+            var DeleteOrderData = new Data()
+            {
+                msteams = new Msteams()
+                {
+                    type = "invoke",
+                    value = new MsteamsValue()
+                    {                      
+                        OrderId = Guid.Parse(OrderInfo.OrderID),
+                        Option = "DeleteOrder"
+                    }
+                }
+            };
+
             var card = NewAdaptiveCard()
                 .AddElement(new AdaptiveTextBlock()
                 {
@@ -73,7 +87,7 @@ namespace BuildSchoolBot.Service
                         .AddActionToSet(new AdaptiveSubmitAction().SetOpenTaskModule("Join", JsonConvert.SerializeObject(cardData)))
                         .AddActionToSet(new AdaptiveSubmitAction() { Title = "Favorite", Data = objData })
                         //ting
-                        .AddActionToSet(new AdaptiveSubmitAction() { Title = "Delete" })
+                        .AddActionToSet(new AdaptiveSubmitAction() { Title = "Delete", Data = DeleteOrderData })
                 ) ;
 
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
@@ -232,7 +246,7 @@ namespace BuildSchoolBot.Service
             //回傳卡片
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card, Name = "SingleOrderResult"};
         }
-        
+
         //ting
         public Attachment GetCreateMenu()
         {
@@ -245,7 +259,7 @@ namespace BuildSchoolBot.Service
                 Value = new StoreInfoData() { Guid = guid } //要傳出去的資料和資料結構
             };
 
-            var itemsName = new string[] { "Name", "Price" }; 
+            var itemsName = new string[] { "Name", "Price" };
             var card = NewAdaptiveCard()
                 .AddElement(new AdaptiveTextBlock()
                 {
@@ -268,9 +282,9 @@ namespace BuildSchoolBot.Service
                     Id = $"store"
                 }); //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
 
-                //.AddRow(new AdaptiveColumnSet()
-                //    .AddColumnsWithStrings(itemsName)
-                //)
+            //.AddRow(new AdaptiveColumnSet()
+            //    .AddColumnsWithStrings(itemsName)
+            //)
             card
               .AddRow(new AdaptiveColumnSet() { Separator = true }
                     .AddCol(new AdaptiveColumn()
@@ -292,7 +306,7 @@ namespace BuildSchoolBot.Service
                         .AddElement(new AdaptiveTextBlock() { Text = "$", Size = (AdaptiveTextSize)3, HorizontalAlignment = (AdaptiveHorizontalAlignment)2 }))
 
                         .AddCol(new AdaptiveColumn()
-                         { Width = "20" }
+                        { Width = "20" }
                              .AddElement(new AdaptiveNumberInput() { Min = 0, Value = 0, Placeholder = "Price", Id = $"price&{i}" })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
                          );
 
@@ -301,12 +315,47 @@ namespace BuildSchoolBot.Service
              .AddActionsSet(
                 NewActionsSet()
                     .AddActionToSet(
-                        new AdaptiveSubmitAction().SetSubmitTaskModule("Create",JsonConvert.SerializeObject(cardData))//勿必要將傳出去的資料進行Serialize
+                        new AdaptiveSubmitAction().SetSubmitTaskModule("Create", JsonConvert.SerializeObject(cardData))//勿必要將傳出去的資料進行Serialize
                     )
             );
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
 
+        //ting
+        public Attachment ReplyPayment(PayMentService payment, ITurnContext turnContext)
+        {
+            var name = turnContext.Activity.From.Name;
+            var memberId = turnContext.Activity.From.Id;
+            var url = payment.GetPay(memberId).Url;
+
+            var cardData = new CardDataModel<StoreInfoData>()//務必按照此格式新增需要傳出去的資料
+            {
+                Type = "ReplyPayment", //於EchoBot判斷用
+                Value = new StoreInfoData() { } //要傳出去的資料和資料結構
+            };
+            var card = NewAdaptiveCard()
+               .AddElement(new AdaptiveTextBlock()
+               {
+                   Text = "Playment",
+                   Size = AdaptiveTextSize.Large,
+                   Color = AdaptiveTextColor.Good,
+                   Weight = AdaptiveTextWeight.Bolder,
+                   HorizontalAlignment = AdaptiveHorizontalAlignment.Left
+               })
+               .AddElement(new AdaptiveTextBlock()
+               {
+                   Text = url,
+                   Size = AdaptiveTextSize.Medium,
+               })
+               .AddElement(new AdaptiveTextBlock()
+               {
+                   Text = name,
+                   Size = AdaptiveTextSize.Small,
+                   Color = AdaptiveTextColor.Dark,
+                   HorizontalAlignment = AdaptiveHorizontalAlignment.Left
+               });
+            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+        }
 
         public void SetTaskInfo(TaskModuleTaskInfo taskInfo, UISettings uIConstants)
         {
@@ -514,93 +563,6 @@ namespace BuildSchoolBot.Service
             }         
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
-        //阿寶
-        //public Attachment ChooseStore(string Jdata)
-        //{
-        //    var guid = Guid.NewGuid().ToString();
-        //    var cardData = new CardDataModel<StoreInfoData>()//務必按照此格式新增需要傳出去的資料
-        //    {
-        //        Type = "", //於EchoBot判斷用
-        //        Value = new StoreInfoData() { Guid = guid } //要傳出去的資料和資料結構
-        //    };
-        //    var itemsName = new string[] { "Store", "Url", "Click" };
-
-        //    var card = NewCard()
-        //        .AddElement(new AdaptiveTextBlock()
-        //        {
-        //            Text = "Chose Your Order",
-        //            Size = AdaptiveTextSize.Medium,
-        //            Weight = AdaptiveTextWeight.Bolder,
-        //            HorizontalAlignment = AdaptiveHorizontalAlignment.Center
-
-        //        });
-
-        //    var root = JsonConvert.DeserializeObject<Store_List>(Jdata);
-
-        //    foreach (var s in root.Stores)
-        //    {
-        //        card
-        //            .AddRow(new AdaptiveColumnSet() { Separator = true }
-        //                .AddCol(new AdaptiveColumn()
-        //                { Width = "40" }
-        //                    .AddElement(new AdaptiveTextBlock() { Text = s.Store_Name }))
-        //                .AddCol(new AdaptiveColumn()
-        //                { Width = "50" }
-        //                    .AddElement(new AdaptiveTextBlock() { Text = s.Store_Url }))
-        //                .AddCol(new AdaptiveColumn()
-        //                { Width = "10" }
-        //                 .AddElement(new AdaptiveChoiceSetInput() { Id = $"choices&{i}" , Value = "1", IsMultiSelect = false ,Style = (AdaptiveChoiceInputStyle)1 }))                       
-        //                   );
-        //    }
-        //    //DueTime
-        //    card.AddElement(new AdaptiveTimeInput()
-        //    {
-        //        Value = 0,
-        //        Min = 0,
-        //        Placeholder = "Time",
-        //    })
-        //    //Click
-        //    .AddActionsSet(
-        //        NewActionsSet()
-        //            .AddActionToSet(
-        //              new AdaptiveSubmitAction() { Title = "Choose", Data = JsonConvert.SerializeObject(cardData) }//勿必要將傳出去的資料進行Serialize
-        //            )
-        //    );
-        //    return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
-        //}
-
-        //ting
-        public Attachment ReplyPayment(string memberId)
-        {
-            //var name = payment.GetPay(memberId).MemberId;
-            //var url = payment.GetPay(memberId).Url;
-            var cardData = new CardDataModel<StoreInfoData>()//務必按照此格式新增需要傳出去的資料
-            {
-                Type = "ReplyPayment", //於EchoBot判斷用
-                Value = new StoreInfoData() {  } //要傳出去的資料和資料結構
-            };
-            var card = NewAdaptiveCard()
-               .AddElement(new AdaptiveTextBlock()
-               {
-                   Text = "Playment",
-                   Size = AdaptiveTextSize.Large,
-                   Color = AdaptiveTextColor.Good,
-                   Weight = AdaptiveTextWeight.Bolder,
-                   HorizontalAlignment = AdaptiveHorizontalAlignment.Left
-               })
-               .AddElement(new AdaptiveTextBlock()
-               {
-                   Text = "",
-                   Size = AdaptiveTextSize.Medium,
-               })
-               .AddElement(new AdaptiveTextBlock()
-               {
-                   Text = "",
-                   Size = AdaptiveTextSize.Small,
-                   Color = AdaptiveTextColor.Warning,
-                   HorizontalAlignment = AdaptiveHorizontalAlignment.Left
-               });
-            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
-        }
+        
     }
 }

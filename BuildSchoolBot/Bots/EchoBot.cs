@@ -126,12 +126,12 @@ namespace BuildSchoolBot.Bots
                 await turnContext.SendActivityAsync(MessageFactory.Text("You can give command"), cancellationToken);
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(command), cancellationToken);
             }
+            //ting 回覆pay
             else if (turnContext.Activity.Text.Contains("aaa"))
             {
-                var card = new CreateCardService2();
-                var memberId = turnContext.Activity.From.Name;
-                var pay = card.ReplyPayment(memberId);
-                await turnContext.SendActivityAsync(MessageFactory.Attachment(pay), cancellationToken);
+                var memberId = turnContext.Activity.From.Id;
+                var card = new CreateCardService2().ReplyPayment(_paymentService,turnContext);
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(card), cancellationToken);
 
             }
             else
@@ -266,13 +266,14 @@ namespace BuildSchoolBot.Bots
                 return null;
             }
             //ting
-            else if (GetSetType?.Equals("Create") == true)
+            else if(fetchType?.Equals("GetCustomizedMenu") == true)
             {
                 var TaskInfo = new TaskModuleTaskInfo();
-                var menuId = Guid.NewGuid().ToString();
                 var menu = new MenuOrder();
+                var menuId = Guid.NewGuid().ToString();
                 var teamsId = turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id;
-                _menuService.CreateMenu(menuId, menu.Store, teamsId);
+                _menuService.CreateMenu(menu.Store, teamsId);
+                await turnContext.SendActivityAsync(MessageFactory.Text("Create Successful!"));
                 return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
             }
             //育銨
@@ -308,7 +309,7 @@ namespace BuildSchoolBot.Bots
                 activity.Id = turnContext.Activity.ReplyToId;
                 await turnContext.UpdateActivityAsync(activity, cancellationToken);
             }
-            else if(obj.Option?.Equals("DeleteStore") == true)
+            else if(obj.Option?.Equals("DeleteOrder") == true)
             {
                 var OrderId = obj.OrderId;
                 Guid guid;

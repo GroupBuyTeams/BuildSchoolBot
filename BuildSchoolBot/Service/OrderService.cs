@@ -9,7 +9,7 @@ namespace BuildSchoolBot.Service
 {
     public class OrderService
     {
-        private EGRepository<Order> _repo;
+        //protected readonly EGRepository<Order> _repo;
         protected readonly TeamsBuyContext context;
 
         public OrderService(TeamsBuyContext _context)
@@ -38,9 +38,9 @@ namespace BuildSchoolBot.Service
         //delete Order
         public void DeleteStore(Guid orderId)
         {
-            var entity = _repo.GetAll().FirstOrDefault(x => x.OrderId.Equals(orderId));
-            _repo.Delete(entity);
-            _repo.context.SaveChanges();
+            var entity = context.Order.FirstOrDefault(x => x.OrderId.Equals(orderId));
+            context.Order.Remove(entity);
+            context.SaveChanges();
         }
     }
 }

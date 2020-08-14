@@ -71,7 +71,6 @@ namespace BuildSchoolBot.Bots
         }
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            //var test = turnContext.Activity.Value.ToString().Split('"') ;
             if (turnContext.Activity.Text.Contains("Library"))
             {
                 var libraryCard = await GetLibraryCard(turnContext);
@@ -113,15 +112,6 @@ namespace BuildSchoolBot.Bots
                     await turnContext.SendActivityAsync(MessageFactory.Text(str));
                 }
             }
-            else if (turnContext.Activity.Text.Contains("channel"))
-            {
-                var channel = await TeamsInfo.GetTeamChannelsAsync(turnContext);
-                foreach (var data in channel)
-                {
-                    var str = data.Name + "\r\n" + data.Id;
-                    await turnContext.SendActivityAsync(MessageFactory.Text(str));
-                }
-            }
             else if (turnContext.Activity.Text.Contains("Customized Menu"))
             {
                 var CustomMenucard = _customMenuService.CallCustomeCard();
@@ -135,6 +125,14 @@ namespace BuildSchoolBot.Bots
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(card), cancellationToken);
                 await turnContext.SendActivityAsync(MessageFactory.Text("You can give command"), cancellationToken);
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(command), cancellationToken);
+            }
+            else if (turnContext.Activity.Text.Contains("aaa"))
+            {
+                var card = new CreateCardService2();
+                var memberId = turnContext.Activity.From.Name;
+                var pay = card.ReplyPayment(memberId);
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(pay), cancellationToken);
+
             }
             else
             {
@@ -216,8 +214,7 @@ namespace BuildSchoolBot.Bots
 
             var factory = new AdaptiveCardDataFactory(turnContext, taskModuleRequest);
             var fetchType = factory.GetCardActionType();
-            
-            
+                      
             if (fetchType.Equals("ResultStoreCard"))
             {
                 var data = factory.GetGroupBuyCard();

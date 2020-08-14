@@ -543,10 +543,10 @@ namespace BuildSchoolBot.Service
         //}
 
         //ting
-        public Attachment ReplyPayment(PayMentService payment , string memberId)
+        public Attachment ReplyPayment(string memberId)
         {
-            var name = payment.GetPay(memberId).MemberId;
-            var url = payment.GetPay(memberId).Url;
+            //var name = payment.GetPay(memberId).MemberId;
+            //var url = payment.GetPay(memberId).Url;
             var cardData = new CardDataModel<StoreInfoData>()//務必按照此格式新增需要傳出去的資料
             {
                 Type = "ReplyPayment", //於EchoBot判斷用
@@ -563,19 +563,17 @@ namespace BuildSchoolBot.Service
                })
                .AddElement(new AdaptiveTextBlock()
                {
-                   Text = url,
+                   Text = "",
                    Size = AdaptiveTextSize.Medium,
                })
                .AddElement(new AdaptiveTextBlock()
                {
-                   Text = name,
+                   Text = "",
                    Size = AdaptiveTextSize.Small,
                    Color = AdaptiveTextColor.Warning,
                    HorizontalAlignment = AdaptiveHorizontalAlignment.Left
                });
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
-
         }
-
     }
 }

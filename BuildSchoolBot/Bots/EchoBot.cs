@@ -126,6 +126,14 @@ namespace BuildSchoolBot.Bots
                 await turnContext.SendActivityAsync(MessageFactory.Text("You can give command"), cancellationToken);
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(command), cancellationToken);
             }
+            else if (turnContext.Activity.Text.Contains("aaa"))
+            {
+                var card = new CreateCardService2();
+                var memberId = turnContext.Activity.From.Name;
+                var pay = card.ReplyPayment(memberId);
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(pay), cancellationToken);
+
+            }
             else
             {
                 var activity = turnContext.Activity;

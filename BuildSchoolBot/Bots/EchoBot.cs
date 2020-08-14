@@ -29,6 +29,8 @@ using static BuildSchoolBot.StoreModels.AllSelectData;
 using static BuildSchoolBot.StoreModels.SelectMenu;
 using static BuildSchoolBot.StoreModels.ModifyMenu;
 using BuildSchoolBot.Dialogs;
+using BuildSchoolBot.ViewModels;
+
 namespace BuildSchoolBot.Bots
 {
     public class EchoBot<T> : TeamsActivityHandler where T : Dialog
@@ -177,7 +179,7 @@ namespace BuildSchoolBot.Bots
             //ting
             if (fetchType?.Equals("createmenu") == true)
             {
-                taskInfo.Card = service.GetCreateMenu(); ;
+                taskInfo.Card = service.GetCreateMenu();
                 return await Task.FromResult(taskInfo.ToTaskModuleResponse());
             }
             //Group Buy Open Menu
@@ -226,8 +228,8 @@ namespace BuildSchoolBot.Bots
             if (fetchType?.Equals("ResultStoreCard") == true)
             {
                 var orderId = Guid.NewGuid().ToString();
-                _orderService.CreateOrder(orderId, turnContext.Activity.ChannelId);
                 var data = factory.GetGroupBuyCard(orderId);
+                _orderService.CreateOrder(orderId, turnContext.Activity.ChannelId, data.StoreName);
                 var cardService = new CreateCardService2();
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(cardService.GetStore(data)));
                 return null;

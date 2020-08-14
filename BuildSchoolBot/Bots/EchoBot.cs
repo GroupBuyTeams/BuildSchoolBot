@@ -276,6 +276,8 @@ namespace BuildSchoolBot.Bots
                 var LibraryItem = await _libraryService.FindLibraryByUriAndMemberId(uri, memberId);
                 if (LibraryItem.Count.Equals(0))
                     _libraryService.CreateLibraryItem(memberId, obj.Url, obj.Name);
+                await turnContext.SendActivityAsync(MessageFactory.Text("Create Successful!"));
+
             }
             else if (obj?.Option?.Equals("Delete") == true)
             {
@@ -287,6 +289,14 @@ namespace BuildSchoolBot.Bots
                 var activity = MessageFactory.Attachment(libraryCard);
                 activity.Id = turnContext.Activity.ReplyToId;
                 await turnContext.UpdateActivityAsync(activity, cancellationToken);
+            }
+            else if(obj.Option?.Equals("DeleteStore") == true)
+            {
+                var OrderId = obj.OrderId;
+                Guid guid;
+                Guid.TryParse(OrderId.ToString(), out guid);
+                _orderService.DeleteStore(guid);
+                await turnContext.SendActivityAsync(MessageFactory.Text("Delete Successful!"));
             }
             return await Task.FromResult(new InvokeResponse()
             {

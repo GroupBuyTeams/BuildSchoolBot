@@ -52,7 +52,9 @@ namespace BuildSchoolBot.Service
             var card = NewCard()
                 .AddElement(new AdaptiveTextBlock()
                 {
-                    Text = OrderInfo.StoreName, Size = AdaptiveTextSize.Large, Weight = AdaptiveTextWeight.Bolder,
+                    Text = OrderInfo.StoreName,
+                    Size = AdaptiveTextSize.Large,
+                    Weight = AdaptiveTextWeight.Bolder,
                     HorizontalAlignment = AdaptiveHorizontalAlignment.Center
                 })
                 .AddActionsSet(
@@ -61,7 +63,7 @@ namespace BuildSchoolBot.Service
                         .AddActionToSet(new AdaptiveSubmitAction() { Title = "Favorite", Data = objData })
                         //ting
                         .AddActionToSet(new AdaptiveSubmitAction() { Title = "Delete" })
-                );
+                ) ;
 
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }

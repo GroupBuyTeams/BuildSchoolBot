@@ -9,7 +9,7 @@ namespace BuildSchoolBot.Service
         /// 新增一基本的AdaptiveCard
         /// </summary>
         /// <returns>基本的AdaptiveCard</returns>
-        public static AdaptiveCard NewCard()
+        public static AdaptiveCard NewAdaptiveCard()
         {
             return new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
         }
@@ -125,6 +125,27 @@ namespace BuildSchoolBot.Service
                 }
             }
             return row;
+        }
+        
+        public static HeroCard NewHeroCard()
+        {
+            return new HeroCard();
+        }
+        public static HeroCard EditText(this HeroCard card, string text)
+        {
+            card.Text = text;
+            return card;
+        }
+        public static HeroCard EditTitle(this HeroCard card, string title)
+        {
+            card.Title = title;
+            return card;
+        }
+        
+        public static HeroCard EditSubtitle(this HeroCard card, string subtitle)
+        {
+            card.Subtitle = subtitle;
+            return card;
         }
     }
 }

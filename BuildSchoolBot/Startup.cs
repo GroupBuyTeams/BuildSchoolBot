@@ -55,6 +55,7 @@ namespace BuildSchoolBot
             services.AddSingleton<MainDialog>();
             services.AddSingleton<HistoryDialog>();
             services.AddSingleton<AddressDialogs>();
+            services.AddSingleton<ReservationDialog>();
 
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
             services.AddTransient<IBot, EchoBot<MainDialog>>();
@@ -71,23 +72,24 @@ namespace BuildSchoolBot
             services.AddSingleton<NoteBuy>();
             services.AddHostedService<QuartzHostedService>();
 
-            services.AddTransient<TeamsBuyContext>();
-            services.AddTransient<EGRepository<Library>>();
-            services.AddTransient<EGRepository<Payment>>();
-            services.AddTransient<EGRepository<MenuOrder>>();
-            services.AddTransient<LibraryService>();
-            services.AddTransient<OrderfoodServices>();
-            services.AddTransient<OrderDetailService>();
-            services.AddTransient<OrderService>();
-            services.AddTransient<CreateCardService>();
-            services.AddTransient<OrganizeStructureService>();
-            services.AddTransient<PayMentService>();
-            services.AddTransient<MenuService>();
-            services.AddTransient<MenuDetailService>();
-            services.AddTransient<MenuOrderService>();
+            services.AddSingleton<TeamsBuyContext>();
+            services.AddSingleton<EGRepository<Library>>();
+            services.AddSingleton<EGRepository<Payment>>();
+            services.AddSingleton<EGRepository<MenuOrder>>();
+            services.AddSingleton<EGRepository<MenuDetail>>();
+            services.AddSingleton<LibraryService>();
+            services.AddSingleton<OrderfoodServices>();
+            services.AddSingleton<OrderDetailService>();
+            services.AddSingleton<OrderService>();
+            services.AddSingleton<CreateCardService>();
+            services.AddSingleton<OrganizeStructureService>();
+            services.AddSingleton<PayMentService>();
+            services.AddSingleton<MenuService>();
+            services.AddSingleton<MenuDetailService>();
+            services.AddSingleton<MenuOrderService>();
 
-            services.AddTransient<HistoryService>();
-            services.AddTransient<CustomMenuService>();
+            services.AddSingleton<HistoryService>();
+            services.AddSingleton<CustomMenuService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

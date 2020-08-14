@@ -29,6 +29,8 @@ using static BuildSchoolBot.StoreModels.AllSelectData;
 using static BuildSchoolBot.StoreModels.SelectMenu;
 using static BuildSchoolBot.StoreModels.ModifyMenu;
 using BuildSchoolBot.Dialogs;
+using Microsoft.AspNetCore.Mvc.Diagnostics;
+
 namespace BuildSchoolBot.Bots
 {
     public class EchoBot<T> : TeamsActivityHandler where T : Dialog
@@ -239,21 +241,28 @@ namespace BuildSchoolBot.Bots
             var fetchType = factory.GetCardActionType();
             
             
-            if (fetchType.Equals("ResultStoreCard"))
+            if (fetchType?.Equals("ResultStoreCard") == true)
             {
                 var data = factory.GetGroupBuyCard();
                 var cardService = new CreateCardService2();
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(cardService.GetStore(data)));
                 return null;
             }
-            if (fetchType.Equals("FetchSelectedFoods"))
+            if (fetchType?.Equals("FetchSelectedFoods") == true)
             {
-                var TaskInfo = new TaskModuleTaskInfo();
                 var card = new CreateCardService2().GetChosenFoodFromMenu(factory);
-                turnContext.SendActivityAsync(MessageFactory.Attachment(card));
-                return null;
+
+                if (card.Name?.Contains("error") == true)
+                {
+                    var taskInfo = new TaskModuleTaskInfo();
+                    return await Task.FromResult(taskInfo.ToTaskModuleResponse());
+                }
+                else
+                {
+                    turnContext.SendActivityAsync(MessageFactory.Attachment(card));
+                    return null;
+                }
             }
-            //FetchSelectedFoods
             else if (GetSetType?.Equals("CustomizedMenu") == true)
             {
                 var TaskInfo = new TaskModuleTaskInfo();

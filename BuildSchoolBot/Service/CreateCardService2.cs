@@ -153,8 +153,17 @@ namespace BuildSchoolBot.Service
 
         public Attachment GetChosenFoodFromMenu(AdaptiveCardDataFactory dataFactory)
         {
-            //顯示於TaskModule上方的欄位名稱
-            var itemsName = new string[] { "食物名稱", "價錢", "數量", "備註", "單品總金額" };
+            var orderData = dataFactory.GetOrderedFoods(); //使用者的訂購資訊
+            if (orderData == null)//防呆：使用者在數量那邊輸入負值
+            {
+                return GetError("The numbers of products in the order cannot be negative.");
+            }
+            else if (orderData.Count == 0)//防呆：使用者沒有點任何東西就submit
+            {
+                return GetError("You order nothing.");
+            }
+            
+            var itemsName = new string[] { "食物名稱", "價錢", "數量", "備註", "單品總金額" }; //顯示於TaskModule上方的欄位名稱
             var cardData = dataFactory.GetCardData<StoreOrderDuetime>();
 
             //新增一基本卡片，並且附加此訂單的Guid、餐廳名稱、欄位名稱等文字訊息
@@ -172,9 +181,7 @@ namespace BuildSchoolBot.Service
                 .AddRow(new AdaptiveColumnSet() //加入一列到卡片裡
                         .AddColumnsWithStrings(itemsName) //加入欄位名稱到一列
                 );
-
-            var orderData = dataFactory.GetOrderedFoods();
-
+            
             //此訂單的總花費
             decimal totalMoney = 0;
 
@@ -224,7 +231,7 @@ namespace BuildSchoolBot.Service
                     HorizontalAlignment = AdaptiveHorizontalAlignment.Center
                 });
             //回傳卡片
-            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card, Name = "SingleOrderResult"};
         }
         
         //ting
@@ -401,25 +408,33 @@ namespace BuildSchoolBot.Service
              );          
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };    
         }
-        public Attachment GetError(string UserName)
+        public Attachment GetError(string errorMessage)
         {
             var card = NewCard()
                   .AddElement(new AdaptiveTextBlock()
                   {
-                      Text = "Error.Please write again",
+                      Text = "Oops!",
                       Size = AdaptiveTextSize.Large,
+                      Weight = AdaptiveTextWeight.Bolder,
+                      HorizontalAlignment = AdaptiveHorizontalAlignment.Center
+                  })
+                  .AddElement(new AdaptiveTextBlock()
+                  {
+                      Text = "Something wrong with your action:",
+                      Size = AdaptiveTextSize.Medium,
+                      Color=AdaptiveTextColor.Default,
                       Weight = AdaptiveTextWeight.Bolder,
                       HorizontalAlignment = AdaptiveHorizontalAlignment.Center
                   })
                    .AddElement(new AdaptiveTextBlock()
                    {
-                       Text = UserName,
-                       Size = AdaptiveTextSize.Small,
-                       Color=AdaptiveTextColor.Good,
+                       Text = errorMessage,
+                       Size = AdaptiveTextSize.Medium,
+                       Color=AdaptiveTextColor.Warning,
                        Weight = AdaptiveTextWeight.Bolder,
-                       HorizontalAlignment = AdaptiveHorizontalAlignment.Left
+                       HorizontalAlignment = AdaptiveHorizontalAlignment.Center
                    });            
-            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card, Name = "errorCard"};
         }
 
 

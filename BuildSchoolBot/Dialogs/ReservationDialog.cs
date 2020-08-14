@@ -10,13 +10,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BuildSchoolBot.Models;
 
 namespace BuildSchoolBot.Dialogs
 {
     public class ReservationDialog : ComponentDialog
     {
-        public ReservationDialog() : base()
+        private readonly IStatePropertyAccessor<Schedule> _userProfileAccessor;
+
+        public ReservationDialog(UserState userState) : base(nameof(ReservationDialog))
         {
+            _userProfileAccessor = userState.CreateProperty<Schedule>("Schedule");
+
             var waterfallSteps = new WaterfallStep[]
             {
                 CreateReservationAdaptive,

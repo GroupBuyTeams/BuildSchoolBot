@@ -29,7 +29,6 @@ namespace BuildSchoolBot.Service
         /// <returns>可收藏的團購卡片</returns>
         public Attachment GetStore(StoreOrderDuetime OrderInfo)
         {
-
             var cardData = new CardDataModel<StoreOrderDuetime>()
             {
                 Type = "OpenMenuTaskModule",
@@ -52,7 +51,9 @@ namespace BuildSchoolBot.Service
             var card = NewCard()
                 .AddElement(new AdaptiveTextBlock()
                 {
-                    Text = OrderInfo.StoreName, Size = AdaptiveTextSize.Large, Weight = AdaptiveTextWeight.Bolder,
+                    Text = OrderInfo.StoreName,
+                    Size = AdaptiveTextSize.Large,
+                    Weight = AdaptiveTextWeight.Bolder,
                     HorizontalAlignment = AdaptiveHorizontalAlignment.Center
                 })
                 .AddActionsSet(
@@ -61,24 +62,10 @@ namespace BuildSchoolBot.Service
                         .AddActionToSet(new AdaptiveSubmitAction() { Title = "Favorite", Data = objData })
                         //ting
                         .AddActionToSet(new AdaptiveSubmitAction() { Title = "Delete" })
-                );
+                ) ;
 
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
-
-        //To dear莞婷:
-        //
-        //    妳不是要做刪除嗎？
-        private EGRepository<Order> _repo;
-        public void DeleteStore(Guid orderId)
-        {
-            var entity = _repo.GetAll().FirstOrDefault(x => x.OrderId.Equals(orderId));
-
-            _repo.Delete(entity);
-            _repo.context.SaveChanges();
-        }
-        // Sincerely,
-        // 阿三
         public async Task<Attachment> CreateMenu(AdaptiveCardDataFactory dataFactory)
         {
             var storeData = dataFactory.GetCardData<StoreOrderDuetime>();

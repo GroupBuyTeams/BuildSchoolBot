@@ -28,7 +28,7 @@ namespace BuildSchoolBot.Service
         //產生選擇訂單來源卡片
         public Attachment CreateOrderSourceAdaptiveCard()
         {
-            var card = NewCard()
+            var card = NewAdaptiveCard()
                 .AddActionsSet(
                     NewActionsSet()
                         .AddActionToSet(new AdaptiveSubmitAction() { Title = "Quick Order" ,Id = "Quick" })

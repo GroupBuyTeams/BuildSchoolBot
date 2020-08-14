@@ -270,7 +270,7 @@ namespace BuildSchoolBot.Bots
                 var menuId = Guid.NewGuid().ToString();
                 var menu = new MenuOrder();
                 var teamsId = turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id;
-                _menuService.CreateMenu(menuId, menu.Store, teamsId);
+                _menuService.CreateMenu(menu.Store, teamsId);
                 await turnContext.SendActivityAsync(MessageFactory.Text("Create Successful!"));
                 return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
             }

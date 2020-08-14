@@ -62,13 +62,20 @@ namespace BuildSchoolBot.Service
             foreach (var dish in jData)
             {
                 var key = dish.Key.Split("&&");
-                if (!key[1].Equals("mark") && !dish.Value.Equals("0"))
+                
+                if (!key[1].Equals("mark"))
                 {
-                    var data = new SelectMenu.SelectMenuData() { Dish_Name = key[0], Price = key[1], Quantity = (string)dish.Value };
-                    dictionary.Add(key[0], data);
+                    if (int.Parse((string) dish.Value) > 0)
+                    {
+                        var data = new SelectMenu.SelectMenuData()
+                            {Dish_Name = key[0], Price = key[1], Quantity = (string) dish.Value};
+                        dictionary.Add(key[0], data);
+                    }
+                    else if(int.Parse((string) dish.Value) < 0) //使用者在訂購時，選項數量輸入負值
+                    {
+                        return null;
+                    }
                 }
-                
-                
                 else if (key[1].Equals("mark") && !dish.Value.Equals(string.Empty))
                 {
                     var data = new SelectMenu.SelectMenuData();

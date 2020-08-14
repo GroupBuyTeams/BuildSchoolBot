@@ -21,6 +21,18 @@ namespace BuildSchoolBot.Service
 {
     public class CreateCardService2
     {
+        public Attachment GetMainDialogCard()
+        {
+            var card = NewHeroCard();
+            card.EditTitle("How can I serve you darling?")
+                .NewActionSet()
+                .AddAction(new CardAction() {Type = "imBack", Title = "Buy", Value = "Buy"})
+                .AddAction(new CardAction() {Type = "invoke", Title = "Customized", Value = "{\"type\":\"task/fetch\",\"SetType\":\"Customized\"}"})
+                .AddAction(new CardAction() {Type = "imBack", Title = "History", Value = "History"})
+                .AddAction(new CardAction() {Type = "imBack", Title = "Reserve", Value = "Reserve"});
+            return card.ToAttachment();
+        }
+        
         /// <summary>
         /// 製作收藏庫的餐廳卡片
         /// </summary>
@@ -48,7 +60,7 @@ namespace BuildSchoolBot.Service
                 }
             };
 
-            var card = NewCard()
+            var card = NewAdaptiveCard()
                 .AddElement(new AdaptiveTextBlock()
                 {
                     Text = OrderInfo.StoreName,
@@ -77,7 +89,7 @@ namespace BuildSchoolBot.Service
             };
             var itemsName = new string[] { "菜名", "價錢", "數量", "備註" };
 
-            var card = NewCard()
+            var card = NewAdaptiveCard()
                 .AddElement(new AdaptiveTextBlock()
                 {
                     Text = storeData.OrderID, Size = AdaptiveTextSize.Small, Weight = AdaptiveTextWeight.Bolder,
@@ -154,7 +166,7 @@ namespace BuildSchoolBot.Service
             var cardData = dataFactory.GetCardData<StoreOrderDuetime>();
 
             //新增一基本卡片，並且附加此訂單的Guid、餐廳名稱、欄位名稱等文字訊息
-            var card = NewCard()
+            var card = NewAdaptiveCard()
                 .AddElement(new AdaptiveTextBlock() //加入訂單Guid
                 {
                     Text = cardData.OrderID, Size = AdaptiveTextSize.Small, Weight = AdaptiveTextWeight.Bolder,
@@ -234,7 +246,7 @@ namespace BuildSchoolBot.Service
             };
 
             var itemsName = new string[] { "Name", "Price" }; 
-            var card = NewCard()
+            var card = NewAdaptiveCard()
                 .AddElement(new AdaptiveTextBlock()
                 {
                     Text = guid,
@@ -326,7 +338,7 @@ namespace BuildSchoolBot.Service
             string[] ItemsName = new string[] { "Food Name", "Price", "Quantity", "Remarks", "Total" };
 
             //新增一基本卡片，並且附加此訂單的Guid、餐廳名稱、欄位名稱等文字訊息
-            var card = NewCard()
+            var card = NewAdaptiveCard()
                 .AddElement(new AdaptiveTextBlock() //加入訂單Guid
                 {
                     Text = OrderId,
@@ -397,7 +409,7 @@ namespace BuildSchoolBot.Service
         }
         public Attachment GetError(string errorMessage)
         {
-            var card = NewCard()
+            var card = NewAdaptiveCard()
                   .AddElement(new AdaptiveTextBlock()
                   {
                       Text = "Oops!",
@@ -442,7 +454,7 @@ namespace BuildSchoolBot.Service
             };
             string[] ItemsStoreName = new string[] { MenuOrderStore, "" };
             string[] ItemsName = new string[] { "Food Name", "Price" };
-            var card = NewCard()
+            var card = NewAdaptiveCard()
                  .AddRow(new AdaptiveColumnSet().
                         FixedInputTextAdjustWidthColumn(ItemsStoreName)
                 )
@@ -480,7 +492,7 @@ namespace BuildSchoolBot.Service
             var menuDetails = new MenuDetailService(context).GetMenuOrder(MenuId).ToList();
             var MenuOrderStore = new MenuService(context).GetMenuOrder(MenuId).Store;
             string[] ItemsName = new string[] { "Food Name", "Price" };
-            var card = NewCard()
+            var card = NewAdaptiveCard()
                 .AddElement(new AdaptiveTextBlock()
                 {
                     Text = MenuOrderStore
@@ -567,7 +579,7 @@ namespace BuildSchoolBot.Service
                 Type = "ReplyPayment", //於EchoBot判斷用
                 Value = new StoreInfoData() {  } //要傳出去的資料和資料結構
             };
-            var card = NewCard()
+            var card = NewAdaptiveCard()
                .AddElement(new AdaptiveTextBlock()
                {
                    Text = "Playment",

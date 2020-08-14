@@ -73,6 +73,7 @@ namespace BuildSchoolBot.Service
 
         public Attachment GetStore(string Store, string MenuId)
         {
+            var cardData = new CardDataModel<string>(){Type = "GetCustomizedStore", Value = MenuId};//包資料到Submit Action, Type是給EchoBot判斷用的字串，Value是要傳遞資料
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
             var actionSet = new AdaptiveActionSet() { Type = AdaptiveActionSet.TypeName, Separator = true };
             var TextBlockStorName = new AdaptiveTextBlock
@@ -84,7 +85,7 @@ namespace BuildSchoolBot.Service
             };
             card.Body.Add(TextBlockStorName);
 
-            actionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "Join", Data = new AdaptiveCardTaskFetchValue<string>() { Data = MenuId, SetType = "GetCustomizedStore" } });
+            actionSet.Actions.Add(new AdaptiveSubmitAction().SetOpenTaskModule("Join", JsonConvert.SerializeObject(cardData)));
             card.Body.Add(actionSet);
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
@@ -103,7 +104,7 @@ namespace BuildSchoolBot.Service
             };
 
 
-            var card = NewCard()
+            var card = NewAdaptiveCard()
                 .AddElement(new AdaptiveTextBlock()
                 {
                     Text = MenuData.MenuId.ToString(),

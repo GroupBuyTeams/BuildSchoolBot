@@ -16,7 +16,7 @@ namespace BuildSchoolBot.Service
         //產生預約卡片
         public Attachment CreateReservationAdaptiveCard()
         {
-            var card = NewCard()
+            var card = NewAdaptiveCard()
                 .AddElement(new AdaptiveDateInput())
                 .AddElement(new AdaptiveTimeInput())
                 .AddActionsSet(

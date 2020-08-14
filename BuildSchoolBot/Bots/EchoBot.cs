@@ -208,8 +208,7 @@ namespace BuildSchoolBot.Bots
 
             var factory = new AdaptiveCardDataFactory(turnContext, taskModuleRequest);
             var fetchType = factory.GetCardActionType();
-            
-            
+                      
             if (fetchType.Equals("ResultStoreCard"))
             {
                 var data = factory.GetGroupBuyCard();

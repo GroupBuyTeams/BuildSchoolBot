@@ -563,8 +563,6 @@ namespace BuildSchoolBot.Service
                    HorizontalAlignment = AdaptiveHorizontalAlignment.Left
                });
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
-
         }
-
     }
 }

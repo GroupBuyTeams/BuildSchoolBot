@@ -39,7 +39,6 @@ namespace BuildSchoolBot.Service
         public void DeleteStore(Guid orderId)
         {
             var entity = _repo.GetAll().FirstOrDefault(x => x.OrderId.Equals(orderId));
-
             _repo.Delete(entity);
             _repo.context.SaveChanges();
         }

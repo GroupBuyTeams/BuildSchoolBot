@@ -199,14 +199,12 @@ namespace BuildSchoolBot.Bots
                 taskInfo.Card = await new GetStoreList().CreateStoresModule(factory);
                 return await Task.FromResult(taskInfo.ToTaskModuleResponse());
             }
-            //育安
-            if (Data.GetValue("SetType")?.ToString().Equals("CustomizedModification") == true)
+            //育銨
+            else 
             {
-                return await _orderfoodServices.GetModifyModuleData(turnContext, taskModuleRequest, cancellationToken);
-            }
-            else
-            {
-                return await _orderfoodServices.GetModuleMenuData(turnContext, taskModuleRequest, cancellationToken);
+                taskInfo.Card = service.GetCustomizedModification(factory);
+                service.SetTaskInfo(taskInfo, TaskModuleUIConstants.UpdateMenu);
+                return await Task.FromResult(taskInfo.ToTaskModuleResponse());
             }
 
         }
@@ -228,7 +226,8 @@ namespace BuildSchoolBot.Bots
             {
                 var TaskInfo = new TaskModuleTaskInfo();
                 var card = new CreateCardService2().GetChosenFoodFromMenu(factory);
-                turnContext.SendActivityAsync(MessageFactory.Attachment(card));
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(card));
+                //new CreateCardService2().GetChosenFoodFromMenuCreateOrderDetail(factory, turnContext.Activity.From.Id);
                 return null;
             }
             //FetchSelectedFoods
@@ -236,12 +235,6 @@ namespace BuildSchoolBot.Bots
             {
                 var TaskInfo = new TaskModuleTaskInfo();
                 TaskInfo.Card = _menuOrderService.CreateMenuDetailAttachment(turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id);
-                return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
-            }
-            else if (GetSetType?.Equals("CustomizedModification") == true)
-            {
-                var TaskInfo = new TaskModuleTaskInfo();
-                _orderfoodServices.ModifyMenuData(taskModuleRequest, TaskInfo);
                 return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
             }
             //ting
@@ -254,9 +247,13 @@ namespace BuildSchoolBot.Bots
                 _menuService.CreateMenu(menuId, menu.Store, teamsId);
                 return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
             }
+            //育銨
             else
             {
-                return await _orderfoodServices.FinishSelectDishesSubmit(turnContext, taskModuleRequest, cancellationToken);
+                var TaskInfo = new TaskModuleTaskInfo();
+                TaskInfo.Card = new CreateCardService2().GetResultCustomizedModification(factory);
+                new CreateCardService2().SetTaskInfo(TaskInfo, TaskModuleUIConstants.UpdateMenu);
+                return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
             }
         }
         protected override async Task<InvokeResponse> OnTeamsCardActionInvokeAsync(ITurnContext<IInvokeActivity> turnContext, CancellationToken cancellationToken)

@@ -127,18 +127,14 @@ namespace BuildSchoolBot.Bots
                 var CustomMenucard = _customMenuService.CallCustomeCard();
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(CustomMenucard), cancellationToken);
             }
-            else if (turnContext.Activity.Text.Contains("Command"))
+            else if( turnContext.Activity.Text.Contains("Help"))
             {
-                var reply = MessageFactory.Text("Please enter your command!");
-                var paths = new[] { ".", "Resources", "Command.json" };
-                var adaptiveCard = File.ReadAllText(Path.Combine(paths));
-                var attachment = new Attachment
-                {
-                    ContentType = AdaptiveCard.ContentType,
-                    Content = JsonConvert.DeserializeObject(adaptiveCard),
-                };
-                reply.Attachments.Add(attachment);
-                await turnContext.SendActivityAsync(reply, cancellationToken);
+                var help = new HelpService();
+                var card = help.IntroductionCard();
+                var command = help.Command();
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(card), cancellationToken);
+                await turnContext.SendActivityAsync(MessageFactory.Text("You can give command"), cancellationToken);
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(command), cancellationToken);
             }
             else
             {
@@ -157,22 +153,7 @@ namespace BuildSchoolBot.Bots
         }
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
-            foreach (var member in membersAdded)
-            {
-                if (member.Id != turnContext.Activity.Recipient.Id)
-                {
-                    var reply = MessageFactory.Text("Welcome to GruopBuyBot!");
-                    var paths = new[] { ".", "Resources", "IntroductionCard.json" };
-                    var adaptiveCard = File.ReadAllText(Path.Combine(paths));
-                    var attachment = new Attachment
-                    {
-                        ContentType = AdaptiveCard.ContentType,
-                        Content = JsonConvert.DeserializeObject(adaptiveCard),
-                    };
-                    reply.Attachments.Add(attachment);
-                    await turnContext.SendActivityAsync(reply, cancellationToken);
-                }
-            }
+            await turnContext.SendActivityAsync(MessageFactory.Text("Welcome to Groupbuy."));
         }
         public override async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default)
         {

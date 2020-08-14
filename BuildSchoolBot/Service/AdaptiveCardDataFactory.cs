@@ -110,12 +110,9 @@ namespace BuildSchoolBot.Service
             jData.Property("msteams").Remove();
             jData.Property("data").Remove();
         }
-        public void ModifyMenuData(TaskModuleRequest taskModuleRequest, TaskModuleTaskInfo TaskInfo)
+        public void ModifyMenuData(string MenuId)
         {
             TeamsBuyContext context = new TeamsBuyContext();
-            var asJobject = JObject.FromObject(taskModuleRequest.Data);
-            var Value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
-            //JObject Data = JObject.Parse(JsonConvert.SerializeObject(taskModuleRequest.Data));
             var jData = JObject.FromObject(Request.Data);
             RemoveProperty(jData);
             var inputlist = new List<string>();
@@ -123,16 +120,15 @@ namespace BuildSchoolBot.Service
             {
                 inputlist.Add(item.Value.ToString());
             }
-            inputlist.Remove(inputlist[0]);
             var StoreName = inputlist[0];
-            inputlist.Remove(inputlist[0]);
+            inputlist.Remove(inputlist[0]);         
             var Modify = new ModifyGroup();
-            var w = new List<ModifyMultiple>();
+            var ModifyData = new List<ModifyMultiple>();
             for (int i = 0; 2 * i < inputlist.Count(); i++)
             {
-                w.Add(new ModifyMultiple() { ProductName = inputlist[2 * i], Amount = inputlist[2 * i + 1], MenuId = Value });
+                ModifyData.Add(new ModifyMultiple() { ProductName = inputlist[2 * i], Amount = inputlist[2 * i + 1], MenuId = MenuId });
             }
-            Modify.AllModifyMultiple = w;
+            Modify.AllModifyMultiple = ModifyData;
             Modify.StoreName = StoreName;
             for (var i = 0; i < Modify.AllModifyMultiple.Count; i++)
             {
@@ -141,20 +137,9 @@ namespace BuildSchoolBot.Service
                     Modify.AllModifyMultiple.Remove(Modify.AllModifyMultiple[i]);
                 }
             }
-            new MenuService(context).UpdateMenuOrderStoreName(Value, Modify.StoreName);
-            new MenuDetailService(context).DeleteMenuDetail(Value);
+            new MenuService(context).UpdateMenuOrderStoreName(MenuId, Modify.StoreName);
+            new MenuDetailService(context).DeleteMenuDetail(MenuId);
             new MenuDetailService(context).CreateMenuDetail(Modify);        
-        }
-        public void GetModifyModuleData(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
-        {
-            var TaskInfo = new TaskModuleTaskInfo();
-            TeamsBuyContext context = new TeamsBuyContext();
-            var asJobject = JObject.FromObject(taskModuleRequest.Data);
-            var Value = asJobject.ToObject<CardTaskFetchValue<string>>()?.Data;
-            var MenuOrderData = new MenuDetailService(context).GetMenuOrder(Value).ToList();
-            var MenuOrderStore = new MenuService(context).GetMenuOrder(Value).Store;
-            TaskInfo.Card = new CreateCardService2().GetCustomizedModification(MenuOrderStore, MenuOrderData, Value);
-            new CreateCardService2().SetTaskInfo(TaskInfo, TaskModuleUIConstants.UpdateMenu);
         }
     }
 }

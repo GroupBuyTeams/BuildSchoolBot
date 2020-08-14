@@ -126,11 +126,11 @@ namespace BuildSchoolBot.Bots
                 await turnContext.SendActivityAsync(MessageFactory.Text("You can give command"), cancellationToken);
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(command), cancellationToken);
             }
+            //ting 回覆pay
             else if (turnContext.Activity.Text.Contains("aaa"))
             {
                 var memberId = turnContext.Activity.From.Id;
                 var card = new CreateCardService2().ReplyPayment(_paymentService,turnContext);
-
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(card), cancellationToken);
 
             }

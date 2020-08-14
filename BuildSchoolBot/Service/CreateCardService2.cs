@@ -246,7 +246,7 @@ namespace BuildSchoolBot.Service
             };
 
             var itemsName = new string[] { "Name", "Price" };
-            var card = NewCard()
+            var card = NewAdaptiveCard()
                 .AddElement(new AdaptiveTextBlock()
                 {
                     Text = guid,
@@ -315,7 +315,7 @@ namespace BuildSchoolBot.Service
                 Type = "ReplyPayment", //於EchoBot判斷用
                 Value = new StoreInfoData() { } //要傳出去的資料和資料結構
             };
-            var card = NewCard()
+            var card = NewAdaptiveCard()
                .AddElement(new AdaptiveTextBlock()
                {
                    Text = "Playment",

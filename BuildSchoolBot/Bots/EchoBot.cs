@@ -193,6 +193,13 @@ namespace BuildSchoolBot.Bots
                 TaskInfo.Card = _menuOrderService.CreateMenuOrderAttachment(TenantId);
                 return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
             }
+            else if (Data.GetValue("SetType")?.ToString().Equals("GetCustomizedStore") == true)
+            {
+                var MenuId = Data.GetValue("data").ToString();
+
+                taskInfo.Card = await _menuOrderService.CreateMenu(MenuId);
+                return await Task.FromResult(taskInfo.ToTaskModuleResponse());
+            }
             //家寶
             if (fetchType.Equals("GetStore"))
             {
@@ -234,18 +241,30 @@ namespace BuildSchoolBot.Bots
                 }
                 else
                 {
-                    turnContext.SendActivityAsync(MessageFactory.Attachment(card));
+                    await turnContext.SendActivityAsync(MessageFactory.Attachment(card));
                     return null;
                 }
             }
             else if (GetSetType?.Equals("CustomizedMenu") == true)
             {
-                var TaskInfo = new TaskModuleTaskInfo();
-                TaskInfo.Card = _menuOrderService.CreateMenuDetailAttachment(turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id);
-                return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
+                var Data = JObject.FromObject(taskModuleRequest.Data);
+                var MenuId = Data.GetValue("MenuId").ToString();
+                var Name = _menuOrderService.FindMenuOrderByMenuId(MenuId).Result.Store.ToString();
+                var result = _menuOrderService.GetStore(Name, MenuId);
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(result));
+                return null;
+            }
+            else if (GetSetType?.Equals("GetCustomizedOrder") == true)
+            {
+                var Data = JObject.FromObject(taskModuleRequest.Data);
+                var MenuId = Data.GetValue("MenuId").ToString();
+                var Name = _menuOrderService.FindMenuOrderByMenuId(MenuId).Result.Store.ToString();
+                var result = _menuOrderService.GetStore(Name, MenuId);
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(result));
+                return null;
             }
             //ting
-            else if(GetSetType.Equals("Create"))
+            else if (GetSetType?.Equals("Create") == true)
             {
                 var TaskInfo = new TaskModuleTaskInfo();
                 var menuId = Guid.NewGuid().ToString();

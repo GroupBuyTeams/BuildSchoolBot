@@ -13,6 +13,16 @@ namespace BuildSchoolBot.StoreModels
 
         [JsonProperty("data")]
         public T Data { get; set; }
+        // public string SetType { get; set; }
+    }
+    
+    public class AdaptiveCardTaskSubmitValue<T>
+    {
+        [JsonProperty("msteams")]
+        public object Type { get; set; } = JsonConvert.DeserializeObject("{\"type\": \"task/submit\" }");
+
+        [JsonProperty("data")]
+        public T Data { get; set; }
         public string SetType { get; set; }
     }
 }

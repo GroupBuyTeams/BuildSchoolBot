@@ -42,12 +42,13 @@ namespace BuildSchoolBot.Dialogs
         private static async Task<DialogTurnResult> ConfirmAddressAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             string add = (string)stepContext.Result;
-            var LatLng = new LatLngService(add);
-            string result = await new WebCrawler().GetStores(LatLng.lat, LatLng.lng);
-            var get_store = new GetStoreList();
-            await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(get_store.GetStore(add, result)));
-            return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { Prompt = MessageFactory.Text("Please Confirm Your Address.") }, cancellationToken);
+            // var LatLng = new LatLngService(add);
+            // var result = await new WebCrawler().GetStores2(LatLng.lat, LatLng.lng); 在這裡還不用去抓資料
+            var getStoreService = new GetStoreList();
+            await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(getStoreService.GetChooseMenuCard(add)));
+            return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { Prompt = MessageFactory.Text("Please Choose Menu.") }, cancellationToken);
         }
+        
         //    private static async Task<DialogTurnResult> GetStoreAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         //    {
         //        string add = (string)stepContext.Result;

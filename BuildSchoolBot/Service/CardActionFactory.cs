@@ -18,6 +18,13 @@ namespace BuildSchoolBot.Service
             action.Data = new AdaptiveCardTaskFetchValue<string>() { Data = data };
             return action;
         }
+        
+        public static AdaptiveSubmitAction SetSubmitTaskModule(this AdaptiveSubmitAction action, string title, string data)
+        {
+            action.Title = title;
+            action.Data = new AdaptiveCardTaskSubmitValue<string>() { Data = data };
+            return action;
+        }
         /// <summary>
         /// 為AdaptiveCard新增一個AdaptiveActionSet
         /// </summary>

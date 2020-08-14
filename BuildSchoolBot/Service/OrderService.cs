@@ -1,4 +1,5 @@
 ﻿using BuildSchoolBot.Models;
+using BuildSchoolBot.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ namespace BuildSchoolBot.Service
 {
     public class OrderService
     {
+        private EGRepository<Order> _repo;
         protected readonly TeamsBuyContext context;
 
         public OrderService(TeamsBuyContext _context)
@@ -34,12 +36,11 @@ namespace BuildSchoolBot.Service
             return context.Order.SingleOrDefault(x => x.OrderId.ToString().Equals(orderId));
         }
         //delete Order
-        //public void DeleteOrder(string jdata)
-        //{
-        //    var delete_order = context.Order.FirstOrDefault(x => x.OrderId.ToString().Equals(jdata));
-        //    context.Order.Remove(delete_order);
-        //    context.SaveChanges();
-        //}
-
+        public void DeleteStore(Guid orderId)
+        {
+            var entity = _repo.GetAll().FirstOrDefault(x => x.OrderId.Equals(orderId));
+            _repo.Delete(entity);
+            _repo.context.SaveChanges();
+        }
     }
 }

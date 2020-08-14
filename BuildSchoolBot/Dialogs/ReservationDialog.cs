@@ -40,6 +40,7 @@ namespace BuildSchoolBot.Dialogs
         //請使用者選擇訂單來源
         private static async Task<DialogTurnResult> OrderSourceAdaptive(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
+            
             var OrderSourceCardAttachment = new CreateReservationCard().CreateOrderSourceAdaptiveCard();
             await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(OrderSourceCardAttachment));
             return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { Prompt = MessageFactory.Text("Please pick an order source.") }, cancellationToken);

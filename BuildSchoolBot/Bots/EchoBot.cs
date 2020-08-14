@@ -220,11 +220,9 @@ namespace BuildSchoolBot.Bots
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
             var GetSetType = JObject.FromObject(taskModuleRequest.Data).GetValue("SetType")?.ToString();
-
             var factory = new AdaptiveCardDataFactory(turnContext, taskModuleRequest);
             var fetchType = factory.GetCardActionType();
-            
-            
+                      
             if (fetchType?.Equals("ResultStoreCard") == true)
             {
                 var orderId = Guid.NewGuid().ToString();
@@ -310,7 +308,9 @@ namespace BuildSchoolBot.Bots
                 var activity = MessageFactory.Attachment(libraryCard);
                 activity.Id = turnContext.Activity.ReplyToId;
                 await turnContext.UpdateActivityAsync(activity, cancellationToken);
+
             }
+            //ting deleteOrder
             else if(obj.Option?.Equals("DeleteOrder") == true)
             {
                 var OrderId = obj.OrderId;

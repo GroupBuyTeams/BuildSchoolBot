@@ -267,8 +267,8 @@ namespace BuildSchoolBot.Bots
             else if(fetchType?.Equals("GetCustomizedMenu") == true)
             {
                 var TaskInfo = new TaskModuleTaskInfo();
-                var menuId = Guid.NewGuid().ToString();
                 var menu = new MenuOrder();
+                var menuId = Guid.NewGuid().ToString();
                 var teamsId = turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id;
                 _menuService.CreateMenu(menu.Store, teamsId);
                 await turnContext.SendActivityAsync(MessageFactory.Text("Create Successful!"));
@@ -307,7 +307,7 @@ namespace BuildSchoolBot.Bots
                 activity.Id = turnContext.Activity.ReplyToId;
                 await turnContext.UpdateActivityAsync(activity, cancellationToken);
             }
-            else if(obj.Option?.Equals("GetStore") == true)
+            else if(obj.Option?.Equals("DeleteOrder") == true)
             {
                 var OrderId = obj.OrderId;
                 Guid guid;

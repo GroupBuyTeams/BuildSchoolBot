@@ -17,14 +17,14 @@ namespace BuildSchoolBot.Service
             context = _context;
         }
         //create Order
-        public void CreateOrder(string _orderId , string _channelId)
+        public void CreateOrder(string _orderId , string _channelId, string _storeName)
         {
             var order = new Order
             {
                 OrderId = Guid.Parse(_orderId),
                 ChannelId = _channelId,
                 Date = DateTime.Now,
-                //StoreName = storeName
+                StoreName = _storeName
             };
             context.Order.Add(order);
             context.SaveChanges();

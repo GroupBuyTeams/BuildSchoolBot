@@ -197,9 +197,7 @@ namespace BuildSchoolBot.Bots
             }
             else if (fetchType?.Equals("GetCustomizedStore") == true)
             {
-                var CardData = JsonConvert.DeserializeObject<CardDataModel<string>>(Data.GetValue("data").ToString());
-
-                taskInfo.Card = await _menuOrderService.CreateMenu(CardData.Value);
+                taskInfo.Card = await _menuOrderService.CreateMenu(factory);
                 return await Task.FromResult(taskInfo.ToTaskModuleResponse());
             }
             //家寶

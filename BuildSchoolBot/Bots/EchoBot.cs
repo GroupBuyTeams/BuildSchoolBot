@@ -71,7 +71,6 @@ namespace BuildSchoolBot.Bots
         }
         protected override async Task OnMessageActivityAsync(ITurnContext<IMessageActivity> turnContext, CancellationToken cancellationToken)
         {
-            //var test = turnContext.Activity.Value.ToString().Split('"') ;
             if (turnContext.Activity.Text.Contains("Library"))
             {
                 var libraryCard = await GetLibraryCard(turnContext);
@@ -108,15 +107,6 @@ namespace BuildSchoolBot.Bots
             {
                 var datas = await TeamsInfo.GetMembersAsync(turnContext, cancellationToken);
                 foreach (var data in datas)
-                {
-                    var str = data.Name + "\r\n" + data.Id;
-                    await turnContext.SendActivityAsync(MessageFactory.Text(str));
-                }
-            }
-            else if (turnContext.Activity.Text.Contains("channel"))
-            {
-                var channel = await TeamsInfo.GetTeamChannelsAsync(turnContext);
-                foreach (var data in channel)
                 {
                     var str = data.Name + "\r\n" + data.Id;
                     await turnContext.SendActivityAsync(MessageFactory.Text(str));

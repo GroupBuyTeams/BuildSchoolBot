@@ -29,6 +29,8 @@ using static BuildSchoolBot.StoreModels.AllSelectData;
 using static BuildSchoolBot.StoreModels.SelectMenu;
 using static BuildSchoolBot.StoreModels.ModifyMenu;
 using BuildSchoolBot.Dialogs;
+using BuildSchoolBot.ViewModels;
+
 namespace BuildSchoolBot.Bots
 {
     public class EchoBot<T> : TeamsActivityHandler where T : Dialog
@@ -117,7 +119,7 @@ namespace BuildSchoolBot.Bots
                 var CustomMenucard = _customMenuService.CallCustomeCard();
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(CustomMenucard), cancellationToken);
             }
-            else if( turnContext.Activity.Text.Contains("Help"))
+            else if (turnContext.Activity.Text.Contains("Help"))
             {
                 var help = new HelpService();
                 var card = help.IntroductionCard();
@@ -193,11 +195,11 @@ namespace BuildSchoolBot.Bots
                 TaskInfo.Card = _menuOrderService.CreateMenuOrderAttachment(TenantId);
                 return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
             }
-            else if (Data.GetValue("SetType")?.ToString().Equals("GetCustomizedStore") == true)
+            else if (fetchType?.Equals("GetCustomizedStore") == true)
             {
-                var MenuId = Data.GetValue("data").ToString();
+                var CardData = JsonConvert.DeserializeObject<CardDataModel<string>>(Data.GetValue("data").ToString());
 
-                taskInfo.Card = await _menuOrderService.CreateMenu(MenuId);
+                taskInfo.Card = await _menuOrderService.CreateMenu(CardData.Value);
                 return await Task.FromResult(taskInfo.ToTaskModuleResponse());
             }
             //家寶
@@ -207,7 +209,7 @@ namespace BuildSchoolBot.Bots
                 return await Task.FromResult(taskInfo.ToTaskModuleResponse());
             }
             //育銨
-            else 
+            else
             {
                 taskInfo.Card = service.GetCustomizedModification(factory);
                 service.SetTaskInfo(taskInfo, TaskModuleUIConstants.UpdateMenu);
@@ -221,8 +223,8 @@ namespace BuildSchoolBot.Bots
 
             var factory = new AdaptiveCardDataFactory(turnContext, taskModuleRequest);
             var fetchType = factory.GetCardActionType();
-            
-            
+
+
             if (fetchType?.Equals("ResultStoreCard") == true)
             {
                 var data = factory.GetGroupBuyCard();
@@ -306,7 +308,7 @@ namespace BuildSchoolBot.Bots
                 activity.Id = turnContext.Activity.ReplyToId;
                 await turnContext.UpdateActivityAsync(activity, cancellationToken);
             }
-            else if(obj.Option?.Equals("DeleteStore") == true)
+            else if (obj.Option?.Equals("DeleteStore") == true)
             {
                 var OrderId = obj.OrderId;
                 Guid guid;

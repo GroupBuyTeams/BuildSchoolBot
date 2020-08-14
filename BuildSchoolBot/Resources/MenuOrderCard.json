@@ -21,8 +21,7 @@
             "type": "Action.Submit",
             "title": "OK",
             "data": {
-                "SetType": "CustomizedMenu",
-                "Name": ""
+                "SetType": "CustomizedMenu"
             }
         }
     ]

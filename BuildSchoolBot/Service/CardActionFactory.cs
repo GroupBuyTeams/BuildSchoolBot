@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using AdaptiveCards;
 using BuildSchoolBot.StoreModels;
+using Microsoft.Bot.Schema;
 
 namespace BuildSchoolBot.Service
 {
@@ -54,6 +56,23 @@ namespace BuildSchoolBot.Service
         {
             set.Actions.Add(action);
             return set;
-        } 
+        }
+
+        public static HeroCard NewActionSet(this HeroCard card)
+        {
+            card.Buttons = new List<CardAction>();
+            return card;
+        }
+
+        public static HeroCard AddAction(this HeroCard card, CardAction action)
+        {
+            card.Buttons.Add(action);
+            return card;
+        }
+        public static HeroCard EditTapAction(this HeroCard card, CardAction action)
+        {
+            card.Tap = action;
+            return card;
+        }
     }
 }

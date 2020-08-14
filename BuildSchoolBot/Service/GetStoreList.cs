@@ -111,7 +111,7 @@ namespace BuildSchoolBot.Service
                 Type = "GetStore",
                 Value = address
             };
-            var card = NewCard()
+            var card = NewAdaptiveCard()
                 .AddElement(new AdaptiveTextBlock
                 {
                     Size = AdaptiveTextSize.Large, Weight = AdaptiveTextWeight.Bolder, Text = address,
@@ -170,7 +170,7 @@ namespace BuildSchoolBot.Service
             };
 
             var card =
-                NewCard()
+                NewAdaptiveCard()
                     .AddElement(new AdaptiveTextBlock
                     {
                         Size = AdaptiveTextSize.Large, Weight = AdaptiveTextWeight.Bolder, Text = "Chose Your Order",

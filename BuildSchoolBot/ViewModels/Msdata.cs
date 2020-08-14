@@ -28,6 +28,9 @@ namespace BuildSchoolBot.ViewModels
 
         [JsonProperty("LibraryId")]
         public Guid LibraryId { get; set; }
+        //ting
+        [JsonProperty("OrderId")]
+        public Guid OrderId { get; set; }
     }
 
     public class Data

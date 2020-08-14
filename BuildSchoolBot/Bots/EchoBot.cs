@@ -225,7 +225,9 @@ namespace BuildSchoolBot.Bots
             
             if (fetchType?.Equals("ResultStoreCard") == true)
             {
-                var data = factory.GetGroupBuyCard();
+                var orderId = Guid.NewGuid().ToString();
+                _orderService.CreateOrder(orderId, turnContext.Activity.ChannelId);
+                var data = factory.GetGroupBuyCard(orderId);
                 var cardService = new CreateCardService2();
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(cardService.GetStore(data)));
                 return null;

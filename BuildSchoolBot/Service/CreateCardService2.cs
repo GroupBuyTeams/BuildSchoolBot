@@ -127,7 +127,7 @@ namespace BuildSchoolBot.Service
                         .AddCol(new AdaptiveColumn()
                             .AddElement(new AdaptiveTextBlock() { Text = foods[i].Dish_Name }))
                         .AddCol(new AdaptiveColumn()
-                            .AddElement(new AdaptiveTextBlock() { Text = foods[i].Price.ToString() }))
+                            .AddElement(new AdaptiveTextBlock() { Text = decimal.Round(foods[i].Price).ToString() }))
                         .AddCol(new AdaptiveColumn()
                             .AddElement(new AdaptiveNumberInput() { Min = 0, Value = 0, Id = $"{foods[i].Dish_Name}&&{foods[i].Price}" })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
                         .AddCol(new AdaptiveColumn()
@@ -216,7 +216,7 @@ namespace BuildSchoolBot.Service
                                 .AddElement(new AdaptiveTextBlock() { Text = p.Dish_Name }) //在欄位內加入餐點名稱的文字
                         )
                         .AddCol(new AdaptiveColumn() //加入一欄位到一列
-                                .AddElement(new AdaptiveTextBlock() { Text = p.Price }) //加入餐點價格
+                                .AddElement(new AdaptiveTextBlock() { Text = decimal.Round(decimal.Parse(p.Price)).ToString() }) //加入餐點價格
                         )
                         .AddCol(new AdaptiveColumn() //加入一欄位到一列
                                 .AddElement(new AdaptiveTextBlock() { Text = p.Quantity }) //加入餐點數量
@@ -225,14 +225,14 @@ namespace BuildSchoolBot.Service
                                 .AddElement(new AdaptiveTextBlock() { Text = p.Remarks }) //加入備註
                         )
                         .AddCol(new AdaptiveColumn() //加入一欄位到一列
-                                .AddElement(new AdaptiveTextBlock() { Text = totalSingleMoney.ToString() }) //加入此餐點的總價
+                                .AddElement(new AdaptiveTextBlock() { Text = decimal.Round(totalSingleMoney).ToString() }) //加入此餐點的總價
                         )
                     );
                 }
             }
 
             //顯示於TaskModule下方的文字資訊
-            var timeAndTotalMoney = new string[] { "DueTime", cardData.DueTime, "", "總金額:", totalMoney.ToString() };
+            var timeAndTotalMoney = new string[] { "DueTime", cardData.DueTime, "", "總金額:", decimal.Round(totalMoney).ToString() };
 
             //將其他資訊加入至卡片內
             card.AddRow(new AdaptiveColumnSet() //加入一列到卡片裡
@@ -367,7 +367,7 @@ namespace BuildSchoolBot.Service
         public void GetChosenFoodFromMenuCreateOrderDetail(AdaptiveCardDataFactory dataFactory,string UserId)
         {
             TeamsBuyContext context = new TeamsBuyContext();
-            var CardData = dataFactory.GetCardData<StoreInfoData>();
+            var cardData = dataFactory.GetCardData<StoreOrderDuetime>();
             var OrderData = dataFactory.GetOrderedFoods();
             var SelectObject = new SelectAllDataGroup();
             SelectObject.UserID = UserId;
@@ -379,7 +379,7 @@ namespace BuildSchoolBot.Service
                     ChosenFoodFromMenu.Add(new SelectData() { Quantity = p.Quantity, Remarks = p.Remarks, Dish_Name = p.Dish_Name, Price = p.Price });
                 }
             }
-            new OrderDetailService(context).CreateOrderDetail(SelectObject,ChosenFoodFromMenu, Guid.Parse(CardData.Guid));
+            new OrderDetailService(context).CreateOrderDetail(SelectObject,ChosenFoodFromMenu, Guid.Parse(cardData.OrderID));
         }
 
         public Attachment GetResultTotal(string OrderId, string StoreName, string Orderfoodjson, string DueTime)

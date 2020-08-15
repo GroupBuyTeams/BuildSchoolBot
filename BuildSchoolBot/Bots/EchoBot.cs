@@ -242,6 +242,7 @@ namespace BuildSchoolBot.Bots
                 else
                 {
                     await turnContext.SendActivityAsync(MessageFactory.Attachment(card));
+                    new CreateCardService2().GetChosenFoodFromMenuCreateOrderDetail(factory, turnContext.Activity.From.Id);
                     return null;
                 }
             }

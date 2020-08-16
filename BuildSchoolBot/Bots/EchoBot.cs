@@ -195,7 +195,7 @@ namespace BuildSchoolBot.Bots
                 TaskInfo.Card = _menuOrderService.CreateMenuOrderAttachment(TenantId);
                 return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
             }
-            else if (fetchType?.Equals("GetCustomizedStore") == true)
+            else if (fetchType?.Equals("GetCustomizedMenu") == true)
             {
                 taskInfo.Card = await _menuOrderService.CreateMenu(factory);
                 return await Task.FromResult(taskInfo.ToTaskModuleResponse());
@@ -217,10 +217,9 @@ namespace BuildSchoolBot.Bots
         }
         protected override async Task<TaskModuleResponse> OnTeamsTaskModuleSubmitAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
-            var GetSetType = JObject.FromObject(taskModuleRequest.Data).GetValue("SetType")?.ToString();
             var factory = new AdaptiveCardDataFactory(turnContext, taskModuleRequest);
             var fetchType = factory.GetCardActionType();
-                      
+
             if (fetchType?.Equals("ResultStoreCard") == true)
             {
                 var orderId = Guid.NewGuid().ToString();
@@ -246,31 +245,19 @@ namespace BuildSchoolBot.Bots
                     return null;
                 }
             }
-            else if (GetSetType?.Equals("CustomizedMenu") == true)
+            else if (fetchType?.Equals("GetCustomizedStore") == true)
             {
-                var Data = JObject.FromObject(taskModuleRequest.Data);
-                var MenuId = Data.GetValue("MenuId").ToString();
-                var Name = _menuOrderService.FindMenuOrderByMenuId(MenuId).Result.Store.ToString();
-                var result = _menuOrderService.GetStore(Name, MenuId);
-                await turnContext.SendActivityAsync(MessageFactory.Attachment(result));
-                return null;
-            }
-            else if (GetSetType?.Equals("GetCustomizedOrder") == true)
-            {
-                var Data = JObject.FromObject(taskModuleRequest.Data);
-                var MenuId = Data.GetValue("MenuId").ToString();
-                var Name = _menuOrderService.FindMenuOrderByMenuId(MenuId).Result.Store.ToString();
-                var result = _menuOrderService.GetStore(Name, MenuId);
+                var result = _menuOrderService.GetStore(factory);
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(result));
                 return null;
             }
             //ting
-            else if(fetchType?.Equals("GetCustomizedMenu") == true)
+            else if (fetchType?.Equals("GetCustomizedMenu") == true)
             {
                 var TaskInfo = new TaskModuleTaskInfo();
                 var menu = new MenuOrder();
                 var menuId = Guid.NewGuid().ToString();
-                var  teamsId = turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id;
+                var teamsId = turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id;
                 _menuService.CreateMenu(menu.Store, teamsId);
                 await turnContext.SendActivityAsync(MessageFactory.Text("Create Successful!"));
                 return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
@@ -310,7 +297,7 @@ namespace BuildSchoolBot.Bots
 
             }
             //ting deleteOrder
-            else if(obj.Option?.Equals("DeleteOrder") == true)
+            else if (obj.Option?.Equals("DeleteOrder") == true)
             {
                 var OrderId = obj.OrderId;
                 Guid guid;

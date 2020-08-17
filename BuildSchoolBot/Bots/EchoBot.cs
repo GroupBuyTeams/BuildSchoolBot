@@ -255,13 +255,10 @@ namespace BuildSchoolBot.Bots
             //ting
             else if (fetchType?.Equals("GetCustomizedMenu") == true)
             {
-                var TaskInfo = new TaskModuleTaskInfo();
-                var menu = new MenuOrder();
-                var menuId = Guid.NewGuid().ToString();
                 var teamsId = turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id;
-                _menuService.CreateMenu(menu.Store, teamsId);
+                _menuService.CreateMenu(factory, teamsId);
                 await turnContext.SendActivityAsync(MessageFactory.Text("Create Successful!"));
-                return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
+                return null;
             }
             //育銨
             else

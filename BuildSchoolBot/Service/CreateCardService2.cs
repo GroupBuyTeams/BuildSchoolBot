@@ -514,12 +514,15 @@ namespace BuildSchoolBot.Service
                 }
 
             };
-            string[] ItemsStoreName = new string[] { MenuOrderStore, "" };
             string[] ItemsName = new string[] { "Food Name", "Price" };
-            var card = NewAdaptiveCard()
-                 .AddRow(new AdaptiveColumnSet().
-                        FixedInputTextAdjustWidthColumn(ItemsStoreName)
-                )
+            var card =
+                NewAdaptiveCard()
+                    .AddRow(new AdaptiveColumnSet() { Separator = true }
+                        .AddCol(new AdaptiveColumn() 
+                            .AddElement(new AdaptiveTextInput() { Id = MenuOrderStore+"1", Value = MenuOrderStore }))
+                      .AddCol(new AdaptiveColumn() 
+                                .AddElement(new AdaptiveTextBlock() { Text ="" }) 
+                        ))
                   .AddRow(new AdaptiveColumnSet().
                         AddColumnsWithStrings(ItemsName)
                 );
@@ -539,7 +542,7 @@ namespace BuildSchoolBot.Service
             .AddActionsSet(
                NewActionsSet()
                    .AddActionToSet(
-                       new AdaptiveSubmitAction().SetOpenTaskModule("Modify", JsonConvert.SerializeObject(ModifyData))//勿必要將傳出去的資料進行Serialize
+                       new AdaptiveSubmitAction().SetOpenTaskModule("Edit", JsonConvert.SerializeObject(ModifyData))//勿必要將傳出去的資料進行Serialize
                    )
            );
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };

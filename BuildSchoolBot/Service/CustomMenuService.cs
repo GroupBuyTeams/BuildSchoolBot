@@ -86,13 +86,23 @@ namespace BuildSchoolBot.Service
             var getstore = GetMenuOrders();
             foreach (var storeitem in getstore)
             {
-                card.Body.Add(StoreItems(storeitem.Store));
+                card.Body.Add(StoreItems(storeitem.Store,storeitem.MenuId));
             }
             return card;
         }
 
-        private AdaptiveColumnSet StoreItems(string Storename)
+        private AdaptiveColumnSet StoreItems(string Storename,Guid MenuId)
         {
+            var ModifyData = new CardDataModel<ModifyData>()
+            {
+                Type = "CustomizedModification",
+                Value = new ModifyData()
+                {
+                    MenuId = MenuId.ToString()
+                }
+
+            };
+
             var MainColumnSet = new AdaptiveColumnSet();
 
             var Column1 = new AdaptiveColumn();
@@ -111,7 +121,7 @@ namespace BuildSchoolBot.Service
             ChildColumnSet.Columns.Add(EditColumn);
 
             var EditActionSet = new AdaptiveActionSet();
-            EditActionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "Edit" });
+            EditActionSet.Actions.Add(new AdaptiveSubmitAction().SetOpenTaskModule("Edit", JsonConvert.SerializeObject(ModifyData)));
             EditColumn.Items.Add(EditActionSet);
 
             var DeleteColumn = new AdaptiveColumn() { Width = AdaptiveColumnWidth.Auto };

@@ -95,21 +95,21 @@ namespace BuildSchoolBot.Service
             return row;
         }
 
-        public static AdaptiveColumnSet FixedInputTextAdjustWidthColumn(this AdaptiveColumnSet row,string[] texts)
-        {
-            for (int i = 0; i < texts.Length; i++)
-            {
-                if (texts[i] == "")
-                {
-                    row.AddCol(new AdaptiveColumn().AddElement(new AdaptiveTextBlock(texts[i])));
-                }
-                else
-                {
-                    row.AddCol(new AdaptiveColumn().AddElement(new AdaptiveTextInput(){Id= texts[i] + i.ToString() ,Value= texts[i]}));
-                }
-            }
-            return row;
-        }
+        //public static AdaptiveColumnSet FixedInputTextAdjustWidthColumn(this AdaptiveColumnSet row, string[] texts)
+        //{
+        //    for (int i = 0; i < texts.Length; i++)
+        //    {
+        //        if (texts[i] == "")
+        //        {
+        //            row.AddCol(new AdaptiveColumn().AddElement(new AdaptiveTextBlock(texts[i])));
+        //        }
+        //        else
+        //        {
+        //            row.AddCol(new AdaptiveColumn().AddElement(new AdaptiveTextInput() { Id = texts[i] + i.ToString(), Value = texts[i] }));
+        //        }
+        //    }
+        //    return row;
+        //}
 
         public static AdaptiveColumnSet FixedtextColumnLeftColor(this AdaptiveColumnSet row,string[] texts)
         {

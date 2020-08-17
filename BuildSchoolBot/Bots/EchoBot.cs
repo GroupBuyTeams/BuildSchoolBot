@@ -294,14 +294,14 @@ namespace BuildSchoolBot.Bots
 
             }
             //ting deleteOrder
-            else if (obj.Option?.Equals("DeleteOrder") == true)
-            {
-                var OrderId = obj.OrderId;
-                Guid guid;
-                Guid.TryParse(OrderId.ToString(), out guid);
-                _orderService.DeleteStore(guid);
-                await turnContext.SendActivityAsync(MessageFactory.Text("Delete Successful!"));
-            }
+            //else if (obj.Option?.Equals("DeleteOrder") == true)
+            //{
+            //    var OrderId = obj.OrderId;
+            //    Guid guid;
+            //    Guid.TryParse(OrderId.ToString(), out guid);
+            //    _orderService.DeleteStore(guid);
+            //    await turnContext.SendActivityAsync(MessageFactory.Text("Delete Successful!"));
+            //}
             return await Task.FromResult(new InvokeResponse()
             {
                 Status = 200

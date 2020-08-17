@@ -28,7 +28,7 @@ namespace BuildSchoolBot.Service
             card.EditTitle("How can I serve you darling?")
                 .NewActionSet()
                 .AddAction(new CardAction() { Type = "imBack", Title = "Buy", Value = "Buy" })
-                .AddAction(new CardAction() { Type = "invoke", Title = "Customized", Value = "{\"type\":\"task/fetch\",\"SetType\":\"Customized\"}" })
+                .AddAction(new CardAction() { Type = "invoke", Title = "Customized", Value = "{\"type\":\"task/fetch\",\"data\":{\"Type\":\"Customized\",\"Value\":\"\"}}" })
                 .AddAction(new CardAction() { Type = "imBack", Title = "History", Value = "History" })
                 .AddAction(new CardAction() { Type = "imBack", Title = "Reserve", Value = "Reserve" });
             return card.ToAttachment();

@@ -170,7 +170,6 @@ namespace BuildSchoolBot.Bots
         protected async override Task<TaskModuleResponse> OnTeamsTaskModuleFetchAsync(ITurnContext<IInvokeActivity> turnContext, TaskModuleRequest taskModuleRequest, CancellationToken cancellationToken)
         {
             var TaskInfo = new TaskModuleTaskInfo();
-            var Data = JObject.FromObject(taskModuleRequest.Data);
 
             var factory = new AdaptiveCardDataFactory(turnContext, taskModuleRequest);
             var fetchType = factory.GetCardActionType();
@@ -189,7 +188,7 @@ namespace BuildSchoolBot.Bots
                 return await Task.FromResult(taskInfo.ToTaskModuleResponse());
             }
             // Customized Card
-            if (Data.GetValue("SetType")?.ToString().Equals("Customized") == true)
+            if (fetchType?.Equals("Customized") == true)
             {
                 var TenantId = turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id;
                 TaskInfo.Card = _menuOrderService.CreateMenuOrderAttachment(TenantId);
@@ -201,7 +200,7 @@ namespace BuildSchoolBot.Bots
                 return await Task.FromResult(taskInfo.ToTaskModuleResponse());
             }
             //家寶
-            if (fetchType.Equals("GetStore"))
+            if (fetchType?.Equals("GetStore") == true)
             {
                 taskInfo.Card = await new GetStoreList().CreateStoresModule(factory);
                 return await Task.FromResult(taskInfo.ToTaskModuleResponse());

@@ -28,7 +28,7 @@ namespace BuildSchoolBot.Service
             card.EditTitle("How can I serve you darling?")
                 .NewActionSet()
                 .AddAction(new CardAction() { Type = "imBack", Title = "Buy", Value = "Buy" })
-                .AddAction(new CardAction() { Type = "invoke", Title = "Customized", Value = "{\"type\":\"task/fetch\",\"SetType\":\"Customized\"}" })
+                .AddAction(new CardAction() { Type = "invoke", Title = "Customized", Value = "{\"type\":\"task/fetch\",\"data\":{\"Type\":\"Customized\",\"Value\":\"\"}}" })
                 .AddAction(new CardAction() { Type = "imBack", Title = "History", Value = "History" })
                 .AddAction(new CardAction() { Type = "imBack", Title = "Reserve", Value = "Reserve" });
             return card.ToAttachment();
@@ -319,7 +319,7 @@ namespace BuildSchoolBot.Service
 
                         .AddCol(new AdaptiveColumn()
                         { Width = "20" }
-                             .AddElement(new AdaptiveNumberInput() { Min = 0, Value = 0, Placeholder = "Price", Id = $"price&{i}" })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
+                             .AddElement(new AdaptiveNumberInput() { Placeholder = "Price", Id = $"price&{i}" })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
                          );
 
             }

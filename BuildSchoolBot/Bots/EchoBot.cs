@@ -236,6 +236,7 @@ namespace BuildSchoolBot.Bots
                 if (card.Name?.Contains("error") == true)
                 {
                     var taskInfo = new TaskModuleTaskInfo();
+                    taskInfo.Card = card;
                     return await Task.FromResult(taskInfo.ToTaskModuleResponse());
                 }
                 else

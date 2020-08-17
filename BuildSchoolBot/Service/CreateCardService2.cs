@@ -495,7 +495,7 @@ namespace BuildSchoolBot.Service
                        Weight = AdaptiveTextWeight.Bolder,
                        HorizontalAlignment = AdaptiveHorizontalAlignment.Center
                    });
-            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card, Name = "errorCard" };
+            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card, Name = "error" };
         }
 
 

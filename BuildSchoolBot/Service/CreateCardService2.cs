@@ -61,18 +61,18 @@ namespace BuildSchoolBot.Service
                 }
             };
 
-            var DeleteOrderData = new Data()
-            {
-                msteams = new Msteams()
-                {
-                    type = "invoke",
-                    value = new MsteamsValue()
-                    {
-                        OrderId = Guid.Parse(OrderInfo.OrderID),
-                        Option = "DeleteOrder"
-                    }
-                }
-            };
+            //var DeleteOrderData = new Data()
+            //{
+            //    msteams = new Msteams()
+            //    {
+            //        type = "invoke",
+            //        value = new MsteamsValue()
+            //        {
+            //            OrderId = Guid.Parse(OrderInfo.OrderID),
+            //            Option = "DeleteOrder"
+            //        }
+            //    }
+            //};
 
             var card = NewAdaptiveCard()
                 .AddElement(new AdaptiveTextBlock()
@@ -87,7 +87,7 @@ namespace BuildSchoolBot.Service
                         .AddActionToSet(new AdaptiveSubmitAction().SetOpenTaskModule("Join", JsonConvert.SerializeObject(cardData)))
                         .AddActionToSet(new AdaptiveSubmitAction() { Title = "Favorite", Data = objData })
                         //ting
-                        .AddActionToSet(new AdaptiveSubmitAction() { Title = "Delete", Data = DeleteOrderData })
+                        //.AddActionToSet(new AdaptiveSubmitAction() { Title = "Delete", Data = DeleteOrderData })
                 );
 
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };

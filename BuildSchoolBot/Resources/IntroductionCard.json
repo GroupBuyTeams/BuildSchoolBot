@@ -39,7 +39,7 @@
             },
             {
               "type": "TextBlock",
-              "text": "GroupBuy can let your crews and you start a group bought faster and easier. Also you are enable to plan a new group buy by scheduling \nit on this app.",
+              "text": "A chatbot on Microsoft Teams: The user can communicate with the bot and found an order form for the team on the Microsoft Teams. Through the app, the other members can order their meals by tick the checkbox on the Teams channel.",
               "wrap": true,
               "height": "stretch",
               "spacing": "Padding"

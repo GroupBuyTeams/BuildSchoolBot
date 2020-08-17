@@ -33,14 +33,9 @@ namespace BuildSchoolBot.Service
         public CardDataModel<T> GetCardInfo<T>()
         {
             var str = (Request.Data as JObject)["data"]?.ToString();
-            try
-            {
-                return JsonConvert.DeserializeObject<CardDataModel<T>>(str);
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
+
+            return JsonConvert.DeserializeObject<CardDataModel<T>>(str);
+
         }
         public T GetCardData<T>() where T : class
         {
@@ -62,16 +57,16 @@ namespace BuildSchoolBot.Service
             foreach (var dish in jData)
             {
                 var key = dish.Key.Split("&&");
-                
+
                 if (!key[1].Equals("mark"))
                 {
-                    if (int.Parse((string) dish.Value) > 0)
+                    if (int.Parse((string)dish.Value) > 0)
                     {
                         var data = new SelectMenu.SelectMenuData()
-                            {Dish_Name = key[0], Price = key[1], Quantity = (string) dish.Value};
+                        { Dish_Name = key[0], Price = key[1], Quantity = (string)dish.Value };
                         dictionary.Add(key[0], data);
                     }
-                    else if(int.Parse((string) dish.Value) < 0) //使用者在訂購時，選項數量輸入負值
+                    else if (int.Parse((string)dish.Value) < 0) //使用者在訂購時，選項數量輸入負值
                     {
                         return null;
                     }
@@ -93,13 +88,13 @@ namespace BuildSchoolBot.Service
             var storesInfo = JObject.FromObject(Request.Data);
             RemoveProperty(storesInfo);
             var time = (string)storesInfo.GetValue("DueTime");
-            
+
             foreach (var store in storesInfo)
             {
                 var val = (string)store.Value;
                 if (val.Equals("True"))
                 {
-                    var storeData = store.Key.Split("&&"); 
+                    var storeData = store.Key.Split("&&");
                     return new StoreOrderDuetime()
                     {
                         OrderID = orderId,
@@ -128,7 +123,7 @@ namespace BuildSchoolBot.Service
                 inputlist.Add(item.Value.ToString());
             }
             var StoreName = inputlist[0];
-            inputlist.Remove(inputlist[0]);         
+            inputlist.Remove(inputlist[0]);
             var Modify = new ModifyGroup();
             var ModifyData = new List<ModifyMultiple>();
             for (int i = 0; 2 * i < inputlist.Count(); i++)
@@ -146,7 +141,7 @@ namespace BuildSchoolBot.Service
             }
             new MenuService(context).UpdateMenuOrderStoreName(MenuId, Modify.StoreName);
             new MenuDetailService(context).DeleteMenuDetail(MenuId);
-            new MenuDetailService(context).CreateMenuDetail(Modify);        
+            new MenuDetailService(context).CreateMenuDetail(Modify);
         }
     }
 }

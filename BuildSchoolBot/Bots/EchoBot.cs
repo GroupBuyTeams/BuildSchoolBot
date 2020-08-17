@@ -128,7 +128,7 @@ namespace BuildSchoolBot.Bots
                 await turnContext.SendActivityAsync(MessageFactory.Text("You can give command"), cancellationToken);
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(command), cancellationToken);
             }
-            //ting 回覆pay
+            //ting 要移動到訂單完成那邊 回覆pay
             else if (turnContext.Activity.Text.Contains("aaa"))
             {
                 var memberId = turnContext.Activity.From.Id;

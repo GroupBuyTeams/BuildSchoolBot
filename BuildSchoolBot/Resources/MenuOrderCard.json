@@ -9,7 +9,7 @@
         },
         {
             "type": "Input.ChoiceSet",
-            "id": "MenuId",
+            "id": "data",
             "style": "compact",
             "isMultiSelect": false,
             "value": "1",
@@ -19,10 +19,7 @@
     "actions": [
         {
             "type": "Action.Submit",
-            "title": "OK",
-            "data": {
-                "SetType":"CustomizedMenu"
-            }
+            "title": "OK"
         }
     ]
 }

@@ -9,7 +9,7 @@ namespace BuildSchoolBot.Service
         /// 新增一基本的AdaptiveCard
         /// </summary>
         /// <returns>基本的AdaptiveCard</returns>
-        public static AdaptiveCard NewCard()
+        public static AdaptiveCard NewAdaptiveCard()
         {
             return new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
         }
@@ -93,6 +93,59 @@ namespace BuildSchoolBot.Service
                 row.AddCol(new AdaptiveColumn().AddElement(new AdaptiveTextBlock(text)));
             
             return row;
+        }
+
+        //public static AdaptiveColumnSet FixedInputTextAdjustWidthColumn(this AdaptiveColumnSet row, string[] texts)
+        //{
+        //    for (int i = 0; i < texts.Length; i++)
+        //    {
+        //        if (texts[i] == "")
+        //        {
+        //            row.AddCol(new AdaptiveColumn().AddElement(new AdaptiveTextBlock(texts[i])));
+        //        }
+        //        else
+        //        {
+        //            row.AddCol(new AdaptiveColumn().AddElement(new AdaptiveTextInput() { Id = texts[i] + i.ToString(), Value = texts[i] }));
+        //        }
+        //    }
+        //    return row;
+        //}
+
+        public static AdaptiveColumnSet FixedtextColumnLeftColor(this AdaptiveColumnSet row,string[] texts)
+        {
+            for (int i = 0; i < texts.Length; i++)
+            {
+                if (i == 0 || i == 1)
+                {
+                    row.AddCol(new AdaptiveColumn().AddElement(new AdaptiveTextBlock() { Text= texts[i] ,Weight= AdaptiveTextWeight.Bolder ,Color= AdaptiveTextColor.Good }));
+                }
+                else
+                {
+                    row.AddCol(new AdaptiveColumn().AddElement(new AdaptiveTextBlock() { Text = texts[i] }));
+                }
+            }
+            return row;
+        }
+        
+        public static HeroCard NewHeroCard()
+        {
+            return new HeroCard();
+        }
+        public static HeroCard EditText(this HeroCard card, string text)
+        {
+            card.Text = text;
+            return card;
+        }
+        public static HeroCard EditTitle(this HeroCard card, string title)
+        {
+            card.Title = title;
+            return card;
+        }
+        
+        public static HeroCard EditSubtitle(this HeroCard card, string subtitle)
+        {
+            card.Subtitle = subtitle;
+            return card;
         }
     }
 }

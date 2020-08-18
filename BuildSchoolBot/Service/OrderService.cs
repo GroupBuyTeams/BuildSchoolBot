@@ -1,4 +1,5 @@
 ﻿using BuildSchoolBot.Models;
+using BuildSchoolBot.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ namespace BuildSchoolBot.Service
 {
     public class OrderService
     {
+        //protected readonly EGRepository<Order> _repo;
         protected readonly TeamsBuyContext context;
 
         public OrderService(TeamsBuyContext _context)
@@ -15,17 +17,20 @@ namespace BuildSchoolBot.Service
             context = _context;
         }
         //create Order
-        public void CreateOrder(string _orderId , string _channelId)
+        public void CreateOrder(string _orderId, string _channelId, string _storeName)
         {
-            var order = new Order
+            if (GetOrder(_orderId) == null)
             {
-                OrderId = Guid.Parse(_orderId),
-                ChannelId = _channelId,
-                Date = DateTime.Now,
-                //StoreName = storeName
-            };
-            context.Order.Add(order);
-            context.SaveChanges();
+                var order = new Order
+                {
+                    OrderId = Guid.Parse(_orderId),
+                    ChannelId = _channelId,
+                    Date = DateTime.Now,
+                    StoreName = _storeName
+                };
+                context.Order.Add(order);
+                context.SaveChanges();
+            }
         }
         //顯示Order
         public Order GetOrder(string orderId)
@@ -34,12 +39,11 @@ namespace BuildSchoolBot.Service
             return context.Order.SingleOrDefault(x => x.OrderId.ToString().Equals(orderId));
         }
         //delete Order
-        //public void DeleteOrder(string jdata)
-        //{
-        //    var delete_order = context.Order.FirstOrDefault(x => x.OrderId.ToString().Equals(jdata));
-        //    context.Order.Remove(delete_order);
-        //    context.SaveChanges();
-        //}
-
+        public void DeleteStore(Guid orderId)
+        {
+            var entity = context.Order.FirstOrDefault(x => x.OrderId.Equals(orderId));
+            context.Order.Remove(entity);
+            context.SaveChanges();
+        }
     }
 }

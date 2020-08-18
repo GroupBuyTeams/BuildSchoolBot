@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using BuildSchoolBot.Models;
 using BuildSchoolBot.StoreModels;
 using BuildSchoolBot.ViewModels;
@@ -9,6 +11,7 @@ using Microsoft.Bot.Schema;
 using Microsoft.Bot.Schema.Teams;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using static BuildSchoolBot.StoreModels.ModifyMenu;
 
 namespace BuildSchoolBot.Service
 {
@@ -30,8 +33,14 @@ namespace BuildSchoolBot.Service
         public CardDataModel<T> GetCardInfo<T>()
         {
             var str = (Request.Data as JObject)["data"]?.ToString();
-
-            return (str == null) ? null : JsonConvert.DeserializeObject<CardDataModel<T>>(str);
+            try
+            {
+                return JsonConvert.DeserializeObject<CardDataModel<T>>(str);
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
         public T GetCardData<T>() where T : class
         {
@@ -52,11 +61,20 @@ namespace BuildSchoolBot.Service
             var dictionary = new Dictionary<string, SelectMenu.SelectMenuData>();
             foreach (var dish in jData)
             {
-                var key = dish.Key.Split('&');
-                if (!key[1].Equals("mark") && !dish.Value.Equals("0"))
+                var key = dish.Key.Split("&&");
+                
+                if (!key[1].Equals("mark"))
                 {
-                    var data = new SelectMenu.SelectMenuData() { Dish_Name = key[0], Price = key[1], Quantity = (string)dish.Value };
-                    dictionary.Add(key[0], data);
+                    if (int.Parse((string) dish.Value) > 0)
+                    {
+                        var data = new SelectMenu.SelectMenuData()
+                            {Dish_Name = key[0], Price = key[1], Quantity = (string) dish.Value};
+                        dictionary.Add(key[0], data);
+                    }
+                    else if(int.Parse((string) dish.Value) < 0) //使用者在訂購時，選項數量輸入負值
+                    {
+                        return null;
+                    }
                 }
                 else if (key[1].Equals("mark") && !dish.Value.Equals(string.Empty))
                 {
@@ -70,11 +88,65 @@ namespace BuildSchoolBot.Service
             return dictionary.Select(x => x.Value).ToList();
         }
 
+        public StoreOrderDuetime GetGroupBuyCard(string orderId)
+        {
+            var storesInfo = JObject.FromObject(Request.Data);
+            RemoveProperty(storesInfo);
+            var time = (string)storesInfo.GetValue("DueTime");
+            
+            foreach (var store in storesInfo)
+            {
+                var val = (string)store.Value;
+                if (val.Equals("True"))
+                {
+                    var storeData = store.Key.Split("&&"); 
+                    return new StoreOrderDuetime()
+                    {
+                        OrderID = orderId,
+                        DueTime = time,
+                        StoreName = storeData[0],
+                        Url = storeData[1]
+                    };
+                }
+            }
+            return null;
+        }
+
         public void RemoveProperty(JObject jData)
         {
             jData.Property("msteams").Remove();
             jData.Property("data").Remove();
         }
-
+        public void ModifyMenuData(string MenuId)
+        {
+            TeamsBuyContext context = new TeamsBuyContext();
+            var jData = JObject.FromObject(Request.Data);
+            RemoveProperty(jData);
+            var inputlist = new List<string>();
+            foreach (var item in jData)
+            {
+                inputlist.Add(item.Value.ToString());
+            }
+            var StoreName = inputlist[0];
+            inputlist.Remove(inputlist[0]);         
+            var Modify = new ModifyGroup();
+            var ModifyData = new List<ModifyMultiple>();
+            for (int i = 0; 2 * i < inputlist.Count(); i++)
+            {
+                ModifyData.Add(new ModifyMultiple() { ProductName = inputlist[2 * i], Amount = inputlist[2 * i + 1], MenuId = MenuId });
+            }
+            Modify.AllModifyMultiple = ModifyData;
+            Modify.StoreName = StoreName;
+            for (var i = 0; i < Modify.AllModifyMultiple.Count; i++)
+            {
+                if (Modify.AllModifyMultiple[i].ProductName == "" || Modify.AllModifyMultiple[i].Amount.ToString() == "")
+                {
+                    Modify.AllModifyMultiple.Remove(Modify.AllModifyMultiple[i]);
+                }
+            }
+            new MenuService(context).UpdateMenuOrderStoreName(MenuId, Modify.StoreName);
+            new MenuDetailService(context).DeleteMenuDetail(MenuId);
+            new MenuDetailService(context).CreateMenuDetail(Modify);        
+        }
     }
 }

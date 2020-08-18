@@ -291,7 +291,14 @@ namespace BuildSchoolBot.Bots
                 var activity = MessageFactory.Attachment(libraryCard);
                 activity.Id = turnContext.Activity.ReplyToId;
                 await turnContext.UpdateActivityAsync(activity, cancellationToken);
-
+            }
+            else if(obj?.Option?.Equals("DeleteMenu") == true)
+            {
+                var MenuId = obj.MenuId;
+                Guid guid;
+                Guid.TryParse(MenuId.ToString(), out guid);
+                _customMenuService.DeleteOrderDetail(guid);
+                await turnContext.SendActivityAsync(MessageFactory.Text("Delete Successful!"));
             }
             //ting deleteOrder
             //else if (obj.Option?.Equals("DeleteOrder") == true)

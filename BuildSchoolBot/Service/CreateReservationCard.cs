@@ -17,8 +17,8 @@ namespace BuildSchoolBot.Service
         public Attachment CreateReservationAdaptiveCard()
         {
             var card = NewAdaptiveCard()
-                .AddElement(new AdaptiveDateInput())
-                .AddElement(new AdaptiveTimeInput())
+                .AddElement(new AdaptiveDateInput() { Id = "Date"})
+                .AddElement(new AdaptiveTimeInput() { Id = "Time"})
                 .AddActionsSet(
                     NewActionsSet()
                         .AddActionToSet(new AdaptiveSubmitAction() { Title = "Confirm"})

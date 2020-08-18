@@ -45,7 +45,7 @@ namespace BuildSchoolBot.Scheduler.Jobs
             
             string channelId = conversationReference.ChannelId;
             string scheduleId = context.MergedJobDataMap.GetString("ScheduleId");
-            CreateOrder(scheduleId, channelId);
+            // CreateOrder(scheduleId, channelId);
 
             Message = context.MergedJobDataMap.GetString("Information");
             await ((BotAdapter)Adapter).ContinueConversationAsync(AppId, conversationReference, BotCallback, default(CancellationToken));
@@ -53,7 +53,7 @@ namespace BuildSchoolBot.Scheduler.Jobs
 
         private void CreateOrder(string Guid, string GroupId)
         {
-            orderService.CreateOrder(Guid, GroupId);
+            // orderService.CreateOrder(Guid, GroupId);
         }
 
         private async Task BotCallback(ITurnContext turnContext, CancellationToken cancellationToken)

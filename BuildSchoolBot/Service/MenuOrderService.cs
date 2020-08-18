@@ -51,13 +51,16 @@ namespace BuildSchoolBot.Service
             var myCard = JsonConvert.DeserializeObject<AdaptiveCard>(libraryCardJson);
             var menuOrder = FindMenuOrderByTeamsId(teamsId).ToList();
 
+            myCard.AddElement(new AdaptiveTimeInput() { Id = "DueTime" });
+
             menuOrder.ForEach(item =>
             {
+                var cardData = new CardDataModel<StoreOrderDuetime>() { Type = "GetCustomizedStore", Value = new StoreOrderDuetime { MenuID = item.MenuId.ToString(), StoreName = item.Store } };//包資料到Submit Action, Type是給EchoBot判斷用的字串，Value是要傳遞資料
+
                 ((AdaptiveChoiceSetInput)myCard.Body[1]).Choices.Add(new AdaptiveChoice()
                 {
                     Title = item.Store,
-                    Value = item.MenuId.ToString()
-
+                    Value = JsonConvert.SerializeObject(cardData)
                 });
 
             });
@@ -71,9 +74,14 @@ namespace BuildSchoolBot.Service
             return adaptiveCardAttachment;
         }
 
-        public Attachment GetStore(string Store, string MenuId)
+        public Attachment GetStore(AdaptiveCardDataFactory dataFactory)
         {
-            var cardData = new CardDataModel<string>(){Type = "GetCustomizedStore", Value = MenuId};//包資料到Submit Action, Type是給EchoBot判斷用的字串，Value是要傳遞資料
+            var MenuId = dataFactory.GetCardData<StoreOrderDuetime>().MenuID;
+            var Store = dataFactory.GetCardData<StoreOrderDuetime>().StoreName;
+            var DueTime = JObject.FromObject(dataFactory.Request.Data).GetValue("DueTime").ToString();
+
+            var cardData = new CardDataModel<StoreOrderDuetime>() { Type = "GetCustomizedMenu", Value = new StoreOrderDuetime { OrderID = Guid.NewGuid().ToString(), MenuID = MenuId, StoreName = Store, DueTime = DueTime } };//包資料到Submit Action, Type是給EchoBot判斷用的字串，Value是要傳遞資料
+
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
             var actionSet = new AdaptiveActionSet() { Type = AdaptiveActionSet.TypeName, Separator = true };
             var TextBlockStorName = new AdaptiveTextBlock
@@ -90,31 +98,31 @@ namespace BuildSchoolBot.Service
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
 
-        public async Task<Attachment> CreateMenu(string menuId)
+        public async Task<Attachment> CreateMenu(AdaptiveCardDataFactory dataFactory)
         {
-            var MenuData = await FindMenuOrderByMenuId(menuId);
-            var DetailData = await FindMenuOrderDetailByMenuId(menuId);
+
+            var storeData = dataFactory.GetCardData<StoreOrderDuetime>();
+            var DetailData = await FindMenuOrderDetailByMenuId(storeData.MenuID);
             var itemsName = new string[] { "菜名", "價錢", "數量", "備註" };
 
-
-            var OrderData = new CustomizedData()
+            var cardData = new CardDataModel<StoreOrderDuetime>()//務必按照此格式新增需要傳出去的資料
             {
-                MenuId = menuId,
-                SetType = "GetCustomizedOrder"
+                Type = "FetchSelectedFoods", //於EchoBot判斷用
+                Value = storeData //要傳出去的資料和資料結構
             };
 
 
             var card = NewAdaptiveCard()
                 .AddElement(new AdaptiveTextBlock()
                 {
-                    Text = MenuData.MenuId.ToString(),
+                    Text = storeData.OrderID,
                     Size = AdaptiveTextSize.Small,
                     Weight = AdaptiveTextWeight.Bolder,
                     HorizontalAlignment = AdaptiveHorizontalAlignment.Right
                 })
                 .AddElement(new AdaptiveTextBlock()
                 {
-                    Text = MenuData.Store,
+                    Text = storeData.StoreName,
                     Size = AdaptiveTextSize.Large,
                     Weight = AdaptiveTextWeight.Bolder,
                     HorizontalAlignment = AdaptiveHorizontalAlignment.Center
@@ -143,7 +151,7 @@ namespace BuildSchoolBot.Service
 
             card.AddElement(new AdaptiveTextBlock()
             {
-                Text = $"Due Time:",// {storeData.DueTime}
+                Text = $"Due Time:{storeData.DueTime}",
                 Size = AdaptiveTextSize.Medium,
                 Weight = AdaptiveTextWeight.Bolder,
                 HorizontalAlignment = AdaptiveHorizontalAlignment.Left
@@ -151,20 +159,10 @@ namespace BuildSchoolBot.Service
             .AddActionsSet(
                 NewActionsSet()
                     .AddActionToSet(
-                        new AdaptiveSubmitAction() { Title = "Order", Data = OrderData }//勿必要將傳出去的資料進行Serialize
+                        new AdaptiveSubmitAction().SetOpenTaskModule("Order", JsonConvert.SerializeObject(cardData))//勿必要將傳出去的資料進行Serialize
                     )
             );
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
-    }
-
-    public class CustomizedData
-    {
-        [JsonProperty("MenuId")]
-        public string MenuId { get; set; }
-
-        [JsonProperty("SetType")]
-        public string SetType { get; set; }
-
     }
 }

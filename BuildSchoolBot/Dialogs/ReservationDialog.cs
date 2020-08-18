@@ -10,13 +10,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using BuildSchoolBot.Models;
 
 namespace BuildSchoolBot.Dialogs
 {
     public class ReservationDialog : ComponentDialog
     {
-        public ReservationDialog() : base()
+        private readonly IStatePropertyAccessor<Schedule> _userProfileAccessor;
+
+        public ReservationDialog(UserState userState) : base(nameof(ReservationDialog))
         {
+            _userProfileAccessor = userState.CreateProperty<Schedule>("Schedule");
+
             var waterfallSteps = new WaterfallStep[]
             {
                 CreateReservationAdaptive,
@@ -35,6 +40,7 @@ namespace BuildSchoolBot.Dialogs
         //請使用者選擇訂單來源
         private static async Task<DialogTurnResult> OrderSourceAdaptive(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
+            
             var OrderSourceCardAttachment = new CreateReservationCard().CreateOrderSourceAdaptiveCard();
             await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(OrderSourceCardAttachment));
             return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { Prompt = MessageFactory.Text("Please pick an order source.") }, cancellationToken);

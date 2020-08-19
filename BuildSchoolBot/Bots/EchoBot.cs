@@ -183,7 +183,7 @@ namespace BuildSchoolBot.Bots
                 taskInfo.Card = service.GetCreateMenuDetail(menu);
                 return await Task.FromResult(taskInfo.ToTaskModuleResponse());
             }
-            //Group Buy Open Menu
+            //Group  Buy Open Menu
             if (fetchType?.Equals("OpenMenuTaskModule") == true)
             {
                 taskInfo.Card = await service.CreateMenu(factory);
@@ -277,7 +277,7 @@ namespace BuildSchoolBot.Bots
             }
             //育銨
             else
-            {
+            { 
                 var TaskInfo = new TaskModuleTaskInfo();
                 TaskInfo.Card = new CreateCardService2().GetResultCustomizedModification(factory);
                 new CreateCardService2().SetTaskInfo(TaskInfo, TaskModuleUIConstants.UpdateMenu);

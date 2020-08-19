@@ -136,21 +136,9 @@ namespace BuildSchoolBot.Bots
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(card), cancellationToken);
 
             }
-            else if(turnContext.Activity.Text.Contains("GroupBuy"))
-            {
-                await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
-            }
             else
             {
-                var activity = turnContext.Activity;
-                var help = new HelpService();
-                var command = help.Command();
-                await turnContext.SendActivityAsync(MessageFactory.Text("You can give command"), cancellationToken);
-                await turnContext.SendActivityAsync(MessageFactory.Attachment(command), cancellationToken);
-                if (string.IsNullOrWhiteSpace(activity.Text) && activity.Value != null)
-                {
-                    activity.Text = JsonConvert.SerializeObject(activity.Value);
-                }
+                await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken); 
             }
         }
         private void AddConversationReference(Activity activity)

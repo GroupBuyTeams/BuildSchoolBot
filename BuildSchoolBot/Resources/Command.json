@@ -15,12 +15,7 @@
     },
     {
       "type": "TextBlock",
-      "text": "● Buy",
-      "size": "Medium"
-    },
-    {
-      "type": "TextBlock",
-      "text": "● History",
+      "text": "● GroupBuy",
       "size": "Medium"
     },
     {

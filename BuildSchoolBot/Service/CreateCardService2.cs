@@ -184,16 +184,14 @@ namespace BuildSchoolBot.Service
 
 
             var itemsName = new string[] { "食物名稱", "價錢", "數量", "備註", "單品總金額" }; //顯示於TaskModule上方的欄位名稱
+
+
             var cardData = dataFactory.GetCardData<StoreOrderDuetime>();
-            var ChosencardData = dataFactory.GetCardData<GetChosenData>();
+            var ChosencardData = new GetChosenData();
+            var GetAllChosenDataGroups = new List<GetChosenDataGroups>();
             ChosencardData.UserID = dataFactory.TurnContext.Activity.From.Id;
             ChosencardData.DueTime = cardData.DueTime;
             ChosencardData.StoreName = cardData.StoreName;
-            var GetChosencardData = new CardDataModel<GetChosenData>()//務必按照此格式新增需要傳出去的資料
-            {
-                Type = "GetChosenFoodFromMenuData", //於EchoBot判斷用
-                Value = ChosencardData //要傳出去的資料和資料結構
-            };
 
 
             //新增一基本卡片，並且附加此訂單的Guid、餐廳名稱、欄位名稱等文字訊息
@@ -249,8 +247,16 @@ namespace BuildSchoolBot.Service
                                 .AddElement(new AdaptiveTextBlock() { Text = decimal.Round(totalSingleMoney).ToString() }) //加入此餐點的總價
                         )
                     );
+                    GetAllChosenDataGroups.Add(new GetChosenDataGroups() { ProductName = p.Dish_Name, Amount = decimal.Parse(p.Price), Number = int.Parse(p.Quantity), Mark = p.Remarks });
                 }
             }
+            ChosencardData.GetAllChosenDatas = GetAllChosenDataGroups;
+            var GetChosencardData = new CardDataModel<GetChosenData>()//務必按照此格式新增需要傳出去的資料
+            {
+                Type = "GetChosenFoodFromMenuData", //於EchoBot判斷用
+                Value = ChosencardData //要傳出去的資料和資料結構
+            };
+
 
             //顯示於TaskModule下方的文字資訊
             var timeAndTotalMoney = new string[] { "DueTime", cardData.DueTime, "", "總金額:", decimal.Round(totalMoney).ToString() };
@@ -652,8 +658,6 @@ namespace BuildSchoolBot.Service
         {
             TeamsBuyContext context = new TeamsBuyContext();
             var ChosencardData = dataFactory.GetCardData<GetChosenData>();
-
-            var OrderData = new OrderDetailService(context).GetChosenOrderDetail(ChosencardData.OrderID, ChosencardData.UserID);
             var itemsName = new string[] { "食物名稱", "價錢", "數量", "備註", "單品總金額" }; //顯示於TaskModule上方的欄位名稱
             //var cardData = dataFactory.GetCardData<StoreOrderDuetime>();
 
@@ -698,7 +702,7 @@ namespace BuildSchoolBot.Service
             decimal totalMoney = 0;
 
             //將SelectMenuDatagroup的資訊(菜色名稱、單價、數量、備註、總額)，逐一附加到卡片內
-            foreach (var p in OrderData)
+            foreach (var p in ChosencardData.GetAllChosenDatas)
             {
                 //如果沒有這道菜點餐，那就不用計算、也不用顯示
                 if (p.Number.ToString() != "0")

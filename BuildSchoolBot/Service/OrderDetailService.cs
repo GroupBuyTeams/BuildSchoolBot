@@ -87,12 +87,6 @@ namespace BuildSchoolBot.Service
             return Accounts != null ? Accounts.Name : string.Empty;
         }
 
-        public List<OrderDetail> GetChosenOrderDetail(string orderId, string UserId)
-        {
-            return context.OrderDetail.Where(x => x.OrderId.ToString().Equals(orderId) && x.MemberId.Equals(UserId)).ToList();
-
-        }
-
 
     }
 }

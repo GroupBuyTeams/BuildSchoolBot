@@ -136,7 +136,7 @@ namespace BuildSchoolBot.Bots
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(card), cancellationToken);
 
             }
-            else if(turnContext.Activity.Text.Contains("GroupBuy"))
+            else if(turnContext.Activity.Text.Equals("GroupBuy"))
             {
                 await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
             }

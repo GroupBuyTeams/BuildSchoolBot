@@ -149,6 +149,11 @@ namespace BuildSchoolBot.Service
         public void DeleteOrderDetail(Guid Menuid)
         {
             var entity = _context.MenuOrder.FirstOrDefault(x => x.MenuId.Equals(Menuid));
+            var data = _context.MenuDetail.Where(x => x.MenuId.Equals(Menuid));
+            foreach(var product in data)
+            {
+                _context.MenuDetail.Remove(product);
+            }
             _context.MenuOrder.Remove(entity);
             _context.SaveChanges();
         }

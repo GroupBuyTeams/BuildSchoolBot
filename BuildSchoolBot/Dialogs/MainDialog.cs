@@ -44,17 +44,17 @@ namespace BuildSchoolBot.Dialogs
             // string choise = ((FoundChoice)stepContext.Result).Value;
             // await stepContext.Context.SendActivityAsync(MessageFactory.Text($"Your choise is {choise}"));
             var choice = (string)stepContext.Result;
-            switch (choice)
+
+            if (choice.Contains("Buy"))
+                return await stepContext.BeginDialogAsync(nameof(AddressDialogs));
+            else if (choice.Contains("History"))
+                return await stepContext.BeginDialogAsync(nameof(HistoryDialog));
+            else if (choice.Contains("Reserve"))
+                return await stepContext.BeginDialogAsync(nameof(ReservationDialog));
+            else
             {
-                case "Buy":
-                    return await stepContext.BeginDialogAsync(nameof(AddressDialogs));
-                case "History":
-                    return await stepContext.BeginDialogAsync(nameof(HistoryDialog));
-                case "Reserve":
-                    return await stepContext.BeginDialogAsync(nameof(ReservationDialog));
-                default:
-                    await stepContext.Context.SendActivityAsync(MessageFactory.Text("Your choice is not 'Buy'."));
-                    return await stepContext.NextAsync();
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text("Your choice is not 'Buy'."));
+                return await stepContext.NextAsync();
             }
 
         }

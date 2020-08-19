@@ -255,8 +255,12 @@ namespace BuildSchoolBot.Bots
             else if (fetchType?.Equals("GetCustomizedMenu") == true)
             {
                 var teamsId = turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id;
-                _menuService.CreateMenu(factory, teamsId);
-                await turnContext.SendActivityAsync(MessageFactory.Text("Create Successful!"));
+                var menu = _menuService.CreateMenu(factory, teamsId);
+                if (menu == null)
+                    await turnContext.SendActivityAsync(MessageFactory.Text("Please create your store first!"));
+                else
+                    _menuService.CreateMenuDetail(factory, menu);
+                await turnContext.SendActivityAsync(MessageFactory.Text("Create Successfully!"));
                 return null;
             }
             //育銨
@@ -292,7 +296,7 @@ namespace BuildSchoolBot.Bots
                 activity.Id = turnContext.Activity.ReplyToId;
                 await turnContext.UpdateActivityAsync(activity, cancellationToken);
             }
-            else if(obj?.Option?.Equals("DeleteMenu") == true)
+            else if (obj?.Option?.Equals("DeleteMenu") == true)
             {
                 var MenuId = obj.MenuId;
                 Guid guid;

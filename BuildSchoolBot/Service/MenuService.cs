@@ -18,16 +18,14 @@ namespace BuildSchoolBot.Service
             context = _context;
         }
 
-        public void CreateMenu(AdaptiveCardDataFactory dataFactory, string teamsId)
+        public MenuOrder CreateMenu(AdaptiveCardDataFactory dataFactory, string teamsId)
         {
             var Data = JObject.FromObject(dataFactory.Request.Data);
             var store = Data.GetValue("store").ToString();
 
-            var name = Data.Properties().Where(x => x.Name.Contains("name")).ToList();
-            var price = Data.Properties().Where(x => x.Name.Contains("price")).ToList();
-            if (store == null)
+            if (store == "")
             {
-                dataFactory.TurnContext.SendActivityAsync(MessageFactory.Text("Please create your store first!"));
+                return null;
             }
             else
             {
@@ -43,27 +41,37 @@ namespace BuildSchoolBot.Service
                 context.MenuOrder.Add(menu);
                 context.SaveChanges();
 
-                for (int i = 0; i < name.Count(); i++)
-                {
-                    if (name[i].Value.ToString().Equals("") || price[i].Value.ToString().Equals("0"))
-                        break;
-                    else
-                    {
-                        var menuDetail = new MenuDetail()
-                        {
-                            MenuDetailId = Guid.NewGuid(),
-                            ProductName = name[i].Value.ToString(),
-                            Amount = decimal.Parse(price[i].Value.ToString()),
-                            MenuId = menu.MenuId
-                        };
-
-                        context.MenuDetail.Add(menuDetail);
-                        context.SaveChanges();
-                    }
-
-                };
+                return menu;
             }
         }
+        public void CreateMenuDetail(AdaptiveCardDataFactory dataFactory, MenuOrder menu)
+        {
+            var Data = JObject.FromObject(dataFactory.Request.Data);
+
+            var name = Data.Properties().Where(x => x.Name.Contains("name")).ToList();
+            var price = Data.Properties().Where(x => x.Name.Contains("price")).ToList();
+
+            for (int i = 0; i < name.Count(); i++)
+            {
+                if (name[i].Value.ToString().Equals("") || price[i].Value.ToString().Equals("0"))
+                    break;
+                else
+                {
+                    var menuDetail = new MenuDetail()
+                    {
+                        MenuDetailId = Guid.NewGuid(),
+                        ProductName = name[i].Value.ToString(),
+                        Amount = decimal.Parse(price[i].Value.ToString()),
+                        MenuId = menu.MenuId
+                    };
+
+                    context.MenuDetail.Add(menuDetail);
+                    context.SaveChanges();
+                }
+
+            };
+        }
+
 
         public MenuOrder GetMenuOrder(string MenuId)
         {

@@ -259,8 +259,10 @@ namespace BuildSchoolBot.Bots
                 if (menu == null)
                     await turnContext.SendActivityAsync(MessageFactory.Text("Please create your store first!"));
                 else
+                {
                     _menuService.CreateMenuDetail(factory, menu);
-                await turnContext.SendActivityAsync(MessageFactory.Text("Create Successfully!"));
+                    await turnContext.SendActivityAsync(MessageFactory.Text("Create Successfully!"));
+                }
                 return null;
             }
             //育銨
@@ -282,7 +284,7 @@ namespace BuildSchoolBot.Bots
                 var LibraryItem = await _libraryService.FindLibraryByUriAndMemberId(uri, memberId);
                 if (LibraryItem.Count.Equals(0))
                     _libraryService.CreateLibraryItem(memberId, obj.Url, obj.Name);
-                await turnContext.SendActivityAsync(MessageFactory.Text("Create Successful!"));
+                await turnContext.SendActivityAsync(MessageFactory.Text("Create Successfully!"));
 
             }
             else if (obj?.Option?.Equals("Delete") == true)
@@ -302,7 +304,7 @@ namespace BuildSchoolBot.Bots
                 Guid guid;
                 Guid.TryParse(MenuId.ToString(), out guid);
                 _customMenuService.DeleteOrderDetail(guid);
-                await turnContext.SendActivityAsync(MessageFactory.Text("Delete Successful!"));
+                await turnContext.SendActivityAsync(MessageFactory.Text("Delete Successfully!"));
             }
             //ting deleteOrder
             //else if (obj.Option?.Equals("DeleteOrder") == true)

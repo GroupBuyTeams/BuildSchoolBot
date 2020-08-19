@@ -11,6 +11,7 @@ namespace BuildSchoolBot.StoreModels
         public const string Click = "Click";
         public const string Update = "Update";
         public const string UpdateMenu = "UpdateMenu";
+        public const string ChosenData = "ChosenData";
 
     }
 }

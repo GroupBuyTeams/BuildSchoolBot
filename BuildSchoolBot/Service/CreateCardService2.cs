@@ -332,6 +332,56 @@ namespace BuildSchoolBot.Service
             );
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
+        //ting create menu detail
+        public Attachment GetCreateMenuDetail(string storeId)
+        {
+            var guid = storeId;
+
+            var cardData = new CardDataModel<StoreInfoData>()//務必按照此格式新增需要傳出去的資料
+            {
+                Type = "GetCustomizedMenuDetail", //於EchoBot判斷用
+                Value = new StoreInfoData() { Guid = guid } //要傳出去的資料和資料結構
+            };
+
+            var itemsName = new string[] { "Name", "Price" };
+            var card = NewAdaptiveCard()
+              .AddRow(new AdaptiveColumnSet() { Separator = true }
+                    .AddCol(new AdaptiveColumn()
+                    { Width = "80" }
+                        .AddElement(new AdaptiveTextBlock() { Size = (AdaptiveTextSize)2, Weight = (AdaptiveTextWeight)2, Text = "Name", Color = (AdaptiveTextColor)5 })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
+                    .AddCol(new AdaptiveColumn()
+                    { Width = "20" }
+                    .AddElement(new AdaptiveTextBlock() { Text = "Price", Size = (AdaptiveTextSize)2, Weight = (AdaptiveTextWeight)2, Color = (AdaptiveTextColor)5 }))
+                );
+            for (int i = 0; i < 20; i++)
+            {
+                card
+                    .AddRow(new AdaptiveColumnSet() { Separator = true }
+                        .AddCol(new AdaptiveColumn()
+                        { Width = "65" }
+                            .AddElement(new AdaptiveTextInput() { Placeholder = "Name", Id = $"name&{i}" })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
+                        .AddCol(new AdaptiveColumn()
+                        { Width = "3" }
+                        .AddElement(new AdaptiveTextBlock() { Text = "$", Size = (AdaptiveTextSize)3, HorizontalAlignment = (AdaptiveHorizontalAlignment)2 }))
+
+                        .AddCol(new AdaptiveColumn()
+                        { Width = "20" }
+                             .AddElement(new AdaptiveNumberInput() { Placeholder = "Price", Id = $"price&{i}" })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
+                         );
+
+            }
+            card
+             .AddActionsSet(
+                NewActionsSet()
+                    .AddActionToSet(
+                        new AdaptiveSubmitAction().SetSubmitTaskModule("Create", JsonConvert.SerializeObject(cardData))//勿必要將傳出去的資料進行Serialize
+                    )
+            );
+            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+        }
+
+
+
 
         //ting
         public Attachment ReplyPayment(PayMentService payment, ITurnContext turnContext)

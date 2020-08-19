@@ -115,6 +115,12 @@ namespace BuildSchoolBot.Service
                 }
             };
 
+            var cardData = new CardDataModel<string>()
+            {
+                Type = "CreateMenuDetail",
+                Value = MenuId.ToString()
+            };
+
             var MainColumnSet = new AdaptiveColumnSet();
 
             var Column1 = new AdaptiveColumn();
@@ -129,7 +135,14 @@ namespace BuildSchoolBot.Service
             var ChildColumnSet = new AdaptiveColumnSet();
             Column2.Items.Add(ChildColumnSet);
 
-            var EditColumn = new AdaptiveColumn() { Width = AdaptiveColumnWidth.Auto};
+            var CreateColumn = new AdaptiveColumn() { Width = AdaptiveColumnWidth.Auto };
+            ChildColumnSet.Columns.Add(CreateColumn);
+
+            var CreateActionSet = new AdaptiveActionSet();
+            CreateActionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "Create", Data = new AdaptiveCardTaskFetchValue<string>() { Data = JsonConvert.SerializeObject(cardData) } });
+            CreateColumn.Items.Add(CreateActionSet);
+
+            var EditColumn = new AdaptiveColumn() { Width = AdaptiveColumnWidth.Auto };
             ChildColumnSet.Columns.Add(EditColumn);
 
             var EditActionSet = new AdaptiveActionSet();

@@ -199,6 +199,12 @@ namespace BuildSchoolBot.Bots
                 return await Task.FromResult(taskInfo.ToTaskModuleResponse());
             }
             //育銨
+            else if (fetchType?.Equals("GetChosenFoodFromMenuData") == true)
+            {
+                TaskInfo.Card = new CreateCardService2().GetChosenFoodFromMenuModule(factory);
+                service.SetTaskInfo(TaskInfo, TaskModuleUIConstants.ChosenData);
+                return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
+            }
             else
             {
                 taskInfo.Card = service.GetCustomizedModification(factory);

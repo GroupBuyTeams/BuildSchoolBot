@@ -92,11 +92,11 @@ namespace BuildSchoolBot.Service
         {
             var ColumnSet = new AdaptiveColumnSet() { Separator = true };
 
-            var Column1 = new AdaptiveColumn() { Width = AdaptiveColumnWidth.Stretch };
+            var Column1 = new AdaptiveColumn() { Width = AdaptiveColumnWidth.Auto };
             ColumnSet.Columns.Add(Column1);
             SetColumnDate(Column1, Date);
 
-            var Column2 = new AdaptiveColumn() { Width = AdaptiveColumnWidth.Stretch };
+            var Column2 = new AdaptiveColumn() { Width = AdaptiveColumnWidth.Auto };
             ColumnSet.Columns.Add(Column2);
 
             var getorder = GetOrder(Date, Id);

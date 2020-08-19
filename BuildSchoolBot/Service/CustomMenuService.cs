@@ -100,7 +100,19 @@ namespace BuildSchoolBot.Service
                 {
                     MenuId = MenuId.ToString()
                 }
+            };
 
+            var DeleteMenuDate = new Data()
+            {
+                msteams = new Msteams()
+                {
+                    type = "invoke",
+                    value = new MsteamsValue()
+                    {
+                        MenuId = MenuId,
+                        Option = "DeleteMenu"
+                    }
+                }
             };
 
             var MainColumnSet = new AdaptiveColumnSet();
@@ -128,10 +140,22 @@ namespace BuildSchoolBot.Service
             ChildColumnSet.Columns.Add(DeleteColumn);
 
             var DeleteActionSet = new AdaptiveActionSet();
-            DeleteActionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "Delete" });
+            DeleteActionSet.Actions.Add(new AdaptiveSubmitAction() { Title = "Delete", Data = DeleteMenuDate });
             DeleteColumn.Items.Add(DeleteActionSet);
 
             return MainColumnSet;
+        }
+
+        public void DeleteOrderDetail(Guid Menuid)
+        {
+            var entity = _context.MenuOrder.FirstOrDefault(x => x.MenuId.Equals(Menuid));
+            var data = _context.MenuDetail.Where(x => x.MenuId.Equals(Menuid));
+            foreach(var product in data)
+            {
+                _context.MenuDetail.Remove(product);
+            }
+            _context.MenuOrder.Remove(entity);
+            _context.SaveChanges();
         }
     }
 }

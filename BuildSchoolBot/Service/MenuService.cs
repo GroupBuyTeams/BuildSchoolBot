@@ -1,4 +1,5 @@
 ﻿using BuildSchoolBot.Models;
+using Microsoft.Bot.Builder;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -24,38 +25,44 @@ namespace BuildSchoolBot.Service
 
             var name = Data.Properties().Where(x => x.Name.Contains("name")).ToList();
             var price = Data.Properties().Where(x => x.Name.Contains("price")).ToList();
-
-            //var guid = Guid.NewGuid().ToString();
-            var menu = new MenuOrder
+            if (store == null)
             {
-                //MenuId = Guid.Parse(menuId),
-                MenuId = Guid.NewGuid(),
-                Store = store,
-                TeamsId = teamsId,
-
-            };
-            context.MenuOrder.Add(menu);
-            context.SaveChanges();
-
-            for (int i = 0; i < name.Count(); i++)
+                dataFactory.TurnContext.SendActivityAsync(MessageFactory.Text("Please create your store first!"));
+            }
+            else
             {
-                if (name[i].Value.ToString().Equals("") || price[i].Value.ToString().Equals("0"))
-                    break;
-                else
+                //var guid = Guid.NewGuid().ToString();
+                var menu = new MenuOrder
                 {
-                    var menuDetail = new MenuDetail()
+                    //MenuId = Guid.Parse(menuId),
+                    MenuId = Guid.NewGuid(),
+                    Store = store,
+                    TeamsId = teamsId,
+
+                };
+                context.MenuOrder.Add(menu);
+                context.SaveChanges();
+
+                for (int i = 0; i < name.Count(); i++)
+                {
+                    if (name[i].Value.ToString().Equals("") || price[i].Value.ToString().Equals("0"))
+                        break;
+                    else
                     {
-                        MenuDetailId = Guid.NewGuid(),
-                        ProductName = name[i].Value.ToString(),
-                        Amount = decimal.Parse(price[i].Value.ToString()),
-                        MenuId = menu.MenuId
-                    };
+                        var menuDetail = new MenuDetail()
+                        {
+                            MenuDetailId = Guid.NewGuid(),
+                            ProductName = name[i].Value.ToString(),
+                            Amount = decimal.Parse(price[i].Value.ToString()),
+                            MenuId = menu.MenuId
+                        };
 
-                    context.MenuDetail.Add(menuDetail);
-                    context.SaveChanges();
-                }
+                        context.MenuDetail.Add(menuDetail);
+                        context.SaveChanges();
+                    }
 
-            };
+                };
+            }
         }
 
         public MenuOrder GetMenuOrder(string MenuId)

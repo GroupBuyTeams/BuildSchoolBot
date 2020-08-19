@@ -181,6 +181,13 @@ namespace BuildSchoolBot.Bots
                 taskInfo.Card = service.GetCreateMenu();
                 return await Task.FromResult(taskInfo.ToTaskModuleResponse());
             }
+            else if(fetchType?.Equals("CreateMenuDetail") == true)
+            {
+                var menu = factory.GetCardData<string>();
+
+                taskInfo.Card = service.GetCreateMenuDetail(menu);
+                return await Task.FromResult(taskInfo.ToTaskModuleResponse());
+            }
             //Group Buy Open Menu
             if (fetchType?.Equals("OpenMenuTaskModule") == true)
             {
@@ -260,9 +267,17 @@ namespace BuildSchoolBot.Bots
                     await turnContext.SendActivityAsync(MessageFactory.Text("Please create your store first!"));
                 else
                 {
-                    _menuService.CreateMenuDetail(factory, menu);
+                    _menuService.CreateMenuDetail(factory, menu.MenuId);
                     await turnContext.SendActivityAsync(MessageFactory.Text("Create Successfully!"));
                 }
+                return null;
+            }
+            else if (fetchType?.Equals("GetCustomizedMenuDetail") == true)
+            {
+                var menu = factory.GetCardData<StoreInfoData>().Guid;
+                _menuService.CreateMenuDetail(factory,Guid.Parse(menu));
+                await turnContext.SendActivityAsync(MessageFactory.Text("Create Successfully!"));
+
                 return null;
             }
             //育銨

@@ -44,7 +44,7 @@ namespace BuildSchoolBot.Service
                 return menu;
             }
         }
-        public void CreateMenuDetail(AdaptiveCardDataFactory dataFactory, MenuOrder menu)
+        public void CreateMenuDetail(AdaptiveCardDataFactory dataFactory, Guid MenuId)
         {
             var Data = JObject.FromObject(dataFactory.Request.Data);
 
@@ -62,7 +62,7 @@ namespace BuildSchoolBot.Service
                         MenuDetailId = Guid.NewGuid(),
                         ProductName = name[i].Value.ToString(),
                         Amount = decimal.Parse(price[i].Value.ToString()),
-                        MenuId = menu.MenuId
+                        MenuId = MenuId
                     };
 
                     context.MenuDetail.Add(menuDetail);

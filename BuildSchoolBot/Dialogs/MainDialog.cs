@@ -35,9 +35,9 @@ namespace BuildSchoolBot.Dialogs
         {
 
             var activity = stepContext.Context.Activity;
-            if (!activity.Text.Contains("GroupBuy"))
+            if (!activity.Text.Contains("We are Hungry"))
             {
-                await stepContext.Context.SendActivityAsync(MessageFactory.Text("Please input GroupBuy"), cancellationToken);
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text("Please input \"we are Hungry\""), cancellationToken);
 
                 var help = new HelpService();
                 var command = help.Command();

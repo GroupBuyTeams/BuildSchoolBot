@@ -55,7 +55,7 @@ namespace BuildSchoolBot.Dialogs
             object reserve = null;
             if (dictionary.TryGetValue("options", out reserve))
             {
-                if (reserve.ToString().Equals("reserve"))
+                if (reserve != null && reserve.ToString().Equals("reserve"))
                 {
                     return true;
                 }

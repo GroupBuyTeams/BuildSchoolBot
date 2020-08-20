@@ -1,4 +1,5 @@
 ﻿using BuildSchoolBot.Models;
+using Microsoft.Bot.Builder;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -17,25 +18,38 @@ namespace BuildSchoolBot.Service
             context = _context;
         }
 
-        public void CreateMenu(AdaptiveCardDataFactory dataFactory, string teamsId)
+        public MenuOrder CreateMenu(AdaptiveCardDataFactory dataFactory, string teamsId)
         {
             var Data = JObject.FromObject(dataFactory.Request.Data);
             var store = Data.GetValue("store").ToString();
 
+            if (store == "")
+            {
+                return null;
+            }
+            else
+            {
+                //var guid = Guid.NewGuid().ToString();
+                var menu = new MenuOrder
+                {
+                    //MenuId = Guid.Parse(menuId),
+                    MenuId = Guid.NewGuid(),
+                    Store = store,
+                    TeamsId = teamsId,
+
+                };
+                context.MenuOrder.Add(menu);
+                context.SaveChanges();
+
+                return menu;
+            }
+        }
+        public void CreateMenuDetail(AdaptiveCardDataFactory dataFactory, Guid MenuId)
+        {
+            var Data = JObject.FromObject(dataFactory.Request.Data);
+
             var name = Data.Properties().Where(x => x.Name.Contains("name")).ToList();
             var price = Data.Properties().Where(x => x.Name.Contains("price")).ToList();
-
-            //var guid = Guid.NewGuid().ToString();
-            var menu = new MenuOrder
-            {
-                //MenuId = Guid.Parse(menuId),
-                MenuId = Guid.NewGuid(),
-                Store = store,
-                TeamsId = teamsId,
-
-            };
-            context.MenuOrder.Add(menu);
-            context.SaveChanges();
 
             for (int i = 0; i < name.Count(); i++)
             {
@@ -48,7 +62,7 @@ namespace BuildSchoolBot.Service
                         MenuDetailId = Guid.NewGuid(),
                         ProductName = name[i].Value.ToString(),
                         Amount = decimal.Parse(price[i].Value.ToString()),
-                        MenuId = menu.MenuId
+                        MenuId = MenuId
                     };
 
                     context.MenuDetail.Add(menuDetail);
@@ -57,6 +71,7 @@ namespace BuildSchoolBot.Service
 
             };
         }
+
 
         public MenuOrder GetMenuOrder(string MenuId)
         {

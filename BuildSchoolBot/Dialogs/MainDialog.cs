@@ -4,14 +4,17 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using BuildSchoolBot.Dialogs;
 using BuildSchoolBot.Service;
 using BuildSchoolBot.StoreModels;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Dialogs.Choices;
 using Microsoft.Bot.Schema;
+using Newtonsoft.Json;
 
 namespace BuildSchoolBot.Dialogs
+
 {
     public class MainDialog : ComponentDialog
     {
@@ -24,11 +27,35 @@ namespace BuildSchoolBot.Dialogs
             AddDialog(reservationDialog);
             AddDialog(new WaterfallDialog(
                 nameof(WaterfallDialog),
-                new WaterfallStep[] { ChooseStepAsync, MiddleStepAsync, FinalStepAscnc }));
+                new WaterfallStep[] { FirstStepAsync, ChooseStepAsync, MiddleStepAsync, FinalStepAscnc }));
 
             InitialDialogId = nameof(WaterfallDialog);
         }
+        private async Task<DialogTurnResult> FirstStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+        {
 
+            var activity = stepContext.Context.Activity;
+            if (!activity.Text.Contains("We are Hungry"))
+            {
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text("Please input \"We are Hungry\""), cancellationToken);
+
+                var help = new HelpService();
+                var command = help.Command();
+                await stepContext.Context.SendActivityAsync(MessageFactory.Text("You can give command"), cancellationToken);
+                await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(command), cancellationToken);
+                if (string.IsNullOrWhiteSpace(activity.Text) && activity.Value != null)
+                {
+                    activity.Text = JsonConvert.SerializeObject(activity.Value);
+                }
+
+                return await stepContext.EndDialogAsync();
+            }
+            else
+            {
+                return await stepContext.NextAsync();
+            }
+
+        }
         private async Task<DialogTurnResult> ChooseStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(new CreateCardService2().GetMainDialogCard()));
@@ -45,12 +72,12 @@ namespace BuildSchoolBot.Dialogs
             // await stepContext.Context.SendActivityAsync(MessageFactory.Text($"Your choise is {choise}"));
             var choice = (string)stepContext.Result;
 
-            if (choice.Contains("Buy"))
-                return await stepContext.BeginDialogAsync(nameof(AddressDialogs));
+            if (choice.Contains("Reserve"))
+                return await stepContext.BeginDialogAsync(nameof(ReservationDialog));
             else if (choice.Contains("History"))
                 return await stepContext.BeginDialogAsync(nameof(HistoryDialog));
-            else if (choice.Contains("Reserve"))
-                return await stepContext.BeginDialogAsync(nameof(ReservationDialog));
+            else if (choice.Contains("QuickBuy"))
+                return await stepContext.BeginDialogAsync(nameof(AddressDialogs));
             else
             {
                 await stepContext.Context.SendActivityAsync(MessageFactory.Text("Your choice is not 'Buy'."));

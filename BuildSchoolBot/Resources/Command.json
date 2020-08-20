@@ -15,12 +15,7 @@
     },
     {
       "type": "TextBlock",
-      "text": "● Buy",
-      "size": "Medium"
-    },
-    {
-      "type": "TextBlock",
-      "text": "● History",
+      "text": "● We are Hungry",
       "size": "Medium"
     },
     {
@@ -40,7 +35,7 @@
     },
     {
       "type": "TextBlock",
-      "text": "● Customized",
+      "text": "● Help",
       "size": "Medium"
     }
   ]

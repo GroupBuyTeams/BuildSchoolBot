@@ -276,7 +276,10 @@ namespace BuildSchoolBot.Bots
             }
             else if (fetchType?.Equals("reserveStore") == true)
             {
-                turnContext.Activity.Value = taskModuleRequest.Data;
+                var orderId = Guid.NewGuid().ToString();
+                var data = factory.GetGroupBuyCard(orderId);
+                turnContext.Activity.Value = JsonConvert.SerializeObject(data);
+                turnContext.Activity.Type = "message";
                 await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
                 return null;
             }

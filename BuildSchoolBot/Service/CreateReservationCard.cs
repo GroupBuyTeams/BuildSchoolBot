@@ -18,8 +18,20 @@ namespace BuildSchoolBot.Service
         public Attachment CreateReservationAdaptiveCard()
         {
             var card = NewAdaptiveCard()
-                .AddElement(new AdaptiveDateInput() { Id = "Date"})
-                .AddElement(new AdaptiveTimeInput() { Id = "Time"})
+                .AddElement(new AdaptiveTextBlock() { Text = "Please select the date when you want to start group buy."})
+                .AddRow(new AdaptiveColumnSet() {Separator = true}
+                        .AddCol(new AdaptiveColumn()
+                            .AddElement(new AdaptiveDateInput() { Id = "Date", })
+                        )
+                        .AddCol(new AdaptiveColumn())
+                        )
+                .AddElement(new AdaptiveTextBlock() { Text = "Please select the time when you want to start group buy."})
+                .AddRow(new AdaptiveColumnSet() {Separator = true}
+                    .AddCol(new AdaptiveColumn()
+                        .AddElement(new AdaptiveTimeInput() { Id = "Time"})
+                    )
+                    .AddCol(new AdaptiveColumn())
+                )
                 .AddActionsSet(
                     NewActionsSet()
                         .AddActionToSet(new AdaptiveSubmitAction() { Title = "Confirm"})
@@ -36,13 +48,13 @@ namespace BuildSchoolBot.Service
             //             .AddActionToSet(new AdaptiveSubmitAction() { Title = "Order Record", Id = "Record" })
             //             .AddActionToSet(new AdaptiveSubmitAction() { Title = "Customized", Id = "Customized" })
             //     );
-            
+
             var card = NewHeroCard()
-                .EditTitle("HHH")
+                .EditTitle("You can find a menu through:")
                 .NewActionSet()
-                .AddAction(new CardAction() { Type = "imBack", Title = "Quick Order", Value = "Quick Order" })
-                .AddAction(new CardAction() { Type = "imBack", Title = "Order Record", Value = "Record" })
-                .AddAction(new CardAction() { Type = "imBack", Title = "Customized", Value = "Customized" });
+                .AddAction(new CardAction() {Type = "imBack", Title = "Quick Order", Value = "Quick Order"});
+                // .AddAction(new CardAction() { Type = "imBack", Title = "Order Record", Value = "Record" })
+                // .AddAction(new CardAction() { Type = "imBack", Title = "Customized", Value = "Customized" });
             return card.ToAttachment();
         }
     }

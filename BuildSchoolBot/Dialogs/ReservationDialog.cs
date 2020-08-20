@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BuildSchoolBot.Models;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace BuildSchoolBot.Dialogs
@@ -27,7 +28,8 @@ namespace BuildSchoolBot.Dialogs
             {
                 CreateReservationAdaptive,
                 OrderSourceAdaptive,
-                GetMenuFromSource
+                GetMenuFromSource,
+                StoreMenuData
             };
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), waterfallSteps));
             AddDialog(addressDialog);
@@ -75,6 +77,11 @@ namespace BuildSchoolBot.Dialogs
 
         private static async Task<DialogTurnResult> StoreMenuData(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
+            var storeData = JsonConvert.DeserializeObject<StoreOrderDuetime>(stepContext.Context.Activity.Value.ToString());
+            var sched = new Schedule()
+            {
+                
+            };
             return await stepContext.EndDialogAsync();
         }
 

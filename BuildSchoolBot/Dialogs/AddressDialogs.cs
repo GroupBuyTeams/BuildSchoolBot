@@ -45,10 +45,23 @@ namespace BuildSchoolBot.Dialogs
             // var LatLng = new LatLngService(add);
             // var result = await new WebCrawler().GetStores2(LatLng.lat, LatLng.lng); 在這裡還不用去抓資料
             var getStoreService = new GetStoreList();
-            await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(getStoreService.GetChooseMenuCard(add)));
+            await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(getStoreService.GetChooseMenuCard(add, GetReservation(stepContext))));
             return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { Prompt = MessageFactory.Text("Please Choose Menu.") }, cancellationToken);
         }
-        
+
+        private static bool GetReservation(WaterfallStepContext stepContext)
+        {
+            var dictionary = stepContext.ActiveDialog.State;
+            object reserve = null;
+            if (dictionary.TryGetValue("options", out reserve))
+            {
+                if (reserve.ToString().Equals("reserve"))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
         //    private static async Task<DialogTurnResult> GetStoreAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         //    {
         //        string add = (string)stepContext.Result;

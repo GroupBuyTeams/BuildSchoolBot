@@ -104,11 +104,11 @@ namespace BuildSchoolBot.Service
         //     return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         // }
 
-        public Attachment GetChooseMenuCard(string address)
+        public Attachment GetChooseMenuCard(string address, bool reserve)
         {
             var cardData = new CardDataModel<string>()
             {
-                Type = "GetStore",
+                Type = reserve? "reserveStore" : "GetStore",
                 Value = address
             };
             var card = NewAdaptiveCard()
@@ -159,16 +159,15 @@ namespace BuildSchoolBot.Service
         //     return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         // }
         
-        public async Task<Attachment> CreateStoresModule(AdaptiveCardDataFactory factory)
+        public async Task<Attachment> CreateStoresModule(AdaptiveCardDataFactory factory, string reserve)
         {
             var address = factory.GetCardData<string>();
             var LatLng = GetLatLng(address);
             var storesInfo = await new WebCrawler().GetStores2(LatLng.lat, LatLng.lng);
-            var cardData = new CardDataModel<List<Store>>()
-            {
-                Type = "ResultStoreCard",
-            };
-
+            var cardData = new CardDataModel<List<Store>>();
+            if (reserve == null) cardData.Type = "ResultStoreCard";
+            else cardData.Type = reserve;
+            
             var card =
                 NewAdaptiveCard()
                     .AddElement(new AdaptiveTextBlock
@@ -193,7 +192,7 @@ namespace BuildSchoolBot.Service
                 .AddElement(new AdaptiveTimeInput() {Id = "DueTime"})
                 .AddActionsSet(
                     NewActionsSet()
-                        .AddActionToSet(new AdaptiveSubmitAction().SetOpenTaskModule("Submit", JsonConvert.SerializeObject(cardData))));
+                        .AddActionToSet(new AdaptiveSubmitAction().SetSubmitTaskModule("Submit", JsonConvert.SerializeObject(cardData))));
             
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }

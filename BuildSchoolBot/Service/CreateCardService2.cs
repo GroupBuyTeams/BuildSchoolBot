@@ -152,7 +152,6 @@ namespace BuildSchoolBot.Service
                         new AdaptiveSubmitAction().SetOpenTaskModule("Order", JsonConvert.SerializeObject(cardData))//勿必要將傳出去的資料進行Serialize
                     )
             );
-
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
 
@@ -169,8 +168,7 @@ namespace BuildSchoolBot.Service
             var res = quantityInt * moneyDecimal;
             return res;
         }
-
-        public Attachment GetChosenFoodFromMenu(AdaptiveCardDataFactory dataFactory)
+      public Attachment GetChosenFoodFromMenu(AdaptiveCardDataFactory dataFactory)
         {
             var orderData = dataFactory.GetOrderedFoods(); //使用者的訂購資訊
             if (orderData == null)//防呆：使用者在數量那邊輸入負值
@@ -181,10 +179,7 @@ namespace BuildSchoolBot.Service
             {
                 return GetError("You order nothing.");
             }
-
-
             var itemsName = new string[] { "食物名稱", "價錢", "數量", "備註", "單品總金額" }; //顯示於TaskModule上方的欄位名稱
-
 
             var cardData = dataFactory.GetCardData<StoreOrderDuetime>();
             var ChosencardData = new GetChosenData();
@@ -192,8 +187,6 @@ namespace BuildSchoolBot.Service
             ChosencardData.UserID = dataFactory.TurnContext.Activity.From.Id;
             ChosencardData.DueTime = cardData.DueTime;
             ChosencardData.StoreName = cardData.StoreName;
-
-
             //新增一基本卡片，並且附加此訂單的Guid、餐廳名稱、欄位名稱等文字訊息
             var card = NewAdaptiveCard()
                 .AddElement(new AdaptiveTextBlock() //加入訂單Guid
@@ -256,8 +249,6 @@ namespace BuildSchoolBot.Service
                 Type = "GetChosenFoodFromMenuData", //於EchoBot判斷用
                 Value = ChosencardData //要傳出去的資料和資料結構
             };
-
-
             //顯示於TaskModule下方的文字資訊
             var timeAndTotalMoney = new string[] { "DueTime", cardData.DueTime, "", "總金額:", decimal.Round(totalMoney).ToString() };
 
@@ -281,7 +272,6 @@ namespace BuildSchoolBot.Service
             //回傳卡片
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card, Name = "SingleOrderResult" };
         }
-
         //ting
         public Attachment GetCreateMenu()
         {
@@ -316,10 +306,6 @@ namespace BuildSchoolBot.Service
                     Placeholder = "Store",
                     Id = $"store"
                 }); //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
-
-            //.AddRow(new AdaptiveColumnSet()
-            //    .AddColumnsWithStrings(itemsName)
-            //)
             card
               .AddRow(new AdaptiveColumnSet() { Separator = true }
                     .AddCol(new AdaptiveColumn()
@@ -344,7 +330,6 @@ namespace BuildSchoolBot.Service
                         { Width = "20" }
                              .AddElement(new AdaptiveNumberInput() { Placeholder = "Price", Id = $"price&{i}" })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
                          );
-
             }
             card
              .AddActionsSet(
@@ -365,7 +350,6 @@ namespace BuildSchoolBot.Service
                 Type = "GetCustomizedMenuDetail", //於EchoBot判斷用
                 Value = new StoreInfoData() { Guid = guid } //要傳出去的資料和資料結構
             };
-
             var itemsName = new string[] { "Name", "Price" };
             var card = NewAdaptiveCard()
               .AddRow(new AdaptiveColumnSet() { Separator = true }
@@ -391,7 +375,6 @@ namespace BuildSchoolBot.Service
                         { Width = "20" }
                              .AddElement(new AdaptiveNumberInput() { Placeholder = "Price", Id = $"price&{i}" })) //Input相關的一定要給ID，且每個ID必須不一樣，否則傳回TaskModuleSubmit的時候會抓不到
                          );
-
             }
             card
              .AddActionsSet(
@@ -402,11 +385,7 @@ namespace BuildSchoolBot.Service
             );
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
-
-
-
-
-        //ting
+        //ting paymenturl
         public Attachment ReplyPayment(PayMentService payment, ITurnContext turnContext)
         {
             var name = turnContext.Activity.From.Name;
@@ -421,7 +400,7 @@ namespace BuildSchoolBot.Service
             var card = NewAdaptiveCard()
                .AddElement(new AdaptiveTextBlock()
                {
-                   Text = "Playment",
+                   Text = "Payment",
                    Size = AdaptiveTextSize.Large,
                    Color = AdaptiveTextColor.Good,
                    Weight = AdaptiveTextWeight.Bolder,
@@ -441,14 +420,12 @@ namespace BuildSchoolBot.Service
                });
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
-
         public void SetTaskInfo(TaskModuleTaskInfo taskInfo, UISettings uIConstants)
         {
             taskInfo.Height = uIConstants.Height;
             taskInfo.Width = uIConstants.Width;
             taskInfo.Title = uIConstants.Title.ToString();
         }
-
         public void GetChosenFoodFromMenuCreateOrderDetail(AdaptiveCardDataFactory dataFactory, string UserId)
         {
             TeamsBuyContext context = new TeamsBuyContext();
@@ -467,7 +444,6 @@ namespace BuildSchoolBot.Service
             new OrderService(context).CreateOrder(cardData.OrderID, dataFactory.TurnContext.Activity.ChannelId, cardData.StoreName);
             new OrderDetailService(context).CreateOrderDetail(SelectObject, ChosenFoodFromMenu, Guid.Parse(cardData.OrderID));
         }
-
         public Attachment GetResultTotal(string OrderId, string StoreName, string Orderfoodjson, string DueTime)
         {
             string[] ItemsName = new string[] { "Food Name", "Price", "Quantity", "Remarks", "Total" };
@@ -496,8 +472,6 @@ namespace BuildSchoolBot.Service
 
             //此訂單的總花費
             decimal TotalMoney = 0;
-
-
             for (int i = 0; i < root.AllTotalItems.Count; i++)
             {
                 for (int j = 0; j < 1; j++)
@@ -570,8 +544,6 @@ namespace BuildSchoolBot.Service
                    });
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card, Name = "error" };
         }
-
-
         public Attachment GetCustomizedModification(AdaptiveCardDataFactory dataFactory)
         {
             TeamsBuyContext context = new TeamsBuyContext();
@@ -585,7 +557,6 @@ namespace BuildSchoolBot.Service
                 {
                     MenuId = MenuId
                 }
-
             };
             string[] ItemsName = new string[] { "Food Name", "Price" };
             var card =
@@ -620,8 +591,6 @@ namespace BuildSchoolBot.Service
            );
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
-
-
         public Attachment GetResultCustomizedModification(AdaptiveCardDataFactory dataFactory)
         {
             TeamsBuyContext context = new TeamsBuyContext();
@@ -652,8 +621,6 @@ namespace BuildSchoolBot.Service
             }
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
-
-
         public Attachment GetChosenFoodFromMenuModule(AdaptiveCardDataFactory dataFactory)
         {
             TeamsBuyContext context = new TeamsBuyContext();
@@ -757,7 +724,5 @@ namespace BuildSchoolBot.Service
             //回傳卡片
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card, Name = "SingleOrderResult" };
         }
-
-
     }
 }

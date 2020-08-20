@@ -309,6 +309,10 @@ namespace BuildSchoolBot.Bots
                 Guid guid;
                 Guid.TryParse(MenuId.ToString(), out guid);
                 _customMenuService.DeleteOrderDetail(guid);
+                var storeCard = _customMenuService.CallCustomeCard();
+                var activity = MessageFactory.Attachment(storeCard);
+                activity.Id = turnContext.Activity.ReplyToId;
+                await turnContext.UpdateActivityAsync(activity, cancellationToken);
                 await turnContext.SendActivityAsync(MessageFactory.Text("Delete Successfully!"));
             }
             //ting deleteOrder

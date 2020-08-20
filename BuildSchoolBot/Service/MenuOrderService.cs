@@ -110,8 +110,6 @@ namespace BuildSchoolBot.Service
                 Type = "FetchSelectedFoods", //於EchoBot判斷用
                 Value = storeData //要傳出去的資料和資料結構
             };
-
-
             var card = NewAdaptiveCard()
                 .AddElement(new AdaptiveTextBlock()
                 {
@@ -130,8 +128,6 @@ namespace BuildSchoolBot.Service
                 .AddRow(new AdaptiveColumnSet()
                         .AddColumnsWithStrings(itemsName)
                 );
-
-
             DetailData.ForEach(item =>
             {
 

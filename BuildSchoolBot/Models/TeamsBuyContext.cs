@@ -133,7 +133,11 @@ namespace BuildSchoolBot.Models
             {
                 entity.Property(e => e.ScheduleId).ValueGeneratedNever();
 
+                entity.Property(e => e.EndTime).HasColumnType("datetime");
+
                 entity.Property(e => e.MenuUri).HasMaxLength(1000);
+
+                entity.Property(e => e.TriggerTime).HasColumnType("datetime");
             });
 
             OnModelCreatingPartial(modelBuilder);

@@ -222,11 +222,20 @@ namespace BuildSchoolBot.Bots
 
             if (fetchType?.Equals("ResultStoreCard") == true)
             {
+                //create group buy card
                 var orderId = Guid.NewGuid().ToString();
                 var data = factory.GetGroupBuyCard(orderId);
                 _orderService.CreateOrder(orderId, turnContext.Activity.ChannelId, data.StoreName);
                 var cardService = new CreateCardService2();
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(cardService.GetStore(data)));
+                
+                //create scheduler
+                var services = await SchedulerFactory.GetAllSchedulers();
+                var scheduler = new ScheduleCreator(services[0], turnContext.Activity.From.Id, orderId);
+                var dueTime = DateTime.Parse(data.DueTime);
+                scheduler.CreateSingleGroupBuyNow(dueTime);
+                AddConversationReference(turnContext.Activity as Activity);
+                
                 return null;
             }
             if (fetchType?.Equals("FetchSelectedFoods") == true)

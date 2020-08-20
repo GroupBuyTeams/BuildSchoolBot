@@ -11,11 +11,11 @@ namespace BuildSchoolBot.Service
         private IScheduler _sched { get; set; }
         private string _OrderId { get; set; }
         private string _UserId { get; set; }
-        public ScheduleCreator(IScheduler scheduler, string UserId, string schedId)
+        public ScheduleCreator(IScheduler scheduler, string UserId, string orderId)
         {
             _sched = scheduler;
             _UserId = UserId;
-            _OrderId = "cf1ed7b9-ae4a-4832-a9f4-fdee6e492085";//Demo
+            _OrderId = orderId;
         }
 
         public void CreateSingleGroupBuyNow(DateTime EndTime)

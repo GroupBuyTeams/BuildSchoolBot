@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BuildSchoolBot.Models;
+using BuildSchoolBot.Repository;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -19,11 +20,12 @@ namespace BuildSchoolBot.Dialogs
     public class ReservationDialog : ComponentDialog
     {
         private readonly IStatePropertyAccessor<Schedule> _userProfileAccessor;
-
+        // private static readonly EGRepository<Schedule> _schedRepo;
         public ReservationDialog(UserState userState, AddressDialogs addressDialog) : base(nameof(ReservationDialog))
         {
             _userProfileAccessor = userState.CreateProperty<Schedule>("Schedule");
-
+            // _schedRepo = schedRepo;
+                
             var waterfallSteps = new WaterfallStep[]
             {
                 CreateReservationAdaptive,
@@ -78,10 +80,22 @@ namespace BuildSchoolBot.Dialogs
         private static async Task<DialogTurnResult> StoreMenuData(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             var storeData = JsonConvert.DeserializeObject<StoreOrderDuetime>(stepContext.Context.Activity.Value.ToString());
+            var startTime = DateTime.Parse((string) stepContext.Values["OrderTime"]);
+            var endTime = GetEndTime(startTime, storeData);
+            
             var sched = new Schedule()
             {
-                
+                ScheduleId = Guid.NewGuid(),
+                GroupId = Guid.Empty,
+                TriggerType = 1,
+                TriggerTime = startTime,
+                EndTime = endTime,
+                MenuUri = storeData.Url,
+                RepeatWeekdays = 0
             };
+            // _schedRepo.Create(sched);
+            
+            
             return await stepContext.EndDialogAsync();
         }
 
@@ -100,5 +114,15 @@ namespace BuildSchoolBot.Dialogs
             }
             return false;
         }
+
+        private static DateTime GetEndTime(DateTime start, StoreOrderDuetime storeData)
+        {
+            var endHourMinute = storeData.DueTime.Split(':');
+            var endTime = start.Date;
+            endTime.AddHours(int.Parse(endHourMinute[0]));
+            endTime.AddMinutes(int.Parse(endHourMinute[1]));
+            return endTime;
+        }
+        
     }
 }

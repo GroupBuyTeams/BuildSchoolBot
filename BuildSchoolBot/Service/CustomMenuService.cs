@@ -47,7 +47,6 @@ namespace BuildSchoolBot.Service
             }
             return menuorder;
         }
-
         public Attachment CallCustomeCard()
         {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
@@ -77,9 +76,7 @@ namespace BuildSchoolBot.Service
             Column2.Items.Add(ActionSet2);
 
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
-        }
-        
-
+        }      
         private AdaptiveCard StoreListAdaptiveCard()
         {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
@@ -90,7 +87,6 @@ namespace BuildSchoolBot.Service
             }
             return card;
         }
-
         private AdaptiveColumnSet StoreItems(string Storename,Guid MenuId)
         {
             var ModifyData = new CardDataModel<ModifyData>()

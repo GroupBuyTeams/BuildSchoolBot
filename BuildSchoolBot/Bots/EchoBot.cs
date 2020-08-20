@@ -124,7 +124,6 @@ namespace BuildSchoolBot.Bots
                 var memberId = turnContext.Activity.From.Id;
                 var card = new CreateCardService2().ReplyPayment(_paymentService, turnContext);
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(card), cancellationToken);
-
             }
             else
             {
@@ -160,13 +159,14 @@ namespace BuildSchoolBot.Bots
             var fetchType = factory.GetCardActionType();
             var service = new CreateCardService2();
             var taskInfo = new TaskModuleTaskInfo();
-            //ting
+            //ting create Customized menu taskmodule
             if (fetchType?.Equals("createmenu") == true)
             {
                 taskInfo.Card = service.GetCreateMenu();
                 return await Task.FromResult(taskInfo.ToTaskModuleResponse());
             }
-            else if(fetchType?.Equals("CreateMenuDetail") == true)
+            //create menu detail
+            else if (fetchType?.Equals("CreateMenuDetail") == true)
             {
                 var menu = factory.GetCardData<string>();
 
@@ -252,7 +252,7 @@ namespace BuildSchoolBot.Bots
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(result));
                 return null;
             }
-            //ting
+            //ting 按下按鈕傳資料到data
             else if (fetchType?.Equals("GetCustomizedMenu") == true)
             {
                 var teamsId = turnContext.Activity.GetChannelData<TeamsChannelData>()?.Tenant?.Id;
@@ -271,7 +271,6 @@ namespace BuildSchoolBot.Bots
                 var menu = factory.GetCardData<StoreInfoData>().Guid;
                 _menuService.CreateMenuDetail(factory,Guid.Parse(menu));
                 await turnContext.SendActivityAsync(MessageFactory.Text("Create Successfully!"));
-
                 return null;
             }
             else if (fetchType?.Equals("reserveStore") == true)
@@ -303,7 +302,6 @@ namespace BuildSchoolBot.Bots
                 if (LibraryItem.Count.Equals(0))
                     _libraryService.CreateLibraryItem(memberId, obj.Url, obj.Name);
                 await turnContext.SendActivityAsync(MessageFactory.Text("Create Successfully!"));
-
             }
             else if (obj?.Option?.Equals("Delete") == true)
             {

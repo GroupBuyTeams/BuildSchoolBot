@@ -194,7 +194,11 @@ namespace BuildSchoolBot.Bots
             //家寶
             if (fetchType?.Equals("GetStore") == true)
             {
-                taskInfo.Card = await new GetStoreList().CreateStoresModule(factory);
+                taskInfo.Card = await new GetStoreList().CreateStoresModule(factory, null);
+                return await Task.FromResult(taskInfo.ToTaskModuleResponse());
+            } else if (fetchType.Equals("reserveStore"))
+            {
+                taskInfo.Card = await new GetStoreList().CreateStoresModule(factory, "reserveStore");
                 return await Task.FromResult(taskInfo.ToTaskModuleResponse());
             }
             //育銨
@@ -269,6 +273,15 @@ namespace BuildSchoolBot.Bots
                 await turnContext.SendActivityAsync(MessageFactory.Text("Create Successfully!"));
                 return null;
             }
+            else if (fetchType?.Equals("reserveStore") == true)
+            {
+                var orderId = Guid.NewGuid().ToString();
+                var data = factory.GetGroupBuyCard(orderId);
+                turnContext.Activity.Value = JsonConvert.SerializeObject(data);
+                turnContext.Activity.Type = "message";
+                await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
+                return null;
+            }
             //育銨
             else
             { 
@@ -307,6 +320,10 @@ namespace BuildSchoolBot.Bots
                 Guid guid;
                 Guid.TryParse(MenuId.ToString(), out guid);
                 _customMenuService.DeleteOrderDetail(guid);
+                var storeCard = _customMenuService.CallCustomeCard();
+                var activity = MessageFactory.Attachment(storeCard);
+                activity.Id = turnContext.Activity.ReplyToId;
+                await turnContext.UpdateActivityAsync(activity, cancellationToken);
                 await turnContext.SendActivityAsync(MessageFactory.Text("Delete Successfully!"));
             }
             //ting deleteOrder

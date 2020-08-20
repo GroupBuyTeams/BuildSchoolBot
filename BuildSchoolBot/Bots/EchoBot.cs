@@ -203,7 +203,11 @@ namespace BuildSchoolBot.Bots
             //家寶
             if (fetchType.Equals("GetStore"))
             {
-                taskInfo.Card = await new GetStoreList().CreateStoresModule(factory);
+                taskInfo.Card = await new GetStoreList().CreateStoresModule(factory, null);
+                return await Task.FromResult(taskInfo.ToTaskModuleResponse());
+            } else if (fetchType.Equals("reserveStore"))
+            {
+                taskInfo.Card = await new GetStoreList().CreateStoresModule(factory, "reserveStore");
                 return await Task.FromResult(taskInfo.ToTaskModuleResponse());
             }
             //育銨
@@ -262,6 +266,12 @@ namespace BuildSchoolBot.Bots
                 _menuService.CreateMenu(menu.Store, teamsId);
                 await turnContext.SendActivityAsync(MessageFactory.Text("Create Successful!"));
                 return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
+            }
+            else if (fetchType?.Equals("reserveStore") == true)
+            {
+                turnContext.Activity.Value = taskModuleRequest.Data;
+                await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
+                return null;
             }
             //育銨
             else

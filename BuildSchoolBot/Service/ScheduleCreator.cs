@@ -12,6 +12,8 @@ namespace BuildSchoolBot.Service
         private string _OrderId { get; set; }
         private string _UserId { get; set; }
         private string _SchedId { get; set; }
+        private string _TeamsChannelId { get; set; }
+
         public ScheduleCreator(IScheduler scheduler, string UserId, string orderId, string schedId = null)
         {
             _sched = scheduler;
@@ -20,31 +22,36 @@ namespace BuildSchoolBot.Service
             _SchedId = schedId;
         }
 
-        public void CreateSingleGroupBuyNow(DateTime EndTime)
+        public void CreateSingleGroupBuy(DateTime EndTime)
         {
-            CreateSingleGroupBuy(DateTime.UtcNow, EndTime, true);
+            CreateSingleGroupBuy(DateTime.UtcNow, EndTime, null);
         }
 
-        public void CreateSingleGroupBuy(DateTime startAt, DateTime endAt, bool Now)
+        public void CreateSingleGroupBuy(DateTime startAt, DateTime endAt, string teamsChannelId)
         {
+            
             DateTimeOffset startDate = new DateTimeOffset(startAt);
             DateTimeOffset endDate = new DateTimeOffset(endAt);
             // TimeSpan ten = new TimeSpan(0, 10, 0);
 
             // only for demo
             TimeSpan ten = new TimeSpan(0, 0, 10);
-            if (!Now)
+
+            _TeamsChannelId = teamsChannelId;
+            if (teamsChannelId != null)
             {
-                ScheduleSingleJob<NoteBuy>(startDate - ten, ScheduleText.StartState, ScheduleText.NoteStartMsg);
-                ScheduleSingleJob<NoteBuy>(startDate, ScheduleText.StartState, ScheduleText.StartMsg);
-                ScheduleSingleJob<StartBuy>(startDate, ScheduleText.NoteStartState, null);
+                //ScheduleSingleJob<NoteBuy>(startDate - ten, ScheduleText.StartState, ScheduleText.NoteStartMsg);
+                //ScheduleSingleJob<NoteBuy>(startDate, ScheduleText.StartState, ScheduleText.StartMsg);
+                ScheduleSingleJob<StartBuy>(startDate, ScheduleText.NoteStartState, teamsChannelId);
             }
             else
             {
                 ScheduleSingleJob<NoteBuy>(startDate, ScheduleText.StartState, ScheduleText.StartMsg);//only notify everyone    
+                ScheduleSingleJob<NoteBuy>(endAt - ten, ScheduleText.NoteStopState, ScheduleText.NoteStopMsg);
+                ScheduleSingleJob<StopBuy>(endAt, ScheduleText.StopState, null);
             }
-            ScheduleSingleJob<NoteBuy>(endAt - ten, ScheduleText.NoteStopState, ScheduleText.NoteStopMsg);
-            ScheduleSingleJob<StopBuy>(endAt, ScheduleText.StopState, null);
+            //ScheduleSingleJob<NoteBuy>(endAt - ten, ScheduleText.NoteStopState, ScheduleText.NoteStopMsg);
+            //ScheduleSingleJob<StopBuy>(endAt, ScheduleText.StopState, null);
         }
 
         public void CreateRepeatedGroupBuy(int startAt, int Duration, int WeekDays)

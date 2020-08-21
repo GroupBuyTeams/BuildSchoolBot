@@ -71,15 +71,11 @@ namespace BuildSchoolBot.Dialogs
         private static async Task<DialogTurnResult> GetMenuFromSource(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             var source = stepContext.Context.Activity.Text;
-            switch (source)
-            {
-                case "Quick Order":
-                    return await stepContext.BeginDialogAsync(nameof(AddressDialogs), "reserve");
-                default: 
-                    await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { Prompt = MessageFactory.Text("Coming soon.") }, cancellationToken);
-                    return await stepContext.EndDialogAsync();
- 
+            if(source.Contains("Quick Order")) {
+                return await stepContext.BeginDialogAsync(nameof(AddressDialogs), "reserve");
             }
+            await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { Prompt = MessageFactory.Text("Coming soon.") }, cancellationToken);
+            return await stepContext.EndDialogAsync();
         }
 
         private static async Task<DialogTurnResult> StoreMenuData(WaterfallStepContext stepContext, CancellationToken cancellationToken)
@@ -120,10 +116,13 @@ namespace BuildSchoolBot.Dialogs
                 MenuUri = storeData.Url,
                 RepeatWeekdays = 0
             };
-            
+
+            startTime = DateTime.Now.AddSeconds(5f);
+            endTime = DateTime.Now.AddSeconds(10f);
+            var teamsChannelData =JsonConvert.DeserializeObject<dynamic>(stepContext.Context.Activity.ChannelData.ToString());
             var services = await _schedulerFactory.GetAllSchedulers();
             var scheduler = new ScheduleCreator(services[0], stepContext.Context.Activity.From.Id, storeData.OrderID, sched.ScheduleId.ToString());
-            scheduler.CreateSingleGroupBuy(startTime, endTime, false);
+            scheduler.CreateSingleGroupBuy(startTime, endTime, teamsChannelData.channel.id.ToString());
             AddConversationReference(stepContext.Context.Activity as Activity);
             
             _schedRepo.Create(sched);

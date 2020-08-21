@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 using BuildSchoolBot.Models;
 using BuildSchoolBot.Repository;
 using Microsoft.Bot.Schema.Teams;
+using Microsoft.Bot.Connector.Authentication;
+using Microsoft.Bot.Connector;
 
 namespace BuildSchoolBot.Scheduler.Jobs
 {
@@ -50,6 +52,8 @@ namespace BuildSchoolBot.Scheduler.Jobs
             string UserId = context.MergedJobDataMap.GetString("UserId");
             string scheduleId = context.MergedJobDataMap.GetString("ScheduleId");
             string orderId = context.MergedJobDataMap.GetString("OrderId");
+            string teamsChannelId = context.MergedJobDataMap.GetString("Information");
+
             var conversationReference = ConversationReferences.GetValueOrDefault(UserId);
             string channelId = conversationReference.ChannelId;
             
@@ -58,8 +62,33 @@ namespace BuildSchoolBot.Scheduler.Jobs
             var storeInfo = dataMapping(schedule, orderId);
             orderService.CreateOrder(storeInfo.OrderID, conversationReference.ChannelId, storeInfo.StoreName);
             card = new CreateCardService2().GetStore(storeInfo);
-            
-            await ((BotAdapter)Adapter).ContinueConversationAsync(AppId, conversationReference, SendAttachment, default(CancellationToken));
+            await NewConversationAsync(teamsChannelId, card);
+            //await ((BotAdapter)Adapter).ContinueConversationAsync(AppId, conversationReference, SendAttachment, default(CancellationToken));
+        }
+
+        //吳家寶
+        private async Task NewConversationAsync(string teamsChannelId,Attachment card)
+        {
+            //teamsChannelId: Teams channel id in which to create the post.
+
+            //The Bot Service Url needs to be dynamically fetched (and stored) from the Team. Recommendation is to capture the serviceUrl from the bot Payload and later re-use it to send proactive messages.
+            string serviceUrl = "https://smba.trafficmanager.net/emea/";
+            //From the Bot Channel Registration
+            string botClientID = "ef7163b2-c6d1-4a9e-9441-07c3c46ef810";
+            string botClientSecret = "21W-o4i.MJfT1~YO5.~xTbAK_2vrXVAw5n";
+            AppCredentials.TrustServiceUrl(serviceUrl);
+            var connectorClient = new ConnectorClient(new Uri(serviceUrl), new MicrosoftAppCredentials(botClientID, botClientSecret));
+            var topLevelMessageActivity = MessageFactory.Attachment(card);
+            var conversationParameters = new ConversationParameters
+            {
+                IsGroup = true,
+                ChannelData = new TeamsChannelData
+                {
+                    Channel = new ChannelInfo(teamsChannelId),
+                },
+                Activity = (Activity)topLevelMessageActivity
+            };
+            await connectorClient.Conversations.CreateConversationAsync(conversationParameters);
         }
 
         private async Task SendAttachment(ITurnContext turnContext, CancellationToken cancellationToken)

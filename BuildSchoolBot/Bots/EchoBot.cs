@@ -101,7 +101,7 @@ namespace BuildSchoolBot.Bots
                 var services = await SchedulerFactory.GetAllSchedulers();
                 var scheduler = new ScheduleCreator(services[0], turnContext.Activity.From.Id, "GUID");
                 AddConversationReference(turnContext.Activity as Activity);
-                scheduler.CreateSingleGroupBuyNow(DateTime.Now.AddSeconds(15.0f));
+                scheduler.CreateSingleGroupBuy(DateTime.Now.AddSeconds(15.0f));
                 await turnContext.SendActivityAsync(MessageFactory.Text("schedule a group buy."));
             }
             else if (turnContext.Activity.Text.Contains("Customized Menu"))
@@ -233,7 +233,7 @@ namespace BuildSchoolBot.Bots
                 var services = await SchedulerFactory.GetAllSchedulers();
                 var scheduler = new ScheduleCreator(services[0], turnContext.Activity.From.Id, orderId);
                 var dueTime = DateTime.Parse(data.DueTime);
-                scheduler.CreateSingleGroupBuyNow(dueTime);
+                scheduler.CreateSingleGroupBuy(dueTime);
                 AddConversationReference(turnContext.Activity as Activity);
                 
                 return null;

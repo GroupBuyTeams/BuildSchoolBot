@@ -385,7 +385,7 @@ namespace BuildSchoolBot.Service
             );
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
-        //ting
+        //ting paymenturl
         public Attachment ReplyPayment(PayMentService payment, ITurnContext turnContext)
         {
             var name = turnContext.Activity.From.Name;
@@ -400,7 +400,7 @@ namespace BuildSchoolBot.Service
             var card = NewAdaptiveCard()
                .AddElement(new AdaptiveTextBlock()
                {
-                   Text = "Playment",
+                   Text = "Payment",
                    Size = AdaptiveTextSize.Large,
                    Color = AdaptiveTextColor.Good,
                    Weight = AdaptiveTextWeight.Bolder,

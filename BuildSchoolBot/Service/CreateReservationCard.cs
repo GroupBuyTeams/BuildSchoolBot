@@ -8,6 +8,7 @@ using Microsoft.Bot.Schema;
 using AdaptiveCards;
 using BuildSchoolBot.ViewModels;
 using Microsoft.Bot.Builder.Dialogs.Choices;
+using Newtonsoft.Json;
 
 namespace BuildSchoolBot.Service
 {
@@ -17,8 +18,21 @@ namespace BuildSchoolBot.Service
         public Attachment CreateReservationAdaptiveCard()
         {
             var card = NewAdaptiveCard()
-                .AddElement(new AdaptiveDateInput() { Id = "Date"})
-                .AddElement(new AdaptiveTimeInput() { Id = "Time"})
+                .AddElement(new AdaptiveTextBlock() { Text = "Please select the time when you want to start group buy."})
+                .AddElement(new AdaptiveTextBlock() { Text = "Date", Size = AdaptiveTextSize.Large })
+                .AddRow(new AdaptiveColumnSet() {Separator = true}
+                        .AddCol(new AdaptiveColumn()
+                            .AddElement(new AdaptiveDateInput() { Id = "Date", })
+                        )
+                        .AddCol(new AdaptiveColumn())
+                        )
+                .AddElement(new AdaptiveTextBlock() { Text = "Time", Size = AdaptiveTextSize.Large })
+                .AddRow(new AdaptiveColumnSet() {Separator = true}
+                    .AddCol(new AdaptiveColumn()
+                        .AddElement(new AdaptiveTimeInput() { Id = "Time", })
+                    )
+                    .AddCol(new AdaptiveColumn())
+                )
                 .AddActionsSet(
                     NewActionsSet()
                         .AddActionToSet(new AdaptiveSubmitAction() { Title = "Confirm"})
@@ -28,13 +42,42 @@ namespace BuildSchoolBot.Service
         //產生選擇訂單來源卡片
         public Attachment CreateOrderSourceAdaptiveCard()
         {
-            var card = NewAdaptiveCard()
-                .AddActionsSet(
-                    NewActionsSet()
-                        .AddActionToSet(new AdaptiveSubmitAction() { Title = "Quick Order" ,Id = "Quick" })
-                        .AddActionToSet(new AdaptiveSubmitAction() { Title = "Order Record", Id = "Record" })
-                        .AddActionToSet(new AdaptiveSubmitAction() { Title = "Customized", Id = "Customized" })
-                );
+            var card = NewHeroCard()
+                .EditTitle("You can find a menu through:")
+                .NewActionSet()
+                .AddAction(new CardAction() {Type = "imBack", Title = "Quick Order", Value = "Quick Order"})
+                .AddAction(new CardAction() { Type = "imBack", Title = "Order Record", Value = "Record" })
+                .AddAction(new CardAction() { Type = "imBack", Title = "Customized", Value = "Customized" });
+            return card.ToAttachment();
+        }
+
+        public Attachment CreateReserveResult(string storeName, DateTime start, DateTime end)
+        {
+            var card =
+                NewAdaptiveCard()
+                    .AddElement(new AdaptiveTextBlock()
+                    {
+                        Text = "Reservation Information", Size = AdaptiveTextSize.ExtraLarge,
+                        HorizontalAlignment = AdaptiveHorizontalAlignment.Center
+                    })
+                    .AddRow(new AdaptiveColumnSet()
+                        .AddCol(new AdaptiveColumn() {Width = "30"}
+                            .AddElement(new AdaptiveTextBlock() {Text = "Menu Name:", Size = AdaptiveTextSize.Large}))
+                        .AddCol(new AdaptiveColumn() {Width = "60"}
+                            .AddElement(new AdaptiveTextBlock() {Text = storeName})))
+                    .AddRow(new AdaptiveColumnSet()
+                        .AddCol(new AdaptiveColumn() {Width = "30"}
+                            .AddElement(new AdaptiveTextBlock() {Text = "Start from:", Size = AdaptiveTextSize.Large}))
+                        .AddCol(new AdaptiveColumn() {Width = "60"}
+                            .AddElement(new AdaptiveTextBlock()
+                                {Text = start.ToString("g")})))
+                    .AddRow(new AdaptiveColumnSet()
+                        .AddCol(new AdaptiveColumn() {Width = "30"}
+                            .AddElement(new AdaptiveTextBlock() {Text = "End At:", Size = AdaptiveTextSize.Large}))
+                        .AddCol(new AdaptiveColumn() {Width = "60"}
+                            .AddElement(new AdaptiveTextBlock()
+                                {Text = start.ToString("g")})));
+            
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }
     }

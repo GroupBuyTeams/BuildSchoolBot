@@ -54,9 +54,9 @@ namespace BuildSchoolBot.Scheduler.Jobs
         private async Task BotCallback(ITurnContext turnContext, CancellationToken cancellationToken)
         {
             var members = await TeamsInfo.GetMembersAsync(turnContext, cancellationToken);
-            var OrdersResult_Json = JsonConvert.SerializeObject(_OrderDetailServices.GetOrderResults(_OrderId, members));
+            var ordersResultJson = JsonConvert.SerializeObject(_OrderDetailServices.GetOrderResults(_OrderId, members));
             var Order = _OrderService.GetOrder(_OrderId);
-            var attachment = _CreateCardService.GetResultTotal(_OrderId, Order.StoreName, OrdersResult_Json, DateTime.Now.ToString("HH:mm"));
+            var attachment = new CreateCardService2().GetResultTotal(_OrderId, Order.StoreName, ordersResultJson, DateTime.Now.ToString("HH:mm"));
             await turnContext.SendActivityAsync(MessageFactory.Attachment(attachment));
             // await turnContext.SendActivityAsync(_Message);
         }

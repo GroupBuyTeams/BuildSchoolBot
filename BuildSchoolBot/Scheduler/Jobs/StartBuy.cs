@@ -8,9 +8,12 @@ using Quartz;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BuildSchoolBot.Models;
+using BuildSchoolBot.Repository;
+using Microsoft.Bot.Schema.Teams;
 
 namespace BuildSchoolBot.Scheduler.Jobs
 {
@@ -19,15 +22,18 @@ namespace BuildSchoolBot.Scheduler.Jobs
     {
         private readonly IBotFrameworkHttpAdapter Adapter;
         private readonly ConcurrentDictionary<string, ConversationReference> ConversationReferences;
+        private readonly EGRepository<Schedule> Repo;
         private readonly OrderService orderService;
         private readonly string AppId;
         private string Message;
-        public StartBuy(IConfiguration configuration, IBotFrameworkHttpAdapter adapter, ConcurrentDictionary<string, ConversationReference> conversationReferences, OrderService _orderService)
+        private Attachment card;
+        public StartBuy(IConfiguration configuration, IBotFrameworkHttpAdapter adapter, ConcurrentDictionary<string, ConversationReference> conversationReferences, OrderService _orderService, EGRepository<Schedule> _repo)
         {
             Adapter = adapter;
             ConversationReferences = conversationReferences;
             AppId = configuration["MicrosoftAppId"];
             orderService = _orderService;
+            Repo = _repo;
 
             // If the channel is the Emulator, and authentication is not in use,
             // the AppId will be null.  We generate a random AppId for this case only.
@@ -40,25 +46,36 @@ namespace BuildSchoolBot.Scheduler.Jobs
 
         public async Task Execute(IJobExecutionContext context)
         {
+            // get data of this schedule
             string UserId = context.MergedJobDataMap.GetString("UserId");
-            var conversationReference = ConversationReferences.GetValueOrDefault(UserId);
-            
-            string channelId = conversationReference.ChannelId;
             string scheduleId = context.MergedJobDataMap.GetString("ScheduleId");
-            // CreateOrder(scheduleId, channelId);
-
-            Message = context.MergedJobDataMap.GetString("Information");
-            await ((BotAdapter)Adapter).ContinueConversationAsync(AppId, conversationReference, BotCallback, default(CancellationToken));
+            string orderId = context.MergedJobDataMap.GetString("OrderId");
+            var conversationReference = ConversationReferences.GetValueOrDefault(UserId);
+            string channelId = conversationReference.ChannelId;
+            
+            
+            var schedule = Repo.GetAll().FirstOrDefault(x => x.ScheduleId.ToString().Equals(scheduleId));
+            var storeInfo = dataMapping(schedule, orderId);
+            orderService.CreateOrder(storeInfo.OrderID, conversationReference.ChannelId, storeInfo.StoreName);
+            card = new CreateCardService2().GetStore(storeInfo);
+            
+            await ((BotAdapter)Adapter).ContinueConversationAsync(AppId, conversationReference, SendAttachment, default(CancellationToken));
         }
 
-        private void CreateOrder(string Guid, string GroupId)
+        private async Task SendAttachment(ITurnContext turnContext, CancellationToken cancellationToken)
         {
-            // orderService.CreateOrder(Guid, GroupId);
+            await turnContext.SendActivityAsync(MessageFactory.Attachment(card));
         }
 
-        private async Task BotCallback(ITurnContext turnContext, CancellationToken cancellationToken)
+        private StoreOrderDuetime dataMapping(Schedule sched, string orderId)
         {
-            await turnContext.SendActivityAsync(Message);
+            return new StoreOrderDuetime()
+            {
+                Url = sched.MenuUri,
+                DueTime = sched.EndTime.ToString("HH:mm"),
+                OrderID = orderId,
+                StoreName = "StoreName" // 待修正
+            };
         }
     }
 }

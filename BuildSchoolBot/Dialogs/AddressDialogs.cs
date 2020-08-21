@@ -19,6 +19,7 @@ namespace BuildSchoolBot.Dialogs
     {
         // private readonly IStatePropertyAccessor<Address> _addressAccessor;
 
+        public bool IsReserve { get; set; }
         public AddressDialogs() : base()
         {
             // _addressAccessor = userState.CreateProperty<Address>("UserProfile");
@@ -31,19 +32,15 @@ namespace BuildSchoolBot.Dialogs
             };
             AddDialog(new WaterfallDialog(nameof(WaterfallDialog), waterfallSteps));
             InitialDialogId = nameof(WaterfallDialog);
-
         }
         private static async Task<DialogTurnResult> AddressStepAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { Prompt = MessageFactory.Text("Please enter your address.") }, cancellationToken);
-
         }
         //吳家寶
         private static async Task<DialogTurnResult> ConfirmAddressAsync(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             string add = (string)stepContext.Result;
-            // var LatLng = new LatLngService(add);
-            // var result = await new WebCrawler().GetStores2(LatLng.lat, LatLng.lng); 在這裡還不用去抓資料
             var getStoreService = new GetStoreList();
             await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(getStoreService.GetChooseMenuCard(add, GetReservation(stepContext))));
             return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { Prompt = MessageFactory.Text("Please Choose Menu.") }, cancellationToken);

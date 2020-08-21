@@ -84,9 +84,31 @@ namespace BuildSchoolBot.Dialogs
 
         private static async Task<DialogTurnResult> StoreMenuData(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
-            var storeData = JsonConvert.DeserializeObject<StoreOrderDuetime>(stepContext.Context.Activity.Value.ToString());
+            StoreOrderDuetime storeData;
+            try
+            {
+                storeData =
+                    JsonConvert.DeserializeObject<StoreOrderDuetime>(stepContext.Context.Activity.Value.ToString());
+            }
+            catch
+            {
+                return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { Prompt = MessageFactory.Text("OOPS! It seems you didn't choose any menu.") }, cancellationToken);
+            }
+
+            if (storeData.DueTime == null)
+            {
+                stepContext.ActiveDialog.State["stepIndex"] = (int)stepContext.ActiveDialog.State["stepIndex"] -1;
+                return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { Prompt = MessageFactory.Text("OOPS! I don't know when will this order END. Please order again!") }, cancellationToken);
+            }
+            
             var startTime = (DateTime) stepContext.Values["OrderTime"];
             var endTime = GetEndTime(startTime, storeData);
+
+            if (startTime >= endTime)
+            {
+                stepContext.ActiveDialog.State["stepIndex"] = (int)stepContext.ActiveDialog.State["stepIndex"] -1;
+                return await stepContext.PromptAsync(nameof(TextPrompt), new PromptOptions { Prompt = MessageFactory.Text("OOPS! The end time is earlier than start time. Please order again!") }, cancellationToken);
+            }
             
             var sched = new Schedule()
             {
@@ -98,18 +120,18 @@ namespace BuildSchoolBot.Dialogs
                 MenuUri = storeData.Url,
                 RepeatWeekdays = 0
             };
-            _schedRepo.Create(sched);
-            _schedRepo.context.SaveChanges();
             
-            
-            // demo
-            
-            // startTime = DateTime.Now + new TimeSpan(0,0,30);
-            // endTime = startTime + new TimeSpan(0, 1, 0);
             var services = await _schedulerFactory.GetAllSchedulers();
             var scheduler = new ScheduleCreator(services[0], stepContext.Context.Activity.From.Id, storeData.OrderID, sched.ScheduleId.ToString());
             scheduler.CreateSingleGroupBuy(startTime, endTime, false);
             AddConversationReference(stepContext.Context.Activity as Activity);
+            
+            _schedRepo.Create(sched);
+            _schedRepo.context.SaveChanges();
+            
+            await stepContext.Context.SendActivityAsync(MessageFactory.Attachment(new CreateReservationCard().CreateReserveResult(storeData.StoreName, startTime, endTime)));
+            await stepContext.Context.SendActivityAsync(MessageFactory.Text("The group buy has been reserved. I will notify you when the order start :D"));
+            
             return await stepContext.EndDialogAsync();
         }
 

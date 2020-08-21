@@ -46,15 +46,16 @@ namespace BuildSchoolBot.Scheduler.Jobs
 
         public async Task Execute(IJobExecutionContext context)
         {
+            // get data of this schedule
             string UserId = context.MergedJobDataMap.GetString("UserId");
-            var conversationReference = ConversationReferences.GetValueOrDefault(UserId);
-            
-            string channelId = conversationReference.ChannelId;
             string scheduleId = context.MergedJobDataMap.GetString("ScheduleId");
-            // CreateOrder(scheduleId, channelId);
-
+            string orderId = context.MergedJobDataMap.GetString("OrderId");
+            var conversationReference = ConversationReferences.GetValueOrDefault(UserId);
+            string channelId = conversationReference.ChannelId;
+            
+            
             var schedule = Repo.GetAll().FirstOrDefault(x => x.ScheduleId.ToString().Equals(scheduleId));
-            var storeInfo = dataMapping(schedule, Guid.NewGuid().ToString());
+            var storeInfo = dataMapping(schedule, orderId);
             orderService.CreateOrder(storeInfo.OrderID, conversationReference.ChannelId, storeInfo.StoreName);
             card = new CreateCardService2().GetStore(storeInfo);
             

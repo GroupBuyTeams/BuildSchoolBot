@@ -104,8 +104,8 @@ namespace BuildSchoolBot.Dialogs
             
             // demo
             
-            startTime = DateTime.Now + new TimeSpan(0,0,30);
-            endTime = startTime + new TimeSpan(0, 1, 0);
+            // startTime = DateTime.Now + new TimeSpan(0,0,30);
+            // endTime = startTime + new TimeSpan(0, 1, 0);
             var services = await _schedulerFactory.GetAllSchedulers();
             var scheduler = new ScheduleCreator(services[0], stepContext.Context.Activity.From.Id, storeData.OrderID, sched.ScheduleId.ToString());
             scheduler.CreateSingleGroupBuy(startTime, endTime, false);
@@ -128,7 +128,7 @@ namespace BuildSchoolBot.Dialogs
             }
             return false;
         }
-
+        
         private static DateTime GetEndTime(DateTime start, StoreOrderDuetime storeData)
         {
             var endHourMinute = storeData.DueTime.Split(':');

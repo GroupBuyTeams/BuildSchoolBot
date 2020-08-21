@@ -6,7 +6,9 @@ using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Schema;
 using Quartz;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,12 +22,15 @@ namespace BuildSchoolBot.Dialogs
     public class ReservationDialog : ComponentDialog
     {
         private readonly IStatePropertyAccessor<Schedule> _userProfileAccessor;
-        // private static readonly EGRepository<Schedule> _schedRepo;
-        public ReservationDialog(UserState userState, AddressDialogs addressDialog) : base(nameof(ReservationDialog))
+        private static ISchedulerFactory _schedulerFactory;
+        private static EGRepository<Schedule> _schedRepo;
+        private static ConcurrentDictionary<string, ConversationReference> _conversationReferences;
+        public ReservationDialog(UserState userState, AddressDialogs addressDialog, ISchedulerFactory schedulerFactory, EGRepository<Schedule> schedRepo, ConcurrentDictionary<string, ConversationReference> conversationReferences) : base(nameof(ReservationDialog))
         {
             _userProfileAccessor = userState.CreateProperty<Schedule>("Schedule");
-            // _schedRepo = schedRepo;
-                
+            _schedulerFactory = schedulerFactory;
+            _schedRepo = schedRepo;
+            _conversationReferences = conversationReferences;
             var waterfallSteps = new WaterfallStep[]
             {
                 CreateReservationAdaptive,
@@ -80,7 +85,7 @@ namespace BuildSchoolBot.Dialogs
         private static async Task<DialogTurnResult> StoreMenuData(WaterfallStepContext stepContext, CancellationToken cancellationToken)
         {
             var storeData = JsonConvert.DeserializeObject<StoreOrderDuetime>(stepContext.Context.Activity.Value.ToString());
-            var startTime = DateTime.Parse((string) stepContext.Values["OrderTime"]);
+            var startTime = (DateTime) stepContext.Values["OrderTime"];
             var endTime = GetEndTime(startTime, storeData);
             
             var sched = new Schedule()
@@ -93,9 +98,18 @@ namespace BuildSchoolBot.Dialogs
                 MenuUri = storeData.Url,
                 RepeatWeekdays = 0
             };
-            // _schedRepo.Create(sched);
+            _schedRepo.Create(sched);
+            _schedRepo.context.SaveChanges();
             
             
+            // demo
+            
+            startTime = DateTime.Now + new TimeSpan(0,0,30);
+            endTime = startTime + new TimeSpan(0, 1, 0);
+            var services = await _schedulerFactory.GetAllSchedulers();
+            var scheduler = new ScheduleCreator(services[0], stepContext.Context.Activity.From.Id, storeData.OrderID, sched.ScheduleId.ToString());
+            scheduler.CreateSingleGroupBuy(startTime, endTime, false);
+            AddConversationReference(stepContext.Context.Activity as Activity);
             return await stepContext.EndDialogAsync();
         }
 
@@ -119,10 +133,15 @@ namespace BuildSchoolBot.Dialogs
         {
             var endHourMinute = storeData.DueTime.Split(':');
             var endTime = start.Date;
-            endTime.AddHours(int.Parse(endHourMinute[0]));
-            endTime.AddMinutes(int.Parse(endHourMinute[1]));
+            var sp = new TimeSpan(int.Parse(endHourMinute[0]), int.Parse(endHourMinute[1]), 0);
+            endTime += sp;
             return endTime;
         }
         
+        private static void AddConversationReference(Activity activity)
+        {
+            var conversationReference = activity.GetConversationReference();
+            _conversationReferences.AddOrUpdate(conversationReference.User.Id, conversationReference, (key, newValue) => conversationReference);
+        }
     }
 }

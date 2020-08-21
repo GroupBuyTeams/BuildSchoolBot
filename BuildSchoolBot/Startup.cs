@@ -77,6 +77,7 @@ namespace BuildSchoolBot
             services.AddSingleton<EGRepository<Payment>>();
             services.AddSingleton<EGRepository<MenuOrder>>();
             services.AddSingleton<EGRepository<MenuDetail>>();
+            services.AddSingleton<EGRepository<Schedule>>();
             services.AddSingleton<LibraryService>();
             services.AddSingleton<OrderfoodServices>();
             services.AddSingleton<OrderDetailService>();

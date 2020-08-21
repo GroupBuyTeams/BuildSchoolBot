@@ -11,11 +11,13 @@ namespace BuildSchoolBot.Service
         private IScheduler _sched { get; set; }
         private string _OrderId { get; set; }
         private string _UserId { get; set; }
-        public ScheduleCreator(IScheduler scheduler, string UserId, string orderId)
+        private string _SchedId { get; set; }
+        public ScheduleCreator(IScheduler scheduler, string UserId, string orderId, string schedId = null)
         {
             _sched = scheduler;
             _UserId = UserId;
             _OrderId = orderId;
+            _SchedId = schedId;
         }
 
         public void CreateSingleGroupBuyNow(DateTime EndTime)
@@ -33,9 +35,14 @@ namespace BuildSchoolBot.Service
             TimeSpan ten = new TimeSpan(0, 0, 10);
             if (!Now)
             {
-                ScheduleSingleJob<NoteBuy>(startDate - ten, ScheduleText.NoteStartState, ScheduleText.NoteStartMsg);
+                ScheduleSingleJob<NoteBuy>(startDate - ten, ScheduleText.StartState, ScheduleText.NoteStartMsg);
+                ScheduleSingleJob<NoteBuy>(startDate, ScheduleText.StartState, ScheduleText.StartMsg);
+                ScheduleSingleJob<StartBuy>(startDate, ScheduleText.NoteStartState, null);
             }
-            ScheduleSingleJob<NoteBuy>(startDate, ScheduleText.StartState, ScheduleText.StartMsg);//only notify everyone
+            else
+            {
+                ScheduleSingleJob<NoteBuy>(startDate, ScheduleText.StartState, ScheduleText.StartMsg);//only notify everyone    
+            }
             ScheduleSingleJob<NoteBuy>(endAt - ten, ScheduleText.NoteStopState, ScheduleText.NoteStopMsg);
             ScheduleSingleJob<StopBuy>(endAt, ScheduleText.StopState, null);
         }
@@ -78,11 +85,17 @@ namespace BuildSchoolBot.Service
         private JobBuilder GetJobBuilder<T>(string stateInfo, string NotificationText) where T : IJob
         {
             var jb = JobBuilder.Create<T>().WithIdentity(_OrderId + stateInfo, _UserId).UsingJobData("UserId",_UserId).UsingJobData("OrderId",_OrderId);
-            if(NotificationText == null){
-                return jb;
-            }else{
-                return jb.UsingJobData("Information", NotificationText);
-            }   
+
+            if (_SchedId != null)
+            {
+                jb.UsingJobData("ScheduleId", _SchedId);
+            }
+            
+            if (NotificationText != null) {
+                jb.UsingJobData("Information", NotificationText);
+            }
+
+            return jb;
         }
         private TriggerBuilder GetTriggerBuilder(string stateInfo)
         {

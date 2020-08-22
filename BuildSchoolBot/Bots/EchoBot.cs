@@ -94,16 +94,6 @@ namespace BuildSchoolBot.Bots
                 await turnContext.UpdateActivityAsync(activity, cancellationToken);
                 await turnContext.SendActivityAsync(MessageFactory.Text("You update your payment link: " + url), cancellationToken);
             }
-            //Only for Demo. 
-            //please don't delete it, please don't delete it, please don't delete it!!!!
-            else if (turnContext.Activity.Text.Contains("ccc"))
-            {
-                var services = await SchedulerFactory.GetAllSchedulers();
-                var scheduler = new ScheduleCreator(services[0], turnContext.Activity.From.Id, "GUID");
-                AddConversationReference(turnContext.Activity as Activity);
-                scheduler.CreateSingleGroupBuy(DateTime.Now.AddSeconds(15.0f));
-                await turnContext.SendActivityAsync(MessageFactory.Text("schedule a group buy."));
-            }
             else if (turnContext.Activity.Text.Contains("Customized Menu"))
             {
                 var CustomMenucard = _customMenuService.CallCustomeCard();
@@ -137,7 +127,7 @@ namespace BuildSchoolBot.Bots
         }
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
-            await turnContext.SendActivityAsync(MessageFactory.Text("Welcome to Groupbuy."));
+            await turnContext.SendActivityAsync(MessageFactory.Text("Welcome to Group Buy."));
         }
         public override async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default)
         {

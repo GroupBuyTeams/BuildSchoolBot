@@ -13,6 +13,8 @@ using static BuildSchoolBot.StoreModels.fooditem;
 using static BuildSchoolBot.StoreModels.ModifyMenu;
 using static BuildSchoolBot.StoreModels.ResultTotal;
 using static BuildSchoolBot.StoreModels.SelectMenu;
+using static BuildSchoolBot.Service.CardAssemblyFactory;
+using static BuildSchoolBot.Service.CardActionFactory;
 
 
 namespace BuildSchoolBot.Service
@@ -217,5 +219,23 @@ namespace BuildSchoolBot.Service
         //    return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         //}
 
+        //吳家寶
+        //產生讓使用者輸入地址的卡片
+        public Attachment CreateAddressInputAdaptiveCard()
+        {
+            var card = NewAdaptiveCard()
+                .AddElement(new AdaptiveTextBlock() { Text = "Please enter your address." })
+                .AddRow(new AdaptiveColumnSet() { Separator = true }
+                        .AddCol(new AdaptiveColumn() { Width = "80" }
+                            .AddElement(new AdaptiveTextInput() { Id = "Address"})
+                        )
+                        .AddCol(new AdaptiveColumn())
+                        )
+                .AddActionsSet(
+                    NewActionsSet()
+                        .AddActionToSet(new AdaptiveSubmitAction() { Title = "Submit" })
+                );
+            return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
+        }
     }
 }

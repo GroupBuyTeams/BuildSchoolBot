@@ -47,14 +47,14 @@ namespace BuildSchoolBot.Service
             }
             return menuorder;
         }
-        public Attachment CallCustomeCard()
+        public Attachment CallCustomeCard(string Id = null)
         {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
 
             var cardData = new CardDataModel<string>()
             {
                 Type = "createmenu",
-                Value = null
+                Value = Id
             };
 
             var ColumnSet = new AdaptiveColumnSet();
@@ -65,7 +65,7 @@ namespace BuildSchoolBot.Service
 
             var Column2 = new AdaptiveColumn() { Width = AdaptiveColumnWidth.Stretch };
             ColumnSet.Columns.Add(Column2);
-            
+
             var ActionSet1 = new AdaptiveActionSet();
             ActionSet1.Actions.Add(new AdaptiveSubmitAction() { Title = "Create Store", Data = new AdaptiveCardTaskFetchValue<string>() { Data = JsonConvert.SerializeObject(cardData) } });
             Column1.Items.Add(ActionSet1);
@@ -76,18 +76,18 @@ namespace BuildSchoolBot.Service
             Column2.Items.Add(ActionSet2);
 
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
-        }      
+        }
         private AdaptiveCard StoreListAdaptiveCard()
         {
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
             var getstore = GetMenuOrders();
             foreach (var storeitem in getstore)
             {
-                card.Body.Add(StoreItems(storeitem.Store,storeitem.MenuId));
+                card.Body.Add(StoreItems(storeitem.Store, storeitem.MenuId));
             }
             return card;
         }
-        private AdaptiveColumnSet StoreItems(string Storename,Guid MenuId)
+        private AdaptiveColumnSet StoreItems(string Storename, Guid MenuId)
         {
             var ModifyData = new CardDataModel<ModifyData>()
             {
@@ -122,7 +122,7 @@ namespace BuildSchoolBot.Service
             var Column1 = new AdaptiveColumn();
             MainColumnSet.Columns.Add(Column1);
 
-            var StoreName = new AdaptiveTextBlock() { Text = Storename, Height = AdaptiveHeight.Stretch ,Weight = AdaptiveTextWeight.Bolder};
+            var StoreName = new AdaptiveTextBlock() { Text = Storename, Height = AdaptiveHeight.Stretch, Weight = AdaptiveTextWeight.Bolder };
             Column1.Items.Add(StoreName);
 
             var Column2 = new AdaptiveColumn() { Width = AdaptiveColumnWidth.Auto };
@@ -159,7 +159,7 @@ namespace BuildSchoolBot.Service
         {
             var entity = _context.MenuOrder.FirstOrDefault(x => x.MenuId.Equals(Menuid));
             var data = _context.MenuDetail.Where(x => x.MenuId.Equals(Menuid));
-            foreach(var product in data)
+            foreach (var product in data)
             {
                 _context.MenuDetail.Remove(product);
             }

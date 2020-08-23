@@ -107,12 +107,11 @@ namespace BuildSchoolBot.Bots
             else if (turnContext.Activity.Text.Contains("Customized Menu"))
             {
                 var CustomMenucard = _customMenuService.CallCustomeCard();
-                var activity = MessageFactory.Attachment(CustomMenucard);
-                await turnContext.SendActivityAsync(activity, cancellationToken);
 
+                var NewID = turnContext.SendActivityAsync(MessageFactory.Attachment(CustomMenucard), cancellationToken).Result.Id;
 
-                var UpdateActivity = MessageFactory.Attachment(_customMenuService.CallCustomeCard(activity.Id));
-                UpdateActivity.Id = activity.Id;
+                var UpdateActivity = MessageFactory.Attachment(_customMenuService.CallCustomeCard(NewID));
+                UpdateActivity.Id = NewID; //指定要更新的activity
                 await turnContext.UpdateActivityAsync(UpdateActivity, cancellationToken);
             }
             else if (turnContext.Activity.Text.Contains("Help"))
@@ -281,9 +280,10 @@ namespace BuildSchoolBot.Bots
                     _menuService.CreateMenuDetail(factory, menu.MenuId);
                     await turnContext.SendActivityAsync(MessageFactory.Text("Create Successfully!"));
 
-                    var CustomMenucard = _customMenuService.CallCustomeCard(factory.GetCardData<StoreInfoData>().Name);
+                    var NewId = factory.GetCardData<StoreInfoData>().Name;
+                    var CustomMenucard = _customMenuService.CallCustomeCard(NewId);
                     var activity = MessageFactory.Attachment(CustomMenucard);
-                    activity.Id = factory.GetCardData<StoreInfoData>().Name;
+                    activity.Id = NewId; //指定要更新的activity
                     await turnContext.UpdateActivityAsync(activity, cancellationToken);
                 }
                 return null;

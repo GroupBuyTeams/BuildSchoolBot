@@ -189,7 +189,7 @@ namespace BuildSchoolBot.Service
             }
 
             card
-                .AddElement(new AdaptiveTimeInput() {Id = "DueTime"})
+                .AddElement(new AdaptiveTextInput() {Id = "DueTime"})
                 .AddActionsSet(
                     NewActionsSet()
                         .AddActionToSet(new AdaptiveSubmitAction().SetSubmitTaskModule("Submit", JsonConvert.SerializeObject(cardData))));

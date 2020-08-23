@@ -76,7 +76,7 @@ namespace BuildSchoolBot.Service
                             .AddElement(new AdaptiveTextBlock() {Text = "End At:", Size = AdaptiveTextSize.Large}))
                         .AddCol(new AdaptiveColumn() {Width = "60"}
                             .AddElement(new AdaptiveTextBlock()
-                                {Text = start.ToString("g")})));
+                                {Text = end.ToString("g")})));
             
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
         }

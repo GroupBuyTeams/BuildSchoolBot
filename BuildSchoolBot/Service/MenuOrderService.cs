@@ -74,13 +74,13 @@ namespace BuildSchoolBot.Service
             return adaptiveCardAttachment;
         }
 
-        public Attachment GetStore(AdaptiveCardDataFactory dataFactory)
+        public Attachment GetStore(AdaptiveCardDataFactory dataFactory, string orderId)
         {
             var MenuId = dataFactory.GetCardData<StoreOrderDuetime>().MenuID;
             var Store = dataFactory.GetCardData<StoreOrderDuetime>().StoreName;
             var DueTime = JObject.FromObject(dataFactory.Request.Data).GetValue("DueTime").ToString();
 
-            var cardData = new CardDataModel<StoreOrderDuetime>() { Type = "GetCustomizedMenu", Value = new StoreOrderDuetime { OrderID = Guid.NewGuid().ToString(), MenuID = MenuId, StoreName = Store, DueTime = DueTime } };//包資料到Submit Action, Type是給EchoBot判斷用的字串，Value是要傳遞資料
+            var cardData = new CardDataModel<StoreOrderDuetime>() { Type = "GetCustomizedMenu", Value = new StoreOrderDuetime { OrderID = orderId, MenuID = MenuId, StoreName = Store, DueTime = DueTime } };//包資料到Submit Action, Type是給EchoBot判斷用的字串，Value是要傳遞資料
 
             var card = new AdaptiveCard(new AdaptiveSchemaVersion(1, 2));
             var actionSet = new AdaptiveActionSet() { Type = AdaptiveActionSet.TypeName, Separator = true };

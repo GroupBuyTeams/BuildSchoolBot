@@ -86,8 +86,8 @@ namespace BuildSchoolBot.Service
                     NewActionsSet()
                         .AddActionToSet(new AdaptiveSubmitAction().SetOpenTaskModule("Join", JsonConvert.SerializeObject(cardData)))
                         .AddActionToSet(new AdaptiveSubmitAction() { Title = "Favorite", Data = objData })
-                        //ting
-                        //.AddActionToSet(new AdaptiveSubmitAction() { Title = "Delete", Data = DeleteOrderData })
+                //ting
+                //.AddActionToSet(new AdaptiveSubmitAction() { Title = "Delete", Data = DeleteOrderData })
                 );
 
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card };
@@ -168,7 +168,7 @@ namespace BuildSchoolBot.Service
             var res = quantityInt * moneyDecimal;
             return res;
         }
-      public Attachment GetChosenFoodFromMenu(AdaptiveCardDataFactory dataFactory)
+        public Attachment GetChosenFoodFromMenu(AdaptiveCardDataFactory dataFactory)
         {
             var orderData = dataFactory.GetOrderedFoods(); //使用者的訂購資訊
             if (orderData == null)//防呆：使用者在數量那邊輸入負值
@@ -273,7 +273,7 @@ namespace BuildSchoolBot.Service
             return new Attachment() { ContentType = AdaptiveCard.ContentType, Content = card, Name = "SingleOrderResult" };
         }
         //ting
-        public Attachment GetCreateMenu()
+        public Attachment GetCreateMenu(string activityId)
         {
             // var storeInfo = new StoreInfoData() { Name = storeName, Guid = guid };
             var guid = Guid.NewGuid().ToString();
@@ -281,7 +281,7 @@ namespace BuildSchoolBot.Service
             var cardData = new CardDataModel<StoreInfoData>()//務必按照此格式新增需要傳出去的資料
             {
                 Type = "GetCustomizedMenu", //於EchoBot判斷用
-                Value = new StoreInfoData() { Guid = guid } //要傳出去的資料和資料結構
+                Value = new StoreInfoData() { Guid = guid, Name = activityId } //要傳出去的資料和資料結構
             };
 
             var itemsName = new string[] { "Name", "Price" };
@@ -562,10 +562,10 @@ namespace BuildSchoolBot.Service
             var card =
                 NewAdaptiveCard()
                     .AddRow(new AdaptiveColumnSet() { Separator = true }
-                        .AddCol(new AdaptiveColumn() 
-                            .AddElement(new AdaptiveTextInput() { Id = MenuOrderStore+"1", Value = MenuOrderStore }))
-                      .AddCol(new AdaptiveColumn() 
-                                .AddElement(new AdaptiveTextBlock() { Text ="" }) 
+                        .AddCol(new AdaptiveColumn()
+                            .AddElement(new AdaptiveTextInput() { Id = MenuOrderStore + "1", Value = MenuOrderStore }))
+                      .AddCol(new AdaptiveColumn()
+                                .AddElement(new AdaptiveTextBlock() { Text = "" })
                         ))
                   .AddRow(new AdaptiveColumnSet().
                         AddColumnsWithStrings(ItemsName)

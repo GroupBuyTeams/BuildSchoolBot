@@ -107,7 +107,13 @@ namespace BuildSchoolBot.Bots
             else if (turnContext.Activity.Text.Contains("Customized Menu"))
             {
                 var CustomMenucard = _customMenuService.CallCustomeCard();
-                await turnContext.SendActivityAsync(MessageFactory.Attachment(CustomMenucard), cancellationToken);
+                var activity = MessageFactory.Attachment(CustomMenucard);
+                await turnContext.SendActivityAsync(activity, cancellationToken);
+
+
+                var UpdateActivity = MessageFactory.Attachment(_customMenuService.CallCustomeCard(activity.Id));
+                UpdateActivity.Id = activity.Id;
+                await turnContext.UpdateActivityAsync(UpdateActivity, cancellationToken);
             }
             else if (turnContext.Activity.Text.Contains("Help"))
             {
@@ -127,7 +133,7 @@ namespace BuildSchoolBot.Bots
             }
             else
             {
-                await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken); 
+                await Dialog.RunAsync(turnContext, ConversationState.CreateProperty<DialogState>(nameof(DialogState)), cancellationToken);
             }
         }
         private void AddConversationReference(Activity activity)
@@ -162,7 +168,8 @@ namespace BuildSchoolBot.Bots
             //ting create Customized menu taskmodule
             if (fetchType?.Equals("createmenu") == true)
             {
-                taskInfo.Card = service.GetCreateMenu();
+                var activityId = factory.GetCardData<string>();
+                taskInfo.Card = service.GetCreateMenu(activityId);
                 return await Task.FromResult(taskInfo.ToTaskModuleResponse());
             }
             //create menu detail
@@ -196,7 +203,8 @@ namespace BuildSchoolBot.Bots
             {
                 taskInfo.Card = await new GetStoreList().CreateStoresModule(factory, null);
                 return await Task.FromResult(taskInfo.ToTaskModuleResponse());
-            } else if (fetchType.Equals("reserveStore"))
+            }
+            else if (fetchType.Equals("reserveStore"))
             {
                 taskInfo.Card = await new GetStoreList().CreateStoresModule(factory, "reserveStore");
                 return await Task.FromResult(taskInfo.ToTaskModuleResponse());
@@ -228,14 +236,14 @@ namespace BuildSchoolBot.Bots
                 _orderService.CreateOrder(orderId, turnContext.Activity.ChannelId, data.StoreName);
                 var cardService = new CreateCardService2();
                 await turnContext.SendActivityAsync(MessageFactory.Attachment(cardService.GetStore(data)));
-                
+
                 //create scheduler
                 var services = await SchedulerFactory.GetAllSchedulers();
                 var scheduler = new ScheduleCreator(services[0], turnContext.Activity.From.Id, orderId);
                 var dueTime = DateTime.Parse(data.DueTime);
                 scheduler.CreateSingleGroupBuy(dueTime);
                 AddConversationReference(turnContext.Activity as Activity);
-                
+
                 return null;
             }
             if (fetchType?.Equals("FetchSelectedFoods") == true)
@@ -272,13 +280,18 @@ namespace BuildSchoolBot.Bots
                 {
                     _menuService.CreateMenuDetail(factory, menu.MenuId);
                     await turnContext.SendActivityAsync(MessageFactory.Text("Create Successfully!"));
+
+                    var CustomMenucard = _customMenuService.CallCustomeCard(factory.GetCardData<StoreInfoData>().Name);
+                    var activity = MessageFactory.Attachment(CustomMenucard);
+                    activity.Id = factory.GetCardData<StoreInfoData>().Name;
+                    await turnContext.UpdateActivityAsync(activity, cancellationToken);
                 }
                 return null;
             }
             else if (fetchType?.Equals("GetCustomizedMenuDetail") == true)
             {
                 var menu = factory.GetCardData<StoreInfoData>().Guid;
-                _menuService.CreateMenuDetail(factory,Guid.Parse(menu));
+                _menuService.CreateMenuDetail(factory, Guid.Parse(menu));
                 await turnContext.SendActivityAsync(MessageFactory.Text("Create Successfully!"));
                 return null;
             }
@@ -293,7 +306,7 @@ namespace BuildSchoolBot.Bots
             }
             //育銨
             else
-            { 
+            {
                 var TaskInfo = new TaskModuleTaskInfo();
                 TaskInfo.Card = new CreateCardService2().GetResultCustomizedModification(factory);
                 new CreateCardService2().SetTaskInfo(TaskInfo, TaskModuleUIConstants.UpdateMenu);

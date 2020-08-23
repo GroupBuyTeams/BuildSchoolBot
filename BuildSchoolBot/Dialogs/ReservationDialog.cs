@@ -117,8 +117,8 @@ namespace BuildSchoolBot.Dialogs
                 RepeatWeekdays = 0
             };
 
-            startTime = DateTime.Now.AddSeconds(5f);
-            endTime = DateTime.Now.AddSeconds(10f);
+            // startTime = DateTime.Now.AddSeconds(5f);
+            // endTime = DateTime.Now.AddSeconds(30f);
             var teamsChannelData =JsonConvert.DeserializeObject<dynamic>(stepContext.Context.Activity.ChannelData.ToString());
             var services = await _schedulerFactory.GetAllSchedulers();
             var scheduler = new ScheduleCreator(services[0], stepContext.Context.Activity.From.Id, storeData.OrderID, sched.ScheduleId.ToString());

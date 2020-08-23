@@ -41,17 +41,17 @@ namespace BuildSchoolBot.Service
             if (teamsChannelId != null)
             {
                 //ScheduleSingleJob<NoteBuy>(startDate - ten, ScheduleText.StartState, ScheduleText.NoteStartMsg);
-                //ScheduleSingleJob<NoteBuy>(startDate, ScheduleText.StartState, ScheduleText.StartMsg);
                 ScheduleSingleJob<StartBuy>(startDate, ScheduleText.NoteStartState, teamsChannelId);
+                ScheduleSingleJob<NoteBuy>(startDate + new TimeSpan(0,0,5), ScheduleText.StartState, ScheduleText.StartMsg);
             }
             else
             {
                 ScheduleSingleJob<NoteBuy>(startDate, ScheduleText.StartState, ScheduleText.StartMsg);//only notify everyone    
-                ScheduleSingleJob<NoteBuy>(endAt - ten, ScheduleText.NoteStopState, ScheduleText.NoteStopMsg);
-                ScheduleSingleJob<StopBuy>(endAt, ScheduleText.StopState, null);
+                // ScheduleSingleJob<NoteBuy>(endAt - ten, ScheduleText.NoteStopState, ScheduleText.NoteStopMsg);
+                // ScheduleSingleJob<StopBuy>(endAt, ScheduleText.StopState, null);
             }
-            //ScheduleSingleJob<NoteBuy>(endAt - ten, ScheduleText.NoteStopState, ScheduleText.NoteStopMsg);
-            //ScheduleSingleJob<StopBuy>(endAt, ScheduleText.StopState, null);
+            ScheduleSingleJob<NoteBuy>(endAt - ten, ScheduleText.NoteStopState, ScheduleText.NoteStopMsg);
+            ScheduleSingleJob<StopBuy>(endAt, ScheduleText.StopState, null);
         }
 
         public void CreateRepeatedGroupBuy(int startAt, int Duration, int WeekDays)

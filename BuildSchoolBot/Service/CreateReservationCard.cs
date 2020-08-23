@@ -29,7 +29,7 @@ namespace BuildSchoolBot.Service
                 .AddElement(new AdaptiveTextBlock() { Text = "Time", Size = AdaptiveTextSize.Large })
                 .AddRow(new AdaptiveColumnSet() {Separator = true}
                     .AddCol(new AdaptiveColumn()
-                        .AddElement(new AdaptiveTimeInput() { Id = "Time", })
+                        .AddElement(new AdaptiveTextInput() { Id = "Time", })
                     )
                     .AddCol(new AdaptiveColumn())
                 )

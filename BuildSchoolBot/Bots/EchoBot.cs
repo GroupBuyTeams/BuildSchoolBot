@@ -261,7 +261,7 @@ namespace BuildSchoolBot.Bots
                 
                 //create an order and group-buy card
                 _orderService.CreateOrder(data.OrderID, turnContext.Activity.ChannelId, data.StoreName);
-                await turnContext.SendActivityAsync(MessageFactory.Attachment(_menuOrderService.GetStore(factory)));
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(_menuOrderService.GetStore(factory, data.OrderID)));
                 
                 //create scheduler
                 var services = await SchedulerFactory.GetAllSchedulers();

@@ -35,7 +35,7 @@ namespace BuildSchoolBot.Dialogs
         {
 
             var activity = stepContext.Context.Activity;
-            if (!activity.Text.Contains("We are Hungry"))
+            if (!activity.Text.Contains("We are Hungry") && !activity.Text.Contains("ccc"))
             {
                 await stepContext.Context.SendActivityAsync(MessageFactory.Text("Please input \"We are Hungry\""), cancellationToken);
 

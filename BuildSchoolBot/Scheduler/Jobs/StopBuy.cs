@@ -1,3 +1,4 @@
+using BuildSchoolBot.Models;
 using BuildSchoolBot.Service;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Integration.AspNet.Core;
@@ -26,7 +27,9 @@ namespace BuildSchoolBot.Scheduler.Jobs
         private readonly string _AppId;
         private string _Message;
         private string _OrderId;
-        public StopBuy(IConfiguration configuration, IBotFrameworkHttpAdapter adapter, ConcurrentDictionary<string, ConversationReference> conversationReferences, OrderService orderService, OrderDetailService orderDetailServices, CreateCardService createCardService)
+        private readonly PayMentService _paymentService;
+
+        public StopBuy(IConfiguration configuration, IBotFrameworkHttpAdapter adapter, ConcurrentDictionary<string, ConversationReference> conversationReferences, OrderService orderService, OrderDetailService orderDetailServices, CreateCardService createCardService, PayMentService payMentService)
         {
             _Adapter = adapter;
             _ConversationReferences = conversationReferences;
@@ -34,6 +37,7 @@ namespace BuildSchoolBot.Scheduler.Jobs
             _OrderService = orderService;
             _OrderDetailServices = orderDetailServices;
             _CreateCardService = createCardService;
+            _paymentService = payMentService;
             // If the channel is the Emulator, and authentication is not in use,
             // the AppId will be null.  We generate a random AppId for this case only.
             // This is not required for production, since the AppId will have a value.
@@ -54,11 +58,16 @@ namespace BuildSchoolBot.Scheduler.Jobs
         private async Task BotCallback(ITurnContext turnContext, CancellationToken cancellationToken)
         {
             var members = await TeamsInfo.GetMembersAsync(turnContext, cancellationToken);
-            var OrdersResult_Json = JsonConvert.SerializeObject(_OrderDetailServices.GetOrderResults(_OrderId, members));
+            var ordersResultJson = JsonConvert.SerializeObject(_OrderDetailServices.GetOrderResults(_OrderId, members));
             var Order = _OrderService.GetOrder(_OrderId);
-            var attachment = _CreateCardService.GetResultTotal(_OrderId, Order.StoreName, OrdersResult_Json, DateTime.Now.ToString("HH:mm"));
+            var attachment = new CreateCardService2().GetResultTotal(_OrderId, Order.StoreName, ordersResultJson, DateTime.Now.ToString("HH:mm"));
             await turnContext.SendActivityAsync(MessageFactory.Attachment(attachment));
             // await turnContext.SendActivityAsync(_Message);
+
+            var memberId = turnContext.Activity.From.Id;
+            var card = new CreateCardService2().ReplyPayment(_paymentService, turnContext);
+            await turnContext.SendActivityAsync(MessageFactory.Attachment(card), cancellationToken);
+
         }
     }
 }

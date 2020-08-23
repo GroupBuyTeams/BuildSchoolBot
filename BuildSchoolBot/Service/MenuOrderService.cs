@@ -51,7 +51,7 @@ namespace BuildSchoolBot.Service
             var myCard = JsonConvert.DeserializeObject<AdaptiveCard>(libraryCardJson);
             var menuOrder = FindMenuOrderByTeamsId(teamsId).ToList();
 
-            myCard.AddElement(new AdaptiveTimeInput() { Id = "DueTime" });
+            myCard.AddElement(new AdaptiveTextInput() { Id = "DueTime" });
 
             menuOrder.ForEach(item =>
             {

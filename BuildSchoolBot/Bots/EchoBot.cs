@@ -254,8 +254,21 @@ namespace BuildSchoolBot.Bots
             }
             else if (fetchType?.Equals("GetCustomizedStore") == true)
             {
-                var result = _menuOrderService.GetStore(factory);
-                await turnContext.SendActivityAsync(MessageFactory.Attachment(result));
+                //get order data
+                var data = factory.GetCardData<StoreOrderDuetime>();
+                data.DueTime = JObject.FromObject(factory.Request.Data).GetValue("DueTime").ToString();
+                data.OrderID = Guid.NewGuid().ToString();
+                
+                //create an order and group-buy card
+                _orderService.CreateOrder(data.OrderID, turnContext.Activity.ChannelId, data.StoreName);
+                await turnContext.SendActivityAsync(MessageFactory.Attachment(_menuOrderService.GetStore(factory, data.OrderID)));
+                
+                //create scheduler
+                var services = await SchedulerFactory.GetAllSchedulers();
+                var scheduler = new ScheduleCreator(services[0], turnContext.Activity.From.Id, data.OrderID);
+                var dueTime = DateTime.Parse(data.DueTime);
+                scheduler.CreateSingleGroupBuy(dueTime);
+                AddConversationReference(turnContext.Activity as Activity);
                 return null;
             }
             //ting 按下按鈕傳資料到data

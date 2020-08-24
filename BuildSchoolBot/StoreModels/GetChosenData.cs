@@ -12,6 +12,7 @@ namespace BuildSchoolBot.StoreModels
         public string StoreName { get; set; }
         public string DueTime { get; set; }
         public List<GetChosenDataGroups> GetAllChosenDatas { get; set; }
+        public string UserName { get; set; }
     }
     public class GetChosenDataGroups
     {

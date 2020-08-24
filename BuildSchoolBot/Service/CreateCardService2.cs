@@ -241,7 +241,7 @@ namespace BuildSchoolBot.Service
                                 .AddElement(new AdaptiveTextBlock() { Text = decimal.Round(totalSingleMoney).ToString() }) //加入此餐點的總價
                         )
                     );
-                    GetAllChosenDataGroups.Add(new GetChosenDataGroups() { ProductName = p.Dish_Name, Amount = decimal.Parse(p.Price), Number = int.Parse(p.Quantity), Mark = p.Remarks });
+                    GetAllChosenDataGroups.Add(new GetChosenDataGroups() { ProductName = p.Dish_Name, Amount = decimal.Parse(p.Price), Number = int.Parse(p.Quantity), Mark = p.Remarks, TotalItemMoney= totalSingleMoney });
                 }
             }
             ChosencardData.GetAllChosenDatas = GetAllChosenDataGroups;
@@ -724,7 +724,7 @@ namespace BuildSchoolBot.Service
                         )
                         .AddCol(new AdaptiveColumn() //加入一欄位到一列
                         { Width = "20" }
-                                .AddElement(new AdaptiveTextBlock() { Text = decimal.Round(totalSingleMoney).ToString() }) //加入此餐點的總價
+                                .AddElement(new AdaptiveTextBlock() { Text = decimal.Round(p.TotalItemMoney).ToString() }) //加入此餐點的總價
                         )
                     );
                 }
@@ -800,7 +800,7 @@ namespace BuildSchoolBot.Service
                                 .AddElement(new AdaptiveTextBlock() { Text = ChosencardData.AllTotalItems[i].TotalOrderName}) //加入備註
                         )
                         .AddCol(new AdaptiveColumn() //加入一欄位到一列
-                                .AddElement(new AdaptiveTextBlock() { Text = decimal.Round(ChosencardData.TotalMoney).ToString() }) //加入此餐點的總價
+                                .AddElement(new AdaptiveTextBlock() { Text = decimal.Round(ChosencardData.AllTotalItems[i].TotalItemMoney).ToString() }) //加入此餐點的總價
                         )
                     );
                 }

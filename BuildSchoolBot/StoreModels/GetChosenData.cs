@@ -20,6 +20,7 @@ namespace BuildSchoolBot.StoreModels
         public decimal Amount { get; set; }
         public int Number { get; set; }
         public string Mark { get; set; }
+        public decimal TotalItemMoney { get; set; }
 
 
     }

@@ -205,6 +205,12 @@ namespace BuildSchoolBot.Bots
                 service.SetTaskInfo(TaskInfo, TaskModuleUIConstants.ChosenData);
                 return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
             }
+            else if (fetchType?.Equals("GetResultTotalFromModule") == true)
+            {
+                TaskInfo.Card = new CreateCardService2().GetResultTotalFromMenuModule(factory);
+                service.SetTaskInfo(TaskInfo, TaskModuleUIConstants.ChosenData);
+                return await Task.FromResult(TaskInfo.ToTaskModuleResponse());
+            }
             else
             {
                 taskInfo.Card = service.GetCustomizedModification(factory);

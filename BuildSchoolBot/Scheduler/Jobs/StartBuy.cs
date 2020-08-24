@@ -79,8 +79,8 @@ namespace BuildSchoolBot.Scheduler.Jobs
             string serviceUrl = "https://smba.trafficmanager.net/emea/";
             //From the Bot Channel Registration
             
-            string botClientID = "81459ba9-bf90-4527-bad4-b8cace1c47f3";
-            string botClientSecret = "td-Yft_qf-~OIucKnMEB_fb-2k.xS89Wc4";
+            string botClientID = "ef7163b2-c6d1-4a9e-9441-07c3c46ef810";
+            string botClientSecret = "21W-o4i.MJfT1~YO5.~xTbAK_2vrXVAw5n";
             AppCredentials.TrustServiceUrl(serviceUrl);
             var connectorClient = new ConnectorClient(new Uri(serviceUrl), new MicrosoftAppCredentials(botClientID, botClientSecret));
             var topLevelMessageActivity = MessageFactory.Attachment(card);

@@ -1,0 +1,82 @@
+﻿{
+  "type": "AdaptiveCard",
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "version": "1.2",
+  "body": [
+    {
+      "type": "ColumnSet",
+      "columns": [
+        {
+          "type": "Column",
+          "width": 25,
+          "items": [
+            {
+              "type": "ImageSet",
+              "images": [
+                {
+                  "type": "Image",
+                  "size": "Large",
+                  "url": "https://i.imgur.com/HDljlM7.png",
+                  "horizontalAlignment": "Center"
+                }
+              ],
+              "imageSize": "Large",
+              "horizontalAlignment": "Center"
+            }
+          ],
+          "spacing": "None",
+          "horizontalAlignment": "Center"
+        },
+        {
+          "type": "Column",
+          "width": 75,
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "GroupBuy",
+              "size": "Medium",
+              "weight": "Bolder"
+            },
+            {
+              "type": "TextBlock",
+              "text": "A chatbot on Microsoft Teams: The user can communicate with the bot and found an order form for the team on the Microsoft Teams. Through the app, the other members can order their meals by tick the checkbox on the Teams channel.",
+              "wrap": true,
+              "height": "stretch",
+              "spacing": "Padding"
+            }
+          ],
+          "minHeight": "0px",
+          "style": "default",
+          "spacing": "Medium"
+        }
+      ]
+    },
+    {
+      "type": "TextBlock",
+      "size": "Medium",
+      "weight": "Bolder",
+      "text": "Here are some things you can do with this bot:"
+    },
+    {
+      "type": "TextBlock",
+      "text": "      • Initiate a goup buy"
+    },
+    {
+      "type": "TextBlock",
+      "text": "      • Create your customized menu"
+    },
+    {
+      "type": "TextBlock",
+      "text": "      • Create your pay link"
+    },
+    {
+      "type": "TextBlock",
+      "text": "      • View your order history"
+    },
+    {
+      "type": "TextBlock",
+      "text": "      • Plan a schedule"
+    }
+
+  ]
+}

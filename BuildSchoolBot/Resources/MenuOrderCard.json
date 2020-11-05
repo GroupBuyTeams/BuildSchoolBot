@@ -1,0 +1,25 @@
+{
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "type": "AdaptiveCard",
+    "version": "1.2",
+    "body": [
+        {
+            "type": "TextBlock",
+            "text": "請選擇店家"
+        },
+        {
+            "type": "Input.ChoiceSet",
+            "id": "data",
+            "style": "compact",
+            "isMultiSelect": false,
+            "value": "1",
+            "choices": []
+        }
+    ],
+    "actions": [
+        {
+            "type": "Action.Submit",
+            "title": "OK"
+        }
+    ]
+}

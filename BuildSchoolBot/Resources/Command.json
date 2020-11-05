@@ -1,0 +1,42 @@
+﻿{
+  "type": "AdaptiveCard",
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "version": "1.2",
+  "body": [
+    {
+      "type": "TextBlock",
+      "text": "Enter your Command :",
+      "size": "Large",
+      "weight": "Bolder"
+    },
+    {
+      "type": "TextBlock",
+      "text": " "
+    },
+    {
+      "type": "TextBlock",
+      "text": "● We are Hungry",
+      "size": "Medium"
+    },
+    {
+      "type": "TextBlock",
+      "text": "● Library",
+      "size": "Medium"
+    },
+    {
+      "type": "TextBlock",
+      "text": "● Pay",
+      "size": "Medium"
+    },
+    {
+      "type": "TextBlock",
+      "text": "● Customized Menu",
+      "size": "Medium"
+    },
+    {
+      "type": "TextBlock",
+      "text": "● Help",
+      "size": "Medium"
+    }
+  ]
+}

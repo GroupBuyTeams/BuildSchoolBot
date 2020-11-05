@@ -1,0 +1,69 @@
+{
+    "type": "ColumnSet",
+    "columns": [
+        {
+            "type": "Column",
+            "items": [
+                {
+                    "type": "Image",
+                    "style": "Person",
+                    "url": "https://vectorified.com/images/food-icon-24.jpg",
+                    "size": "Small"
+                }
+            ],
+            "width": "auto",
+            "verticalContentAlignment": "Center"
+        },
+        {
+            "type": "Column",
+            "items": [
+                {
+                    "type": "TextBlock",
+                    "weight": "Bolder",
+                    "text": "${creator.name}",
+                    "wrap": true,
+                    "color": "Warning"
+                },
+                {
+                    "type": "TextBlock",
+                    "spacing": "None",
+                    "text": "Created {{DATE(${createdUtc},SHORT)}}",
+                    "wrap": true,
+                    "size": "Small",
+                    "fontType": "Default",
+                    "color": "Accent"
+                }
+            ],
+            "width": "stretch"
+        },
+        {
+            "type": "Column",
+            "width": "auto",
+            "items": [
+                {
+                    "type": "ActionSet",
+                    "title": "Click me for messageBack",
+                    "horizontalAlignment": "Center",
+                    "actions": [
+                        {
+                            "type": "Action.Submit",
+                            "title": "Delete",
+                            "style": "destructive",
+                            "data": {
+                                "msteams": {
+                                    "type": "invoke",
+                                    "text": "DeletedLibrary",
+                                    "value": ""
+                                }
+                            }
+                        }
+                    ]
+                }
+            ],
+            "horizontalAlignment": "Center",
+            "minHeight": "0px",
+            "verticalContentAlignment": "Center"
+        }
+    ],
+    "style": "emphasis"
+}
